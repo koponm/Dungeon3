@@ -1,5 +1,6 @@
 #include "app.h"
 
+// App
 App::App(void)
 :	title_	("Dungeon3"),
 	xpos_	(SDL_WINDOWPOS_CENTERED),
