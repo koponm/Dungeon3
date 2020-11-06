@@ -10,7 +10,7 @@ App::App(void)
 	fullscreen_ (false)
 {
 	if (!SDL_Init(SDL_INIT_EVERYTHING)) {
-		window_ = SDL_CreateWindow(title_, SDL_WINDOWPOS_CENTERED, SDL_WINDOWPOS_CENTERED, 800, 600, (fullscreen_ ? (int) SDL_WINDOW_FULLSCREEN : SDL_WINDOW_SHOWN));
+		window_ = SDL_CreateWindow(title_, SDL_WINDOWPOS_CENTERED, SDL_WINDOWPOS_CENTERED, width_, height_, (fullscreen_ ? (int) SDL_WINDOW_FULLSCREEN : SDL_WINDOW_SHOWN));
 		renderer_ = SDL_CreateRenderer(window_, -1, SDL_RENDERER_ACCELERATED);
 		SDL_SetRenderDrawColor(renderer_, 32, 32, 32, 255);
 
