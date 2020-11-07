@@ -11,6 +11,7 @@
 #include "renderable.h"
 #include "player.h"
 #include "wall.h"
+#include "monster/monster.h"
 
 using namespace std;
 
@@ -51,6 +52,7 @@ private:
 	Player* player_ = nullptr;
 	vector<Renderable*> to_render_;
 	vector<Wall*> walls_;
+	vector<Monster*> monsters_;
 
 	Uint64 now_ = 0;
 	Uint64 last_ = 0;

@@ -1,6 +1,6 @@
 #include "app.h"
+#include "monster/update.h"
 
-// App
 App::App(void)
 :	title_	("Dungeon3"),
 	xpos_	(SDL_WINDOWPOS_CENTERED),
@@ -17,6 +17,7 @@ App::App(void)
 		LoadTexture("assets/test.png");
 		LoadTexture("assets/wall.png");
 		LoadTexture("assets/wood.png");
+		LoadTexture("assets/monster.png");
 
 		player_ = new Player(textures_[0], textures_data_[0], 64, 64);
 		to_render_.push_back(player_);
@@ -27,6 +28,12 @@ App::App(void)
 		AddRoom(0, 32, 32);
 		AddRoom(0, 32, 288);
 		AddRoom(1, 288, 224);
+
+		for (auto& monster : monsters_)
+		{
+			to_render_.push_back(monster);
+		}
+
 		running_ = true;
 	} else {
 		running_ = false;
@@ -45,6 +52,11 @@ void App::Update() {
 	double delta_time = (double)((now_ - last_) * 1000.0 / (double)SDL_GetPerformanceFrequency());
 
 	double speed = 2.0 / fps_desired_ * delta_time;
+
+	if (!monsters_.empty()) {
+		UpdateMonsters(monsters_, fps_desired_, speed, walls_,
+			up_ || down_ || left_ || right_);
+	}
 
 	if ((up_ || down_) && (left_ || right_)) {
 		speed /= sqrt(2);
@@ -214,6 +226,10 @@ void App::AddRoom(const unsigned int& index, const int& x, const int& y) {
 			break;
 			case 45:
 				// Air
+			break;
+			case 77:
+				monsters_.push_back(new Monster(textures_[3], textures_data_[3],
+					i * 32 + x, j * 32 + y));
 			break;
 			case 80:
 				AddWall(2, i * 32 + x, j * 32 + y);
