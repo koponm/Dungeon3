@@ -10,6 +10,7 @@ public:
 	~Renderable();
 	void Render(SDL_Renderer* renderer, double x, double y) const;
 	void RectPos(int x, int y);
+	void GetRect(int& w, int& h);
 private:
 	SDL_Texture* texture_;
 	SDL_Rect rect_;

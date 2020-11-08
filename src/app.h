@@ -6,12 +6,14 @@
 #include <vector>
 #include <sstream>
 #include <string>
+#include <filesystem>
 #include "SDL.h"
 #include "SDL_image.h"
 #include "renderable.h"
 #include "player.h"
 #include "wall.h"
 #include "monster/monster.h"
+#include "monster/update.h"
 
 using namespace std;
 
@@ -19,6 +21,7 @@ struct Room {
 	unsigned int width = 0;
 	unsigned int height = 0;
 	vector<int> data;
+	bool dir[4] = {0, 0, 0, 0};
 };
 
 class App {
@@ -64,6 +67,9 @@ private:
 
 	double camera_x_ = 0.0;
 	double camera_y_ = 0.0;
+
+	unsigned int room_width_ = 1024;
+	unsigned int room_height_ = 1024;
 
 	size_t fps_desired_ = 60;
 };

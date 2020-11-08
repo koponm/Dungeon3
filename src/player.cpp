@@ -39,6 +39,10 @@ void Player::AddVel(const double& x, const double& y) {
 	y_vel_ += y;
 }
 
+double Player::GetSpeed(void) const {
+	return speed_;
+}
+
 void Player::CalcPos(const size_t& fps_desired) {
 	x_vel_ -= x_vel_ * fric_ / fps_desired;
 	y_vel_ -= y_vel_ * fric_ / fps_desired;

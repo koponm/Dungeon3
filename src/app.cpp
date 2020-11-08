@@ -1,5 +1,4 @@
 #include "app.h"
-#include "monster/update.h"
 
 App::App(void)
 :	title_	("Dungeon3"),
@@ -22,8 +21,8 @@ App::App(void)
 		player_ = new Player(textures_[0], textures_data_[0], 64, 64);
 		to_render_.push_back(player_);
 
-		LoadRoom("assets/room.txt");
-		LoadRoom("assets/room2.txt");
+		LoadRoom("assets/room_1111.txt");
+		LoadRoom("assets/room2_1111.txt");
 
 		AddRoom(0, 32, 32);
 		AddRoom(0, 32, 288);
@@ -51,7 +50,7 @@ void App::Update() {
 	now_ = SDL_GetPerformanceCounter();
 	double delta_time = (double)((now_ - last_) * 1000.0 / (double)SDL_GetPerformanceFrequency());
 
-	double speed = 2.0 / fps_desired_ * delta_time;
+	double speed = player_ -> GetSpeed() / fps_desired_ * delta_time;
 
 	if (!monsters_.empty()) {
 		UpdateMonsters(monsters_, fps_desired_, speed, walls_,
@@ -80,17 +79,23 @@ void App::Update() {
 
 	player_ -> CalcPos(fps_desired_);
 
+	double x1, y1;
+	int w1, h1;
+	player_ -> GetPos(x1, y1);
+	player_ -> GetRect(w1, h1);
+
 	for (auto& i : walls_) {
-		double x1, y1;
 		int x2, y2;
-		player_ -> GetPos(x1, y1);
+		int w2, h2;
 		i -> GetPos(x2, y2);
-		if (x1 < ((double) x2 + 32) && x1 + 32 > x2 && y1 < ((double) y2 + 32) && y1 + 32 > y2) {
+		i -> GetRect(w2, h2);
+
+		if (x1 < ((double) x2 + w2) && x1 + w1 > x2 && y1 < ((double) y2 + h2) && y1 + h1 > y2) {
 			double x_res = (x1 - x2);
-			x_res = x_res + (x_res < 0 ? 32 : -32);
+			x_res = x_res + (x_res < 0 ? w2 : -w2);
 
 			double y_res = (y1 - y2);
-			y_res = y_res + (y_res < 0 ? 32 : -32);
+			y_res = y_res + (y_res < 0 ? h2 : -h2);
 
 			if (fabs(x_res) >= 1.0) {
 				if (fabs(y_res) > 0.0) {
@@ -111,11 +116,11 @@ void App::Update() {
 	double x_offset = width_ / 2.0;
 	double y_offset = height_ / 2.0;
 
-	camera_x_ = floor(camera_x_ - x_offset + 0.5 + 16.0);
-	camera_y_ = floor(camera_y_ - y_offset + 0.5 + 16.0);
+	camera_x_ = floor(camera_x_ - x_offset + 0.5 + w1 / 2);
+	camera_y_ = floor(camera_y_ - y_offset + 0.5 + h1 / 2);
 
-	camera_x_ = min(max(0.0, camera_x_), max(0.0, 1024 - x_offset * 2));
-	camera_y_ = min(max(0.0, camera_y_), max(0.0, 1024 - y_offset * 2));
+	camera_x_ = min(max(0.0, camera_x_), max(0.0, room_width_ - x_offset * 2));
+	camera_y_ = min(max(0.0, camera_y_), max(0.0, room_height_ - y_offset * 2));
 }
 
 void App::Event() {
@@ -141,6 +146,9 @@ void App::Event() {
 				break;
 				case SDLK_d:
 					right_ = event.key.type == SDL_KEYDOWN ? true : false;
+				break;
+				case SDLK_ESCAPE:
+					SDL_Quit();
 				break;
 			}
 		break;
@@ -193,6 +201,11 @@ void App::LoadRoom(const char* path) {
 	string line;
 	vector<int> temp;
 
+	string name = path;
+	for (unsigned i = 0; i < 4; i++) {
+		temp_room.dir[i] = ((path[name.length() - 5 - i]) == '1');
+	}
+
 	unsigned w = 0, h = 0;
 
 	while (getline(file, line)) {
@@ -229,7 +242,7 @@ void App::AddRoom(const unsigned int& index, const int& x, const int& y) {
 			break;
 			case 77:
 				monsters_.push_back(new Monster(textures_[3], textures_data_[3],
-					i * 32 + x, j * 32 + y));
+				i * 32 + x, j * 32 + y));
 			break;
 			case 80:
 				AddWall(2, i * 32 + x, j * 32 + y);

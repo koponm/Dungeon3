@@ -19,3 +19,8 @@ void Renderable::RectPos(int x, int y) {
 	rect_.x = x;
 	rect_.y = y;
 }
+
+void Renderable::GetRect(int& w, int& h) {
+	w = rect_.w;
+	h = rect_.w;
+}
