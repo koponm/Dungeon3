@@ -25,8 +25,10 @@ App::App(void)
 
 		size_ = (room_width_ / 32 * room_height_ / 32);
 		tiles_ = new bool[size_];
+		path_tiles_ = new bool[size_];
 		for (unsigned i = 0; i < size_; i++) {
 			tiles_[i] = false;
+			path_tiles_[i] = false;
 		}
 
 		//AddRoom(0, 32, 32);
@@ -76,12 +78,20 @@ void App::Update() {
 	last_ = now_;
 	now_ = SDL_GetPerformanceCounter();
 	double delta_time = (double)((now_ - last_) * 1000.0 / (double)SDL_GetPerformanceFrequency());
+	second_timer_ += delta_time;
 
+	if (second_timer_ >= 1.0) {
+		second_timer_ -= 1.0;
+		CalculatePath(monsters_, path_tiles_, xpos_, ypos_,
+			size_, room_width_, room_height_);
+	}
 	double speed = player_ -> GetSpeed() / fps_desired_ * delta_time;
 
+
 	if (!monsters_.empty()) {
-		UpdateMonsters(monsters_, fps_desired_, speed, walls_,
-			up_ || down_ || left_ || right_);
+		UpdateMonsters(monsters_, 1.0/fps_desired_ * delta_time,
+			up_ || down_ || left_ || right_,
+			room_width_, room_height_);
 	}
 
 	if ((up_ || down_) && (left_ || right_)) {
@@ -278,6 +288,7 @@ bool App::AddRoom(const unsigned int& index, const int& x, const int& y) {
 				break;
 				case 45:
 					// Air
+					path_tiles_[unsigned((floor(y / 32) + j) * room_width_ / 32 + (floor(x / 32) + i))] = true;
 				break;
 				case 77:
 					monsters_.push_back(new Monster(textures_[3], textures_data_[3],

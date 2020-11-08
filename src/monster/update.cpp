@@ -1,63 +1,46 @@
 #include "update.h"
 
-void UpdateMonsters(vector<Monster*>& monsters, size_t fps, double speed, vector<Wall*>& walls, bool can_move) {
+
+void CalculatePath(vector<Monster*> monsters, bool* path_tiles, int player_x, int player_y,
+	unsigned size, unsigned int room_width, unsigned int room_height) {
+	for (auto& monster : monsters) {
+
+	}
+}
+
+void UpdateMonsters(vector<Monster*>& monsters, double delta_speed, bool can_move,
+	unsigned int room_width, unsigned int room_height) {
 
 
 	for (auto& monster : monsters) {
 		if (can_move) {
 			monster->PlayerMoved();
 		}
+		double speed = delta_speed * monster->GetSpeed();
+		double current_x, current_y;
+		monster->GetPos(current_x, current_y);
 
-		if (monster->CanMove()) {
-			speed = speed * 2;
-			int selection = rand() % 4 + 1;
-			switch (selection)
-			{
-			case 1:
-				monster->AddVel(0, speed);
-				break;
-			case 2:
-				monster->AddVel(0, -speed);
-				break;
-			case 3:
-				monster->AddVel(speed, 0);
-				break;
-			case 4:
-				monster->AddVel(-speed, 0);
-				break;
-			}
-			
+		int next_tile = monster->GetNextTile();
+
+		int current_tile = floor(current_y / 32) * (room_width / 32) + floor(current_x / 32);
+		if (next_tile == current_tile) {
+			monster->PopNextTile();
+			next_tile = monster->GetNextTile();
 		}
 
-		double previous_x, previous_y;
-		monster->GetPos(previous_x, previous_y);
-		monster->CalcPos(fps);
+		if (next_tile != -1) {
+			int next_x = (next_tile % (room_height / 32)) * 32;
+			int next_y = floor(next_tile / (room_width / 32)) * 32;
 
-		for (auto& i : walls) {
-			double x1, y1;
-			int x2, y2;
-			monster->GetPos(x1, y1);
-			i->GetPos(x2, y2);
-			if (x1 < ((double)x2 + 32) && x1 + 32 > x2 && y1 < ((double)y2 + 32) && y1 + 32 > y2) {
-				double x_res = (x1 - x2);
-				x_res = x_res + (x_res < 0 ? 32 : -32);
+			double speed_x = (next_x - current_x);
+			double speed_y = (next_y - current_y);
+			double t = (speed_x * speed_x + speed_y * speed_y);
+			speed_x /= t;
+			speed_y /= t;
+			speed_x *= speed;
+			speed_y *= speed;
 
-				double y_res = (y1 - y2);
-				y_res = y_res + (y_res < 0 ? 32 : -32);
-
-				if (fabs(x_res) >= 1.0) {
-					if (fabs(y_res) > 0.0) {
-						monster->AddPos(0, -y_res);
-						monster->SetVel(1, 0.0);
-					}
-				}
-				else if (fabs(y_res) >= 1.0) {
-					if (fabs(x_res) > 0.0) {
-						monster->AddPos(-x_res, 0);
-						monster->SetVel(0, 0.0);
-					}
-				}
-			}
+			monster->AddVel(speed_x, speed_y);
 		}
 	}
 }

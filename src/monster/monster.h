@@ -2,6 +2,7 @@
 #ifndef MONTER_H_
 #define MONSTER_H_
 #include <utility>
+#include <list>
 #include "../renderable.h"
 
 using namespace std;
@@ -18,6 +19,9 @@ public:
 	void SetVel(bool t, const double& v);
 	void PlayerMoved() { can_move_ = true; }
 	bool CanMove() { return can_move_; }
+	int GetNextTile();
+	void PopNextTile();
+	double GetSpeed() { return speed_;  }
 private:
 	double x_ = 0.0;
 	double y_ = 0.0;
@@ -25,5 +29,7 @@ private:
 	double y_vel_ = 0.0;
 	double fric_ = 0.1875;
 	bool can_move_ = false;
+	list<int> next_moves_;
+	double speed_ = 1.5;
 };
 #endif // MONSTER_H_

@@ -72,7 +72,9 @@ private:
 	unsigned int room_height_ = 2048;
 	unsigned size_ = 0;
 	bool* tiles_ = nullptr;
+	bool* path_tiles_ = nullptr;
 
 	size_t fps_desired_ = 60;
+	double second_timer_ = 0.0;
 };
 #endif
