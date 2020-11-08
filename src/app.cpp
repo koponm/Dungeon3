@@ -19,19 +19,46 @@ App::App(void)
 		LoadTexture("assets/monster.png");
 
 		player_ = new Player(textures_[0], textures_data_[0], 64, 64);
-		to_render_.push_back(player_);
 
 		LoadRoom("assets/room_1111.txt");
 		LoadRoom("assets/room2_1111.txt");
 
-		AddRoom(0, 32, 32);
-		AddRoom(0, 32, 288);
-		AddRoom(1, 288, 224);
+		size_ = (room_width_ / 32 * room_height_ / 32);
+		tiles_ = new bool[size_];
+		for (unsigned i = 0; i < size_; i++) {
+			tiles_[i] = false;
+		}
 
-		for (auto& monster : monsters_)
-		{
+		//AddRoom(0, 32, 32);
+		//AddRoom(0, 32, 288);
+		//AddRoom(1, 288, 224);
+		
+		// TODO: recursive generation function
+
+		srand(2);
+
+		int x = 32;
+		int y = 32;
+		int prevh = -1;
+		for (unsigned i = 0; i < 4; i++) {
+			unsigned int index = rand() % 2;
+			if (prevh == -1) {
+				prevh = room_data_[index].height;
+			}
+			y += ((prevh - (int)room_data_[index].height) / 2) * 32;
+			if (AddRoom(index, x, y)) {
+				x += room_data_[index].width * 32;
+				prevh = room_data_[index].height;
+			}
+			
+		}
+
+
+		for (auto& monster : monsters_) {
 			to_render_.push_back(monster);
 		}
+
+		to_render_.push_back(player_);
 
 		running_ = true;
 	} else {
@@ -151,10 +178,10 @@ void App::Event() {
 					SDL_Quit();
 				break;
 			}
-		break;
+			break;
 		case SDL_QUIT:
 			running_ = false;
-		break;
+			break;
 	}
 }
 
@@ -163,10 +190,10 @@ void App::Render() {
 
 	// Render "renderables" aka. entities
 	for (auto& i : to_render_) {
-		i -> Render(renderer_, camera_x_, camera_y_);
+		i->Render(renderer_, camera_x_, camera_y_);
 	}
 	// Render HUD
-	
+
 	SDL_RenderPresent(renderer_);
 }
 
@@ -184,8 +211,8 @@ void App::LoadTexture(const char* path) {
 	SDL_Surface* temp = IMG_Load(path);
 	SDL_Rect temp_rect;
 
-	temp_rect.w = temp -> w;
-	temp_rect.h = temp -> h;
+	temp_rect.w = temp->w;
+	temp_rect.h = temp->h;
 	temp_rect.x = 0;
 	temp_rect.y = 0;
 
@@ -227,30 +254,48 @@ void App::LoadRoom(const char* path) {
 	room_data_.push_back(temp_room);
 }
 
-void App::AddRoom(const unsigned int& index, const int& x, const int& y) {
+bool App::AddRoom(const unsigned int& index, const int& x, const int& y) {
 	unsigned w, h;
 	w = room_data_[index].width;
 	h = room_data_[index].height;
 
 	for (unsigned j = 0; j < h; j++) {
 		for (unsigned i = 0; i < w; i++) {
-			switch (room_data_[index].data[unsigned (j * h + i)]) {
-			default:
-			break;
-			case 45:
-				// Air
-			break;
-			case 77:
-				monsters_.push_back(new Monster(textures_[3], textures_data_[3],
-				i * 32 + x, j * 32 + y));
-			break;
-			case 80:
-				AddWall(2, i * 32 + x, j * 32 + y);
-			break;
-			case 87:
-				AddWall(1, i * 32 + x, j * 32 + y);
-			break;
+			if (unsigned((floor(y / 32) + j) * room_width_ / 32 + (floor(x / 32) + i)) > size_ - 1) {
+				return false;
+			}
+			if (tiles_[unsigned((floor(y / 32) + j) * room_width_ / 32 + (floor(x / 32) + i))]) {
+				return false;
 			}
 		}
 	}
+
+	for (unsigned j = 0; j < h; j++) {
+		for (unsigned i = 0; i < w; i++) {
+			if ((x + i * 32 < room_width_) && (y + i * 32 < room_height_)) {
+				switch (room_data_[index].data[unsigned (j * h + i)]) {
+				default:
+				break;
+				case 45:
+					// Air
+				break;
+				case 77:
+					monsters_.push_back(new Monster(textures_[3], textures_data_[3],
+					i * 32 + x, j * 32 + y));
+				break;
+				case 80:
+					AddWall(2, i * 32 + x, j * 32 + y);
+				break;
+				case 87:
+					AddWall(1, i * 32 + x, j * 32 + y);
+				break;
+				}
+
+				// Mark the tiles as used, can't generate on top.
+				tiles_[unsigned((floor(y / 32) + j) * room_width_ / 32 + (floor(x / 32) + i))] = true;
+			}
+		}
+	}
+
+	return true;
 }

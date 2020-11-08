@@ -36,7 +36,7 @@ public:
 	void LoadTexture(const char* path);
 
 	void AddWall(const size_t& index, const int& x, const int& y);
-	void AddRoom(const unsigned int& index, const int& x, const int& y);
+	bool AddRoom(const unsigned int& index, const int& x, const int& y);
 	
 	
 private:
@@ -68,8 +68,10 @@ private:
 	double camera_x_ = 0.0;
 	double camera_y_ = 0.0;
 
-	unsigned int room_width_ = 1024;
-	unsigned int room_height_ = 1024;
+	unsigned int room_width_ = 2048;
+	unsigned int room_height_ = 2048;
+	unsigned size_ = 0;
+	bool* tiles_ = nullptr;
 
 	size_t fps_desired_ = 60;
 };
