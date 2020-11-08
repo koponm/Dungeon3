@@ -153,12 +153,16 @@
   <ItemGroup>
     <ClCompile Include="app.cpp" />
     <ClCompile Include="main.cpp" />
+    <ClCompile Include="monster\monster.cpp" />
+    <ClCompile Include="monster\update.cpp" />
     <ClCompile Include="player.cpp" />
     <ClCompile Include="renderable.cpp" />
     <ClCompile Include="wall.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="app.h" />
+    <ClInclude Include="monster\monster.h" />
+    <ClInclude Include="monster\update.h" />
     <ClInclude Include="player.h" />
     <ClInclude Include="renderable.h" />
     <ClInclude Include="wall.h" />
