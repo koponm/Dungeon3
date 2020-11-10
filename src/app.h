@@ -75,5 +75,6 @@ private:
 
 	size_t fps_desired_ = 60;
 	double second_timer_ = 0.0;
+	double delta_time_ = 0.0;
 };
 #endif

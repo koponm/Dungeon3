@@ -15,7 +15,7 @@ App::App(void)
 
 		LoadTexture("assets/player_8.png");
 		LoadTexture("assets/wall_1.png");
-		LoadTexture("assets/wood_1.png");
+		LoadTexture("assets/fire_3.png");
 		LoadTexture("assets/monster_1.png");
 
 		player_ = new Player(textures_[0], 64, 64);
@@ -55,7 +55,6 @@ App::App(void)
 			
 		}
 
-
 		for (auto& monster : monsters_) {
 			to_render_.push_back(monster);
 		}
@@ -77,19 +76,19 @@ App::~App() {
 void App::Update() {
 	last_ = now_;
 	now_ = SDL_GetPerformanceCounter();
-	double delta_time = (double)((now_ - last_) * 1000.0 / (double)SDL_GetPerformanceFrequency());
-	second_timer_ += delta_time;
+	delta_time_ = (double)((now_ - last_) * 1000.0 / (double)SDL_GetPerformanceFrequency());
+	second_timer_ += delta_time_;
 
 	if (second_timer_ >= 1.0) {
 		second_timer_ -= 1.0;
 		CalculatePath(monsters_, path_tiles_, xpos_, ypos_,
 			size_, room_width_, room_height_);
 	}
-	double speed = player_ -> GetSpeed() / fps_desired_ * delta_time;
+	double speed = player_ -> GetSpeed() / fps_desired_ * delta_time_;
 
 
 	if (!monsters_.empty()) {
-		UpdateMonsters(monsters_, 1.0/fps_desired_ * delta_time,
+		UpdateMonsters(monsters_, 1.0/fps_desired_ * delta_time_,
 			up_ || down_ || left_ || right_,
 			room_width_, room_height_);
 	}
@@ -200,6 +199,7 @@ void App::Render() {
 
 	// Render "renderables" aka. entities
 	for (auto& i : to_render_) {
+		i -> AddFrame(delta_time_ / fps_desired_);
 		i -> Render(renderer_, camera_x_, camera_y_);
 	}
 	// Render HUD
