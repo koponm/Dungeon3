@@ -1,8 +1,10 @@
 #include "renderable.h"
 
-Renderable::Renderable(SDL_Texture* texture, SDL_Rect rect) {
-	texture_ = texture;
-	rect_ = rect;
+Renderable::Renderable(const Texture& texture) {
+	texture_ = texture.texture;
+	rect_ = texture.texture_data;
+	sprite_rect_ = texture.sprite_data;
+	subimages_ = texture.subimages;
 }
 
 Renderable::~Renderable() {
@@ -12,7 +14,9 @@ void Renderable::Render(SDL_Renderer* renderer, double x, double y) const {
 	SDL_Rect temp = rect_;
 	temp.x -= x;
 	temp.y -= y;
-	SDL_RenderCopy(renderer, texture_, NULL, &temp);
+	SDL_Rect temp_sprite = sprite_rect_;
+	temp_sprite.x = subimage_ * temp_sprite.w;
+	SDL_RenderCopy(renderer, texture_, &temp_sprite, &temp);
 }
 
 void Renderable::RectPos(int x, int y) {
@@ -21,6 +25,6 @@ void Renderable::RectPos(int x, int y) {
 }
 
 void Renderable::GetRect(int& w, int& h) {
-	w = rect_.w;
-	h = rect_.w;
+	w = sprite_rect_.w;
+	h = sprite_rect_.h;
 }

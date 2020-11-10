@@ -1,6 +1,6 @@
 #include "monster.h"
 
-Monster::Monster(SDL_Texture* texture, SDL_Rect rect, double x, double y) : Renderable(texture, rect) {
+Monster::Monster(const Texture& texture, double x, double y) : Renderable(texture) {
 	x_ = x;
 	y_ = y;
 

@@ -1,6 +1,6 @@
 #include "wall.h"
 
-Wall::Wall(SDL_Texture* texture, SDL_Rect rect, int x, int y) : Renderable(texture, rect) {
+Wall::Wall(const Texture& texture, int x, int y) : Renderable(texture) {
 	x_ = x;
 	y_ = y;
 	RectPos(x_, y_);

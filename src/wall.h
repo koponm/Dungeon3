@@ -3,7 +3,7 @@
 
 class Wall : public Renderable {
 public:
-	Wall(SDL_Texture* texture, SDL_Rect rect, int x, int y);
+	Wall(const Texture& texture, int x, int y);
 	~Wall();
 	void GetPos(int& x, int& y);
 private:

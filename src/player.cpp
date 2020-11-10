@@ -1,6 +1,6 @@
 #include "player.h"
 
-Player::Player(SDL_Texture* texture, SDL_Rect rect, double x, double y) : Renderable(texture, rect) {
+Player::Player(const Texture& texture, double x, double y) : Renderable(texture) {
 	x_ = x;
 	y_ = y;
 

@@ -13,12 +13,12 @@ App::App(void)
 		renderer_ = SDL_CreateRenderer(window_, -1, SDL_RENDERER_ACCELERATED);
 		SDL_SetRenderDrawColor(renderer_, 32, 32, 32, 255);
 
-		LoadTexture("assets/test.png");
-		LoadTexture("assets/wall.png");
-		LoadTexture("assets/wood.png");
-		LoadTexture("assets/monster.png");
+		LoadTexture("assets/player_8.png");
+		LoadTexture("assets/wall_1.png");
+		LoadTexture("assets/wood_1.png");
+		LoadTexture("assets/monster_1.png");
 
-		player_ = new Player(textures_[0], textures_data_[0], 64, 64);
+		player_ = new Player(textures_[0], 64, 64);
 
 		LoadRoom("assets/room_1111.txt");
 		LoadRoom("assets/room2_1111.txt");
@@ -200,7 +200,7 @@ void App::Render() {
 
 	// Render "renderables" aka. entities
 	for (auto& i : to_render_) {
-		i->Render(renderer_, camera_x_, camera_y_);
+		i -> Render(renderer_, camera_x_, camera_y_);
 	}
 	// Render HUD
 
@@ -212,22 +212,48 @@ bool App::Running() const {
 }
 
 void App::AddWall(const size_t& index, const int& x, const int& y) {
-	Wall* temp = new Wall(textures_[index], textures_data_[index], x, y);
+	Wall* temp = new Wall(textures_[index], x, y);
 	to_render_.push_back(temp);
 	walls_.push_back(temp);
 }
 
 void App::LoadTexture(const char* path) {
+	Texture temp_texture;
+	
 	SDL_Surface* temp = IMG_Load(path);
+	
 	SDL_Rect temp_rect;
-
-	temp_rect.w = temp->w;
-	temp_rect.h = temp->h;
+	temp_rect.w = temp -> w;
+	temp_rect.h = temp -> h;
 	temp_rect.x = 0;
 	temp_rect.y = 0;
 
-	textures_.push_back(SDL_CreateTextureFromSurface(renderer_, temp));
-	textures_data_.push_back(temp_rect);
+	temp_texture.texture = SDL_CreateTextureFromSurface(renderer_, temp);
+	
+
+	string name = path;
+	string images;
+	char t;
+	unsigned i = 0;
+
+	while (true) {
+		t = path[name.length() - 5 - i];
+		if (t != '_') {
+			images += t;
+			i++;
+		} else {
+			break;
+		}
+	}
+
+	i = stoi(images, nullptr, 10);
+
+	temp_rect.w = temp_rect.w / i;
+	temp_texture.texture_data = temp_rect;
+	temp_texture.sprite_data = temp_rect;
+	temp_texture.subimages = i;
+
+	textures_.push_back(temp_texture);
 
 	SDL_FreeSurface(temp);
 }
@@ -291,8 +317,7 @@ bool App::AddRoom(const unsigned int& index, const int& x, const int& y) {
 					path_tiles_[unsigned((floor(y / 32) + j) * room_width_ / 32 + (floor(x / 32) + i))] = true;
 				break;
 				case 77:
-					monsters_.push_back(new Monster(textures_[3], textures_data_[3],
-					i * 32 + x, j * 32 + y));
+					monsters_.push_back(new Monster(textures_[3], i * 32 + x, j * 32 + y));
 				break;
 				case 80:
 					AddWall(2, i * 32 + x, j * 32 + y);

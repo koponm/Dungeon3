@@ -9,7 +9,7 @@ using namespace std;
 
 class Monster : public Renderable {
 public:
-	Monster(SDL_Texture* texture, SDL_Rect rect, double x, double y);
+	Monster(const Texture& texture, double x, double y);
 	~Monster();
 	void GetPos(double& x, double& y);
 	void SetPos(const double& x, const double& y);

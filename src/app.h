@@ -49,8 +49,7 @@ private:
 	int height_;
 	bool fullscreen_;
 	bool running_;
-	vector<SDL_Texture*> textures_;
-	vector<SDL_Rect> textures_data_;
+	vector<Texture> textures_;
 	vector<Room> room_data_;
 	Player* player_ = nullptr;
 	vector<Renderable*> to_render_;

@@ -8,7 +8,7 @@ using namespace std;
 
 class Player : public Renderable {
 public:
-	Player(SDL_Texture* texture, SDL_Rect rect, double x, double y);
+	Player(const Texture& texture, double x, double y);
 	~Player();
 	void GetPos(double& x, double& y);
 	void SetPos(const double& x, const double& y);
