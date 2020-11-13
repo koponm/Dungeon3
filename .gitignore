@@ -1,0 +1,6 @@
+.*
+!/.gitignore
+/Debug
+/packages
+/x64
+/test/x64
