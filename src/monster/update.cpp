@@ -1,11 +1,12 @@
 #include "update.h"
 
+
 namespace update {
 
 	unsigned int calculateHCost(int current, int target, unsigned int w) {
 		unsigned int x_diff = abs(int(target % w) - int(current % w));
 		unsigned int y_diff = abs((int)floor(target / w) - (int)floor(current / w));
-		unsigned int h_cost = min(x_diff, y_diff) * 14 + (max(x_diff, y_diff) - min(x_diff, y_diff)) * 10;
+		unsigned int h_cost = std::min(x_diff, y_diff) * 14 + (std::max(x_diff, y_diff) - std::min(x_diff, y_diff)) * 10;
 		return h_cost;
 	}
 
@@ -13,14 +14,17 @@ namespace update {
 		return lhs->F < rhs->F;
 	}
 
-	std::list<LocationNode*> getNeighbours(LocationNode* current_node, bool* path_tiles, unsigned int w, unsigned int size)
+	list<LocationNode*> getNeighbours(LocationNode* current_node, bool* path_tiles, unsigned int w, unsigned int size)
 	{
-		std::list<LocationNode*> neighbours;
+		list<LocationNode*> neighbours;
+		unsigned int original_row = (unsigned int)floor(current_node->location / w);
 
 		for (int i = -1; i <= 1; i++) {
 			for (int j = -1; j <= 1; j++) {
 				int current_tile = current_node->location + i * w + j;
-				if (current_tile >= 0 && (unsigned)current_tile < size) {
+				unsigned int current_row = (int)floor(current_tile / w);
+				if (current_tile >= 0 && (unsigned)current_tile < size
+					&& (original_row+i)*w <= current_tile && current_tile < (original_row + i + 1)*w ) {
 					if (current_node->location != current_tile && path_tiles[current_tile]) {
 						unsigned int h_cost = calculateHCost(current_node->location, current_tile, w);
 						neighbours.push_back(new LocationNode(current_tile, h_cost));
