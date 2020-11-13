@@ -81,14 +81,14 @@ void App::Update() {
 
 	if (second_timer_ >= 1.0) {
 		second_timer_ -= 1.0;
-		CalculatePath(monsters_, path_tiles_, xpos_, ypos_,
+		update::CalculatePath(monsters_, path_tiles_, xpos_, ypos_,
 			size_, room_width_, room_height_);
 	}
 	double speed = player_ -> GetSpeed() / fps_desired_ * delta_time_;
 
 
 	if (!monsters_.empty()) {
-		UpdateMonsters(monsters_, 1.0/fps_desired_ * delta_time_,
+		update::UpdateMonsters(monsters_, 1.0/fps_desired_ * delta_time_,
 			up_ || down_ || left_ || right_,
 			room_width_, room_height_);
 	}

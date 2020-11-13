@@ -20,7 +20,8 @@ public:
 	void PlayerMoved() { can_move_ = true; }
 	bool CanMove() { return can_move_; }
 	int GetNextTile();
-	void PopNextTile();
+	void ChangeNextMoves(list<int> moves) { next_moves_ = moves; }
+	void PopNextMove();
 	double GetSpeed() { return speed_;  }
 private:
 	double x_ = 0.0;

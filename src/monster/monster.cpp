@@ -52,13 +52,15 @@ void Monster::CalcPos(const size_t& fps_desired) {
 
 int Monster::GetNextTile() {
 	if (!next_moves_.empty()) {
-		next_moves_.front();
+		return next_moves_.front();
 	}
 	else {
 		return -1;
 	}
 }
 
-void Monster::PopNextTile() {
-	next_moves_.pop_front();
+void Monster::PopNextMove() {
+	if (!next_moves_.empty()) {
+		next_moves_.pop_front();
+	}
 }
