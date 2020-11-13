@@ -3,4 +3,8 @@
 /Debug
 /packages
 /x64
+/src/x64
+/src/Debug
 /test/x64
+
+CppProperties.json
