@@ -78,17 +78,20 @@ void App::Update() {
 	now_ = SDL_GetPerformanceCounter();
 	delta_time_ = (double)((now_ - last_) * 1000.0 / (double)SDL_GetPerformanceFrequency());
 	second_timer_ += delta_time_;
+	double previous_x, previous_y;
+	player_->GetPos(previous_x, previous_y);
 
 	if (second_timer_ >= 1.0) {
 		second_timer_ -= 1.0;
-		update::CalculatePath(monsters_, path_tiles_, xpos_, ypos_,
+		update::CalculatePath(monsters_, path_tiles_, previous_x, previous_y,
 			size_, room_width_, room_height_);
 	}
+
 	double speed = player_ -> GetSpeed() / fps_desired_ * delta_time_;
 
 
 	if (!monsters_.empty()) {
-		update::UpdateMonsters(monsters_, 1.0/fps_desired_ * delta_time_,
+		update::UpdateMonsters(monsters_, fps_desired_, 1.0/fps_desired_ * delta_time_,
 			up_ || down_ || left_ || right_,
 			room_width_, room_height_);
 	}
@@ -110,8 +113,6 @@ void App::Update() {
 		player_ -> AddVel(speed, 0);
 	}
 	
-	double previous_x, previous_y;
-	player_ -> GetPos(previous_x, previous_y);
 
 	player_ -> CalcPos(fps_desired_);
 
