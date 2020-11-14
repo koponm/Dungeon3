@@ -53,20 +53,11 @@ TEST(Pathfinding, getNeighbours_left_excluded) {
         tiles[i] = true;
     }
 
-    LocationNode* node1 = new LocationNode(0, 0);
-    std::list<LocationNode*> list = update::getNeighbours(node1, tiles, 8, size);
+    std::list<int> list = update::getNeighbours(0, tiles, 8, size);
 
     std::list<int> expected_list({1, 8, 9});
-    std::list<int> next_moves;
-    for (auto node : list) {
-        next_moves.push_back(node->location);
-    }
-    EXPECT_EQ(expected_list, next_moves);
 
-    for (auto node : list) {
-        delete node;
-    }
-    delete node1;
+    EXPECT_EQ(expected_list, list);
 }
 
 TEST(Pathfinding, getNeighbours_right_excluded) {
@@ -76,20 +67,11 @@ TEST(Pathfinding, getNeighbours_right_excluded) {
         tiles[i] = true;
     }
 
-    LocationNode* node1 = new LocationNode(7, 0);
-    std::list<LocationNode*> list = update::getNeighbours(node1, tiles, 8, size);
+    std::list<int> list = update::getNeighbours(7, tiles, 8, size);
 
     std::list<int> expected_list({ 6, 14, 15 });
-    std::list<int> next_moves;
-    for (auto node : list) {
-        next_moves.push_back(node->location);
-    }
-    EXPECT_EQ(expected_list, next_moves);
 
-    for (auto node : list) {
-        delete node;
-    }
-    delete node1;
+    EXPECT_EQ(expected_list, list);
 }
 
 TEST(Pathfinding, getNeighbours_center) {
@@ -100,20 +82,10 @@ TEST(Pathfinding, getNeighbours_center) {
     }
     tiles[33] = false;
 
-    LocationNode* node1 = new LocationNode(34, 0);
-    std::list<LocationNode*> list = update::getNeighbours(node1, tiles, 8, size);
-
+    std::list<int> list = update::getNeighbours(34, tiles, 8, size);
     std::list<int> expected_list({ 25, 26, 27, 35, 41, 42, 43 });
-    std::list<int> next_moves;
-    for (auto node : list) {
-        next_moves.push_back(node->location);
-    }
-    EXPECT_EQ(expected_list, next_moves);
 
-    for (auto node : list) {
-        delete node;
-    }
-    delete node1;
+    EXPECT_EQ(expected_list, list);
 }
 
 TEST(Pathfinding, getNeighbours_false) {
@@ -123,10 +95,7 @@ TEST(Pathfinding, getNeighbours_false) {
         tiles[i] = false;
     }
 
-    LocationNode* node1 = new LocationNode(0, 0);
-    std::list<LocationNode*> list = update::getNeighbours(node1, tiles, 8, size);
+    std::list<int> list = update::getNeighbours(1, tiles, 8, size);
 
     EXPECT_TRUE(list.empty());
-
-    delete node1;
 }
