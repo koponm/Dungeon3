@@ -206,8 +206,6 @@ void App::Event() {
 		case SDL_MOUSEMOTION:
 			mouse_x_ = event.motion.x;
 			mouse_y_ = event.motion.y;
-			
-			cout << mouse_player_angle_ << endl;
 		break;
 		case SDL_QUIT:
 			running_ = false;
