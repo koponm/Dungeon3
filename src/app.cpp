@@ -158,6 +158,8 @@ void App::Update() {
 
 	camera_x_ = min(max(0.0, camera_x_), max(0.0, room_width_ - x_offset * 2));
 	camera_y_ = min(max(0.0, camera_y_), max(0.0, room_height_ - y_offset * 2));
+
+	mouse_player_angle_ = fmod(540.0 - atan2f((y1 + 16 - camera_y_ - mouse_y_), (x1 + 16 - camera_x_ - mouse_x_)) * 180.0 / M_PI, 360.0);
 }
 
 void App::Event() {
@@ -188,10 +190,28 @@ void App::Event() {
 					SDL_Quit();
 				break;
 			}
+		break;
+		case SDL_MOUSEBUTTONDOWN:
+			switch (event.button.button) {
+			default:
 			break;
+			case SDL_BUTTON_LEFT:
+				// left mouse button
+			break;
+			case SDL_BUTTON_RIGHT:
+				// right mouse button
+			break;
+			}
+		break;
+		case SDL_MOUSEMOTION:
+			mouse_x_ = event.motion.x;
+			mouse_y_ = event.motion.y;
+			
+			cout << mouse_player_angle_ << endl;
+		break;
 		case SDL_QUIT:
 			running_ = false;
-			break;
+		break;
 	}
 }
 

@@ -76,5 +76,8 @@ private:
 	size_t fps_desired_ = 60;
 	double second_timer_ = 0.0;
 	double delta_time_ = 0.0;
+	int mouse_x_ = 0;
+	int mouse_y_ = 0;
+	double mouse_player_angle_ = 0;
 };
 #endif
