@@ -6,7 +6,8 @@
 #include "LocationNode.h"
 #include "../wall.h"
 
-#include <vector>
+#include <unordered_map>
+#include <list>
 #include <algorithm>
 #include <cmath>
 
