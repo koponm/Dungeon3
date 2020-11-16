@@ -122,7 +122,7 @@ void A_star_algorithm(Monster* monster, bool* path_tiles,
 	monster->ChangeNextMoves(monster_next_moves);
 }
 
-void CalculatePath(std::vector<Monster*> monsters, bool* path_tiles, double player_x, double player_y,
+void CalculatePath(std::vector<Monster*>& monsters, bool* path_tiles, double player_x, double player_y,
 	unsigned size, unsigned int room_width, unsigned int room_height) {
 	for (auto& monster : monsters) {
 		A_star_algorithm(monster, path_tiles, player_x, player_y, size, room_width, room_height);
