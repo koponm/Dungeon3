@@ -156,6 +156,7 @@
     <ClCompile Include="monster\monster.cpp" />
     <ClCompile Include="monster\update.cpp" />
     <ClCompile Include="player.cpp" />
+    <ClCompile Include="projectile.cpp" />
     <ClCompile Include="renderable.cpp" />
     <ClCompile Include="wall.cpp" />
   </ItemGroup>
@@ -165,6 +166,7 @@
     <ClInclude Include="monster\monster.h" />
     <ClInclude Include="monster\update.h" />
     <ClInclude Include="player.h" />
+    <ClInclude Include="projectile.h" />
     <ClInclude Include="renderable.h" />
     <ClInclude Include="wall.h" />
   </ItemGroup>

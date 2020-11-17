@@ -112,6 +112,10 @@ void App::Update() {
 	if (right_) {
 		player_ -> AddVel(speed, 0);
 	}
+	if (space_) {
+		space_ = false;
+		AddProjectile(2, previous_x, previous_y,5.0, mouse_player_angle_);
+	}
 	
 
 	player_ -> CalcPos(fps_desired_);
@@ -148,6 +152,35 @@ void App::Update() {
 		}
 	}
 
+	for (auto& i : projectiles_) {
+		i->CalcPos(fps_desired_);
+		double x2, y2;
+		int w2, h2;
+		i->GetPos(x2, y2);
+		i->GetRect(w2, h2);
+		for (auto& j : walls_) {
+			int x3, y3;
+			int w3, h3;
+			j->GetPos(x3, y3);
+			j->GetRect(w3, h3);
+			if (x2 < ((double)x3 + w3) && x2 + w2 > x3 && y2 < ((double)y3 + h3) && y2 + h2 > y3) {
+				i->SetVel(1, 0);
+				i->SetVel(0, 0);
+			}
+		}
+		for (auto& j : monsters_) {
+			double x3, y3;
+			int w3, h3;
+			j->GetPos(x3, y3);
+			j->GetRect(w3, h3);
+			if (x2 < ((double)x3 + w3) && x2 + w2 > x3 && y2 < ((double)y3 + h3) && y2 + h2 > y3) {
+				i->SetVel(1, 0);
+				i->SetVel(0, 0);
+			}
+		}
+		
+	}
+
 	player_ -> GetPos(camera_x_, camera_y_);
 
 	double x_offset = width_ / 2.0;
@@ -160,6 +193,9 @@ void App::Update() {
 	camera_y_ = min(max(0.0, camera_y_), max(0.0, room_height_ - y_offset * 2));
 
 	mouse_player_angle_ = fmod(540.0 - atan2f((y1 + 16 - camera_y_ - mouse_y_), (x1 + 16 - camera_x_ - mouse_x_)) * 180.0 / M_PI, 360.0);
+
+	
+
 }
 
 void App::Event() {
@@ -170,6 +206,7 @@ void App::Event() {
 			// Nothing here
 		break;
 		case SDL_KEYUP:
+			
 		case SDL_KEYDOWN:
 			switch (event.key.keysym.sym) {
 				default:
@@ -185,6 +222,9 @@ void App::Event() {
 				break;
 				case SDLK_d:
 					right_ = event.key.type == SDL_KEYDOWN ? true : false;
+				break;
+				case SDLK_SPACE:
+					space_ = event.key.type == SDL_KEYDOWN ? true : false;
 				break;
 				case SDLK_ESCAPE:
 					SDL_Quit();
@@ -234,6 +274,11 @@ void App::AddWall(const size_t& index, const int& x, const int& y) {
 	Wall* temp = new Wall(textures_[index], x, y);
 	to_render_.push_back(temp);
 	walls_.push_back(temp);
+}
+void App::AddProjectile(const size_t& index, const int& x, const int& y,double speed, double dir) {
+	Projectile* temp = new Projectile(textures_[index], x, y,speed,dir);
+	to_render_.push_back(temp);
+	projectiles_.push_back(temp);
 }
 
 void App::LoadTexture(const char* path) {

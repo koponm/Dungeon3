@@ -12,6 +12,7 @@
 #include "renderable.h"
 #include "player.h"
 #include "wall.h"
+#include "projectile.h"
 #include "monster/monster.h"
 #include "monster/update.h"
 
@@ -34,7 +35,7 @@ public:
 	bool Running() const;
 	void LoadRoom(const char* path);
 	void LoadTexture(const char* path);
-
+	void AddProjectile(const size_t& index, const int& x, const int& y,double speed,double dir);
 	void AddWall(const size_t& index, const int& x, const int& y);
 	bool AddRoom(const unsigned int& index, const int& x, const int& y);
 	
@@ -55,6 +56,7 @@ private:
 	vector<Renderable*> to_render_;
 	vector<Wall*> walls_;
 	vector<Monster*> monsters_;
+	vector<Projectile*> projectiles_;
 
 	Uint64 now_ = 0;
 	Uint64 last_ = 0;
@@ -63,6 +65,7 @@ private:
 	bool down_ = false;
 	bool left_ = false;
 	bool right_ = false;
+	bool space_ = false;
 
 	double camera_x_ = 0.0;
 	double camera_y_ = 0.0;
