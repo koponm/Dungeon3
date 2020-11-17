@@ -52,7 +52,7 @@ void A_star_algorithm(Monster* monster, bool* path_tiles,
 	}
 
 	std::list<LocationNode*> open_nodes;
-	std::list<LocationNode*> closed_nodes;
+	std::unordered_map<int, LocationNode*> closed_nodes;
 
 	LocationNode* starting_node = new LocationNode(current_location, h_start);
 	starting_node->G = 0;
@@ -62,14 +62,14 @@ void A_star_algorithm(Monster* monster, bool* path_tiles,
 
 	LocationNode* last_node = nullptr;
 
-	while (!open_nodes.empty()) {
+	while (!open_nodes.empty() && closed_nodes.size() < 100) {
 		std::list<LocationNode*>::iterator small = std::min_element(open_nodes.begin(), open_nodes.end(), nodeComp);
 		if (small == open_nodes.end()) {
 			break;
 		}
 		LocationNode* smallest = *small;
 		open_nodes.remove(smallest);
-		closed_nodes.push_back(smallest);
+		closed_nodes.insert({smallest->location, smallest});
 
 		if (smallest->location == target_location) {
 			last_node = smallest;
@@ -81,8 +81,7 @@ void A_star_algorithm(Monster* monster, bool* path_tiles,
 
 		for (int neighbour : neighbours) {
 
-			auto closed_it = std::find_if(closed_nodes.begin(), closed_nodes.end(),
-				[&](const LocationNode* n) { return n->location == neighbour; });
+			auto closed_it = closed_nodes.find(neighbour);
 			if (closed_it != closed_nodes.end()) {
 				continue;
 			}
@@ -116,13 +115,15 @@ void A_star_algorithm(Monster* monster, bool* path_tiles,
 	for (auto node : open_nodes) {
 		delete node;
 	}
+	open_nodes.clear();
 	for (auto node : closed_nodes) {
-		delete node;
+		delete (node.second);
 	}
+	closed_nodes.clear();
 	monster->ChangeNextMoves(monster_next_moves);
 }
 
-void CalculatePath(std::vector<Monster*> monsters, bool* path_tiles, double player_x, double player_y,
+void CalculatePath(std::vector<Monster*>& monsters, bool* path_tiles, double player_x, double player_y,
 	unsigned size, unsigned int room_width, unsigned int room_height) {
 	for (auto& monster : monsters) {
 		A_star_algorithm(monster, path_tiles, player_x, player_y, size, room_width, room_height);
@@ -167,7 +168,6 @@ void UpdateMonsters(std::vector<Monster*>& monsters, const size_t fps, double de
 			monster->CalcPos(fps);
 		}
 	}
-		
 }
 
 } // namespace update

@@ -381,6 +381,7 @@ bool App::AddRoom(const unsigned int& index, const int& x, const int& y) {
 					path_tiles_[unsigned((floor(y / 32) + j) * room_width_ / 32 + (floor(x / 32) + i))] = true;
 				break;
 				case 77:
+					path_tiles_[unsigned((floor(y / 32) + j) * room_width_ / 32 + (floor(x / 32) + i))] = true;
 					monsters_.push_back(new Monster(textures_[3], i * 32 + x, j * 32 + y));
 				break;
 				case 80:
