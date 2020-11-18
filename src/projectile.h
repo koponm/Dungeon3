@@ -1,4 +1,7 @@
 #pragma once
+#ifndef PROJECTILE_H_
+#define PROJECTILE_H_
+
 #include <utility>
 #include <list>
 #include "renderable.h"
@@ -22,3 +25,5 @@ private:
 	double y_vel_ = 0.0;
 	double speed_ = 0.0;
 };
+
+#endif

@@ -12,11 +12,6 @@
 #include <list>
 #include <algorithm>
 
-TEST(TestCaseName, TestName) {
-  EXPECT_EQ(1, 1);
-  EXPECT_TRUE(true);
-}
-
 
 TEST(Pathfinding, calculateHCost) {
 
@@ -44,6 +39,7 @@ TEST(Pathfinding, nodeComp) {
     for (auto node : list) {
         delete node;
     }
+    list.clear();
 }
 
 TEST(Pathfinding, getNeighbours_left_excluded) {

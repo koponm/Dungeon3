@@ -22,7 +22,6 @@ std::list<int> getNeighbours(int current_node, bool* path_tiles, unsigned int w,
 	for (int i = -1; i <= 1; i++) {
 		for (int j = -1; j <= 1; j++) {
 			int current_tile = current_node + i * w + j;
-			unsigned int current_row = (int)floor(current_tile / w);
 			if (current_tile >= 0 && (unsigned)current_tile < size
 				&& (int)((original_row+i)*w) <= current_tile && current_tile < (int)((original_row + i + 1)*w) ) {
 				if (current_node != current_tile && path_tiles[current_tile]) {
