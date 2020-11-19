@@ -17,6 +17,7 @@ App::App(void)
 		LoadTexture("assets/wall_1.png");
 		LoadTexture("assets/fire_3.png");
 		LoadTexture("assets/monster_1.png");
+		LoadTexture("assets/potion1_1.png");
 
 		player_ = new Player(textures_[0], 64, 64);
 
@@ -112,6 +113,25 @@ void App::Update() {
 	if (right_) {
 		player_ -> AddVel(speed, 0);
 	}
+	if (f_) {
+		//check if player and item intersect, pickup if yes
+		if (!items_.empty()){
+			SDL_Rect rect1;
+			double x1, y1;
+			player_->GetPos(x1, y1);
+			rect1.x = (int)(x1 + 0.5);
+			rect1.y = (int)(y1 + 0.5);
+			player_->GetRect(rect1.w, rect1.h);
+			for (auto& k : items_) {
+				SDL_Rect rect2;
+				k->GetPos(rect2.x, rect2.y);
+				k->GetRect(rect2.w, rect2.h);
+				if (SDL_HasIntersection(&rect1, &rect2)) {
+					k->Pickup();
+				}
+			}
+		}
+	}
 	if (space_) {
 		space_ = false;
 		AddProjectile(2, previous_x, previous_y,5.0, mouse_player_angle_);
@@ -180,6 +200,17 @@ void App::Update() {
 		}
 		
 	}
+	
+	//despawn items
+	if (!items_.empty()){
+		for (auto i : items_) {
+			if (!i->Spawned()) {
+				to_render_.erase(std::remove(to_render_.begin(), to_render_.end(), i), to_render_.end());
+				items_.erase(std::remove(items_.begin(), items_.end(), i), items_.end());
+				delete i;
+			}
+		}
+	}
 
 	player_ -> GetPos(camera_x_, camera_y_);
 
@@ -222,6 +253,9 @@ void App::Event() {
 				break;
 				case SDLK_d:
 					right_ = event.key.type == SDL_KEYDOWN ? true : false;
+				break;
+				case SDLK_f:
+					f_ = event.key.type == SDL_KEYDOWN ? true : false;
 				break;
 				case SDLK_SPACE:
 					space_ = event.key.type == SDL_KEYDOWN ? true : false;
@@ -279,6 +313,11 @@ void App::AddProjectile(const size_t& index, const int& x, const int& y,double s
 	Projectile* temp = new Projectile(textures_[index], x, y,speed,dir);
 	to_render_.push_back(temp);
 	projectiles_.push_back(temp);
+}
+void App::AddItem(const size_t& index, const int& x, const int& y, const ItemTypes& type) {
+	Item* temp = new Item(textures_[index], x, y, type);
+	to_render_.push_back(temp);
+	items_.push_back(temp);
 }
 
 void App::LoadTexture(const char* path) {
@@ -389,6 +428,10 @@ bool App::AddRoom(const unsigned int& index, const int& x, const int& y) {
 				break;
 				case 87:
 					AddWall(1, i * 32 + x, j * 32 + y);
+				break;
+				case 72:
+					path_tiles_[unsigned((floor(y / 32) + j) * room_width_ / 32 + (floor(x / 32) + i))] = true;
+					AddItem(4, i * 32 + x, j * 32 + y, ItemTypes::health_potion);
 				break;
 				}
 

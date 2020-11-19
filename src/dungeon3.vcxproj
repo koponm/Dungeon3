@@ -152,6 +152,7 @@
   </ItemDefinitionGroup>
   <ItemGroup>
     <ClCompile Include="app.cpp" />
+    <ClCompile Include="items.cpp" />
     <ClCompile Include="main.cpp" />
     <ClCompile Include="monster\monster.cpp" />
     <ClCompile Include="monster\update.cpp" />
@@ -162,6 +163,7 @@
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="app.h" />
+    <ClInclude Include="items.h" />
     <ClInclude Include="monster\LocationNode.h" />
     <ClInclude Include="monster\monster.h" />
     <ClInclude Include="monster\update.h" />
