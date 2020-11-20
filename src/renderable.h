@@ -20,11 +20,14 @@ public:
 	void GetRect(int& w, int& h) const;
 	void SetFrame(const double& frame);
 	void AddFrame(const double& frame);
+	void SetImageSpeed(const double& speed);
+	Renderable* Self();
 private:
 	SDL_Texture* texture_;
 	SDL_Rect rect_;
 	SDL_Rect sprite_rect_;
 	double subimages_ = 0;
 	double subimage_ = 0;
+	double image_speed_ = 1;
 };
 #endif

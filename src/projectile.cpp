@@ -1,4 +1,5 @@
 #include "projectile.h"
+#include <iostream>
 
 Projectile::Projectile(const Texture& texture, double x, double y, double speed,double dir) : Renderable(texture) {
 	x_ = x;
@@ -7,10 +8,11 @@ Projectile::Projectile(const Texture& texture, double x, double y, double speed,
 	x_vel_ = speed_*cos(dir * M_PI / 180);
 	y_vel_ = -speed_* sin(dir* M_PI/180);
 	RectPos((int)floor(x_ + .5), (int)floor(y_ + .5));
+	parent_ = Self();
 }
 
 Projectile::~Projectile() {
-
+	delete parent_;
 }
 
 void Projectile::GetPos(double& x, double& y) {

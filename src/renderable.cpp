@@ -6,9 +6,14 @@ Renderable::Renderable(const Texture& texture) {
 	rect_ = texture.texture_data;
 	sprite_rect_ = texture.sprite_data;
 	subimages_ = texture.subimages;
+	image_speed_ = 1.0 / subimages_;
 }
 
 Renderable::~Renderable() {
+}
+
+Renderable* Renderable::Self() {
+	return this;
 }
 
 void Renderable::Render(SDL_Renderer* renderer, double x, double y) const {
@@ -35,6 +40,10 @@ void Renderable::SetFrame(const double& frame) {
 }
 
 void Renderable::AddFrame(const double& frame) {
-	subimage_ += frame / subimages_;
+	subimage_ += frame * image_speed_;
 	subimage_ = fmod(subimage_, subimages_);
+}
+
+void Renderable::SetImageSpeed(const double& speed) {
+	image_speed_ = speed;
 }

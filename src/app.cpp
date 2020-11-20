@@ -80,7 +80,7 @@ void App::Update() {
 	delta_time_ = (double)((now_ - last_) * 1000.0 / (double)SDL_GetPerformanceFrequency());
 	second_timer_ += delta_time_;
 	double previous_x, previous_y;
-	player_->GetPos(previous_x, previous_y);
+	player_ -> GetPos(previous_x, previous_y);
 
 	if (second_timer_ >= 1.0) {
 		second_timer_ -= 1.0;
@@ -118,23 +118,23 @@ void App::Update() {
 		if (!items_.empty()){
 			SDL_Rect rect1;
 			double x1, y1;
-			player_->GetPos(x1, y1);
+			player_ -> GetPos(x1, y1);
 			rect1.x = (int)(x1 + 0.5);
 			rect1.y = (int)(y1 + 0.5);
-			player_->GetRect(rect1.w, rect1.h);
+			player_ -> GetRect(rect1.w, rect1.h);
 			for (auto& k : items_) {
 				SDL_Rect rect2;
 				k->GetPos(rect2.x, rect2.y);
 				k->GetRect(rect2.w, rect2.h);
 				if (SDL_HasIntersection(&rect1, &rect2)) {
-					k->Pickup();
+					k -> Pickup();
 				}
 			}
 		}
 	}
-	if (space_) {
-		space_ = false;
-		AddProjectile(2, previous_x, previous_y,5.0, mouse_player_angle_);
+	if (m1_) {
+		m1_ = false;
+		AddProjectile(2, previous_x, previous_y, 16.0, mouse_player_angle_);
 	}
 	
 
@@ -171,7 +171,7 @@ void App::Update() {
 			}
 		}
 	}
-
+	auto it = projectiles_.begin();
 	for (auto& i : projectiles_) {
 		i->CalcPos(fps_desired_);
 		double x2, y2;
@@ -184,8 +184,15 @@ void App::Update() {
 			j->GetPos(x3, y3);
 			j->GetRect(w3, h3);
 			if (x2 < ((double)x3 + w3) && x2 + w2 > x3 && y2 < ((double)y3 + h3) && y2 + h2 > y3) {
-				i->SetVel(1, 0);
-				i->SetVel(0, 0);
+				//i->SetVel(1, 0);
+				//i->SetVel(0, 0);
+				Projectile* p = i;
+				Renderable* r = p -> GetParent();
+				
+				to_render_.erase(remove(to_render_.begin(), to_render_.end(), r), to_render_.end());
+				projectiles_.erase(it);
+				p -> ~Projectile();
+				break;
 			}
 		}
 		for (auto& j : monsters_) {
@@ -194,11 +201,17 @@ void App::Update() {
 			j->GetPos(x3, y3);
 			j->GetRect(w3, h3);
 			if (x2 < ((double)x3 + w3) && x2 + w2 > x3 && y2 < ((double)y3 + h3) && y2 + h2 > y3) {
-				i->SetVel(1, 0);
-				i->SetVel(0, 0);
+				//i->SetVel(1, 0);
+				//i->SetVel(0, 0);
+				Projectile* p = i;
+				Renderable* r = p->GetParent();
+
+				to_render_.erase(remove(to_render_.begin(), to_render_.end(), r), to_render_.end());
+				projectiles_.erase(it);
+				p -> ~Projectile();
 			}
 		}
-		
+		it++;
 	}
 	
 	//despawn items
@@ -271,6 +284,23 @@ void App::Event() {
 			break;
 			case SDL_BUTTON_LEFT:
 				// left mouse button
+				if (m1_released_) {
+					m1_ = event.key.type == SDL_MOUSEBUTTONDOWN ? true : false;
+					m1_released_ = false;
+				}
+			break;
+			case SDL_BUTTON_RIGHT:
+				// right mouse button
+			break;
+			}
+		break;
+		case SDL_MOUSEBUTTONUP:
+			switch (event.button.button) {
+			default:
+			break;
+			case SDL_BUTTON_LEFT:
+				// left mouse button
+				m1_released_ = true;
 			break;
 			case SDL_BUTTON_RIGHT:
 				// right mouse button
@@ -333,7 +363,6 @@ void App::LoadTexture(const char* path) {
 
 	temp_texture.texture = SDL_CreateTextureFromSurface(renderer_, temp);
 	
-
 	string name = path;
 	string images;
 	char t;

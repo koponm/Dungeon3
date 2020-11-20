@@ -70,6 +70,8 @@ private:
 	bool right_ = false;
 	bool f_ = false;
 	bool space_ = false;
+	bool m1_ = false;
+	bool m1_released_ = true;
 
 	double camera_x_ = 0.0;
 	double camera_y_ = 0.0;
