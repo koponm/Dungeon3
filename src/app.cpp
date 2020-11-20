@@ -171,47 +171,36 @@ void App::Update() {
 			}
 		}
 	}
-	auto it = projectiles_.begin();
 	for (auto& i : projectiles_) {
-		i->CalcPos(fps_desired_);
-		double x2, y2;
-		int w2, h2;
-		i->GetPos(x2, y2);
-		i->GetRect(w2, h2);
-		for (auto& j : walls_) {
-			int x3, y3;
-			int w3, h3;
-			j->GetPos(x3, y3);
-			j->GetRect(w3, h3);
-			if (x2 < ((double)x3 + w3) && x2 + w2 > x3 && y2 < ((double)y3 + h3) && y2 + h2 > y3) {
-				//i->SetVel(1, 0);
-				//i->SetVel(0, 0);
-				Projectile* p = i;
-				Renderable* r = p -> GetParent();
-				
-				to_render_.erase(remove(to_render_.begin(), to_render_.end(), r), to_render_.end());
-				projectiles_.erase(it);
-				p -> ~Projectile();
-				break;
+		if (i->GetActive()) {
+			i -> CalcPos(fps_desired_);
+			double x2, y2;
+			int w2, h2;
+			i->GetPos(x2, y2);
+			i->GetRect(w2, h2);
+			for (auto& j : walls_) {
+				int x3, y3;
+				int w3, h3;
+				j->GetPos(x3, y3);
+				j->GetRect(w3, h3);
+				if (x2 < ((double)x3 + w3) && x2 + w2 > x3 && y2 < ((double)y3 + h3) && y2 + h2 > y3) {
+					//i->SetVel(1, 0);
+					//i->SetVel(0, 0);
+					i -> SetActive(false);
+				}
+			}
+			for (auto& j : monsters_) {
+				double x3, y3;
+				int w3, h3;
+				j->GetPos(x3, y3);
+				j->GetRect(w3, h3);
+				if (x2 < ((double)x3 + w3) && x2 + w2 > x3 && y2 < ((double)y3 + h3) && y2 + h2 > y3) {
+					//i->SetVel(1, 0);
+					//i->SetVel(0, 0);
+					i -> SetActive(false);
+				}
 			}
 		}
-		for (auto& j : monsters_) {
-			double x3, y3;
-			int w3, h3;
-			j->GetPos(x3, y3);
-			j->GetRect(w3, h3);
-			if (x2 < ((double)x3 + w3) && x2 + w2 > x3 && y2 < ((double)y3 + h3) && y2 + h2 > y3) {
-				//i->SetVel(1, 0);
-				//i->SetVel(0, 0);
-				Projectile* p = i;
-				Renderable* r = p->GetParent();
-
-				to_render_.erase(remove(to_render_.begin(), to_render_.end(), r), to_render_.end());
-				projectiles_.erase(it);
-				p -> ~Projectile();
-			}
-		}
-		it++;
 	}
 	
 	//despawn items
@@ -220,6 +209,16 @@ void App::Update() {
 			if (!i->Spawned()) {
 				to_render_.erase(std::remove(to_render_.begin(), to_render_.end(), i), to_render_.end());
 				items_.erase(std::remove(items_.begin(), items_.end(), i), items_.end());
+				delete i;
+			}
+		}
+	}
+
+	if (projectiles_.size() > 0) {
+		for (auto i : projectiles_) {
+			if (!i -> GetActive()) {
+				to_render_.erase(remove(to_render_.begin(), to_render_.end(), i), to_render_.end());
+				projectiles_.erase(remove(projectiles_.begin(), projectiles_.end(), i), projectiles_.end());
 				delete i;
 			}
 		}

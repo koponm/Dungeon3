@@ -12,7 +12,7 @@ Projectile::Projectile(const Texture& texture, double x, double y, double speed,
 }
 
 Projectile::~Projectile() {
-	delete parent_;
+	
 }
 
 void Projectile::GetPos(double& x, double& y) {

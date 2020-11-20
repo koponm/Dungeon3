@@ -19,6 +19,8 @@ public:
 	void CalcPos(const size_t& fps_desired);
 	double GetSpeed() { return speed_; }
 	Renderable* GetParent() { return parent_; }
+	void SetActive(const bool& a) { active_ = a; }
+	bool GetActive() const { return active_; }
 private:
 	double x_ = 0.0;
 	double y_ = 0.0;
@@ -26,6 +28,7 @@ private:
 	double y_vel_ = 0.0;
 	double speed_ = 0.0;
 	double timer_ = 0.0;
+	bool active_ = true;
 	Renderable* parent_ = nullptr;
 };
 
