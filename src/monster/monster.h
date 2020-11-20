@@ -28,9 +28,9 @@ private:
 	double y_ = 0.0;
 	double x_vel_ = 0.0;
 	double y_vel_ = 0.0;
-	double fric_ = 0.1875;
+	double fric_ = 5.0;
 	bool can_move_ = false;
 	list<int> next_moves_;
-	double speed_ = 1.5;
+	double speed_ = 512.0;
 };
 #endif // MONSTER_H_

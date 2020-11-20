@@ -22,6 +22,7 @@ public:
 	void AddFrame(const double& frame);
 	void SetImageSpeed(const double& speed);
 	Renderable* Self();
+	SDL_Rect ReturnRect() const { return rect_; }
 private:
 	SDL_Texture* texture_;
 	SDL_Rect rect_;

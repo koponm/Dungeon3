@@ -11,10 +11,10 @@ App::App(void)
 	if (!SDL_Init(SDL_INIT_EVERYTHING)) {
 		window_ = SDL_CreateWindow(title_, SDL_WINDOWPOS_CENTERED, SDL_WINDOWPOS_CENTERED, width_, height_, (fullscreen_ ? (int) SDL_WINDOW_FULLSCREEN : SDL_WINDOW_SHOWN));
 		renderer_ = SDL_CreateRenderer(window_, -1, SDL_RENDERER_ACCELERATED);
-		SDL_SetRenderDrawColor(renderer_, 32, 32, 32, 255);
+		SDL_SetRenderDrawColor(renderer_, 0, 0, 0, 255);
 
 		LoadTexture("assets/player_8.png");
-		LoadTexture("assets/wall_1.png");
+		LoadTexture("assets/wall2_1.png");
 		LoadTexture("assets/fire_3.png");
 		LoadTexture("assets/monster_1.png");
 		LoadTexture("assets/potion1_1.png");
@@ -29,7 +29,7 @@ App::App(void)
 		path_tiles_ = new bool[size_];
 		for (unsigned i = 0; i < size_; i++) {
 			tiles_[i] = false;
-			path_tiles_[i] = false;
+			path_tiles_[i] = true;
 		}
 
 		//AddRoom(0, 32, 32);
@@ -75,44 +75,20 @@ App::~App() {
 }
 
 void App::Update() {
-	last_ = now_;
-	now_ = SDL_GetPerformanceCounter();
-	delta_time_ = (double)((now_ - last_) * 1000.0 / (double)SDL_GetPerformanceFrequency());
-	second_timer_ += delta_time_;
+	now_ = (double)SDL_GetTicks();
+	delta_time_ = max((now_ - last_) / 1000.0f * fps_desired_, 1.0 / 1000.0f);
+	second_timer_ += delta_time_ / fps_desired_;
+	tick_timer_ += delta_time_;
 	double previous_x, previous_y;
 	player_ -> GetPos(previous_x, previous_y);
 
-	if (second_timer_ >= 1.0) {
-		second_timer_ -= 1.0;
-		update::CalculatePath(monsters_, path_tiles_, previous_x, previous_y,
-			size_, room_width_, room_height_);
-	}
+	// Update 4 times per second
 
-	double speed = player_ -> GetSpeed() / fps_desired_ * delta_time_;
-
-
-	if (!monsters_.empty()) {
-		update::UpdateMonsters(monsters_, fps_desired_, 1.0/fps_desired_ * delta_time_,
-			up_ || down_ || left_ || right_,
-			room_width_, room_height_);
+	if (second_timer_ >= 0.25) {
+		second_timer_ -= 0.25;
+		update::CalculatePath(monsters_, path_tiles_, previous_x, previous_y, size_, room_width_, room_height_);
 	}
-
-	if ((up_ || down_) && (left_ || right_)) {
-		speed /= sqrt(2);
-	}
-
-	if (up_) {
-		player_ -> AddVel(0, -speed);
-	}
-	if (down_) {
-		player_ -> AddVel(0, speed);
-	}
-	if (left_) {
-		player_ -> AddVel(-speed, 0);
-	}
-	if (right_) {
-		player_ -> AddVel(speed, 0);
-	}
+	
 	if (f_) {
 		//check if player and item intersect, pickup if yes
 		if (!items_.empty()){
@@ -134,11 +110,8 @@ void App::Update() {
 	}
 	if (m1_) {
 		m1_ = false;
-		AddProjectile(2, previous_x, previous_y, 16.0, mouse_player_angle_);
+		AddProjectile(2, previous_x, previous_y, 512.0, mouse_player_angle_);
 	}
-	
-
-	player_ -> CalcPos(fps_desired_);
 
 	double x1, y1;
 	int w1, h1;
@@ -158,12 +131,12 @@ void App::Update() {
 			double y_res = (y1 - y2);
 			y_res = y_res + (y_res < 0 ? h2 : -h2);
 
-			if (fabs(x_res) >= 1.0) {
+			if (fabs(x_res) >= 4.0) {
 				if (fabs(y_res) > 0.0) {
 					player_ -> AddPos(0, -y_res);
 					player_ -> SetVel(1, 0.0);
 				}
-			} else if (fabs(y_res) >= 1.0) {
+			} else if (fabs(y_res) >= 4.0) {
 				if (fabs(x_res) > 0.0) {
 					player_ -> AddPos(-x_res, 0);
 					player_ -> SetVel(0, 0.0);
@@ -171,38 +144,78 @@ void App::Update() {
 			}
 		}
 	}
-	for (auto& i : projectiles_) {
-		if (i->GetActive()) {
-			i -> CalcPos(fps_desired_);
-			double x2, y2;
-			int w2, h2;
-			i->GetPos(x2, y2);
-			i->GetRect(w2, h2);
-			for (auto& j : walls_) {
-				int x3, y3;
-				int w3, h3;
-				j->GetPos(x3, y3);
-				j->GetRect(w3, h3);
-				if (x2 < ((double)x3 + w3) && x2 + w2 > x3 && y2 < ((double)y3 + h3) && y2 + h2 > y3) {
-					//i->SetVel(1, 0);
-					//i->SetVel(0, 0);
-					i -> SetActive(false);
+
+	if (tick_timer_ >= 1.0) {
+		double speed = player_ -> GetSpeed() / fps_desired_;
+
+		if ((up_ || down_) && (left_ || right_)) {
+			speed /= sqrt(2);
+		}
+
+		if (up_) {
+			player_ -> AddVel(0, -speed);
+		}
+		if (down_) {
+			player_ -> AddVel(0, speed);
+		}
+		if (left_) {
+			player_ -> AddVel(-speed, 0);
+		}
+		if (right_) {
+			player_ -> AddVel(speed, 0);
+		}
+
+		player_ -> CalcPos(fps_desired_);
+
+		if (delta_time_ >= 1.0) {
+			player_ -> SetPos(previous_x, previous_y);
+		}
+
+		for (auto& i : to_render_) {
+			i -> AddFrame(delta_time_);
+		}
+
+		if (!monsters_.empty()) {
+			update::UpdateMonsters(monsters_, fps_desired_, 1.0 / fps_desired_,
+				up_ || down_ || left_ || right_,
+				room_width_, room_height_);
+		}
+
+		for (auto& i : projectiles_) {
+			if (i->GetActive()) {
+				i -> CalcPos(fps_desired_);
+				double x2, y2;
+				int w2, h2;
+				i->GetPos(x2, y2);
+				i->GetRect(w2, h2);
+				for (auto& j : walls_) {
+					int x3, y3;
+					int w3, h3;
+					j->GetPos(x3, y3);
+					j->GetRect(w3, h3);
+					if (x2 < ((double)x3 + w3) && x2 + w2 > x3 && y2 < ((double)y3 + h3) && y2 + h2 > y3) {
+						//i->SetVel(1, 0);
+						//i->SetVel(0, 0);
+						i -> SetActive(false);
+					}
 				}
-			}
-			for (auto& j : monsters_) {
-				double x3, y3;
-				int w3, h3;
-				j->GetPos(x3, y3);
-				j->GetRect(w3, h3);
-				if (x2 < ((double)x3 + w3) && x2 + w2 > x3 && y2 < ((double)y3 + h3) && y2 + h2 > y3) {
-					//i->SetVel(1, 0);
-					//i->SetVel(0, 0);
-					i -> SetActive(false);
+				for (auto& j : monsters_) {
+					double x3, y3;
+					int w3, h3;
+					j->GetPos(x3, y3);
+					j->GetRect(w3, h3);
+					if (x2 < ((double)x3 + w3) && x2 + w2 > x3 && y2 < ((double)y3 + h3) && y2 + h2 > y3) {
+						//i->SetVel(1, 0);
+						//i->SetVel(0, 0);
+						i -> SetActive(false);
+					}
 				}
 			}
 		}
+		while (tick_timer_ >= 1.0) {
+			tick_timer_ -= 1.0;
+		}
 	}
-	
 	//despawn items
 	if (!items_.empty()){
 		for (auto i : items_) {
@@ -236,9 +249,9 @@ void App::Update() {
 	camera_y_ = min(max(0.0, camera_y_), max(0.0, room_height_ - y_offset * 2));
 
 	mouse_player_angle_ = fmod(540.0 - atan2f((y1 + 16 - camera_y_ - mouse_y_), (x1 + 16 - camera_x_ - mouse_x_)) * 180.0 / M_PI, 360.0);
-
 	
-
+	
+	last_ = now_;
 }
 
 void App::Event() {
@@ -321,7 +334,6 @@ void App::Render() {
 
 	// Render "renderables" aka. entities
 	for (auto& i : to_render_) {
-		i -> AddFrame(delta_time_ / fps_desired_);
 		i -> Render(renderer_, camera_x_, camera_y_);
 	}
 	// Render HUD
@@ -445,20 +457,22 @@ bool App::AddRoom(const unsigned int& index, const int& x, const int& y) {
 				break;
 				case 45:
 					// Air
-					path_tiles_[unsigned((floor(y / 32) + j) * room_width_ / 32 + (floor(x / 32) + i))] = true;
+					//path_tiles_[unsigned((floor(y / 32) + j) * room_width_ / 32 + (floor(x / 32) + i))] = true;
 				break;
 				case 77:
-					path_tiles_[unsigned((floor(y / 32) + j) * room_width_ / 32 + (floor(x / 32) + i))] = true;
+					//path_tiles_[unsigned((floor(y / 32) + j) * room_width_ / 32 + (floor(x / 32) + i))] = true;
 					monsters_.push_back(new Monster(textures_[3], i * 32 + x, j * 32 + y));
 				break;
 				case 80:
 					AddWall(2, i * 32 + x, j * 32 + y);
+					path_tiles_[unsigned((floor(y / 32) + j) * room_width_ / 32 + (floor(x / 32) + i))] = false;
 				break;
 				case 87:
 					AddWall(1, i * 32 + x, j * 32 + y);
+					path_tiles_[unsigned((floor(y / 32) + j) * room_width_ / 32 + (floor(x / 32) + i))] = false;
 				break;
 				case 72:
-					path_tiles_[unsigned((floor(y / 32) + j) * room_width_ / 32 + (floor(x / 32) + i))] = true;
+					
 					AddItem(4, i * 32 + x, j * 32 + y, ItemTypes::health_potion);
 				break;
 				}

@@ -22,7 +22,7 @@ private:
 	double y_ = 0.0;
 	double x_vel_ = 0.0;
 	double y_vel_ = 0.0;
-	double fric_ = 0.1875;
-	double speed_ = 2.0;
+	double fric_ = 5.0;
+	double speed_ = 800.0;
 };
 #endif
