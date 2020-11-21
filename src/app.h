@@ -16,6 +16,7 @@
 #include "monster/monster.h"
 #include "monster/update.h"
 #include "items.h"
+#include "chest.h"
 
 using namespace std;
 
@@ -38,7 +39,8 @@ public:
 	void LoadTexture(const char* path);
 	void AddProjectile(const size_t& index, const int& x, const int& y,double speed,double dir);
 	void AddWall(const size_t& index, const int& x, const int& y);
-	void AddItem(const size_t& index, const int& x, const int& y, const ItemTypes& type);
+	void AddItem(const int& x, const int& y, ItemType type = ItemType::random);
+	void AddChest(const size_t& index, const int& x, const int& y);
 	bool AddRoom(const unsigned int& index, const int& x, const int& y);
 	
 	
@@ -60,6 +62,7 @@ private:
 	vector<Monster*> monsters_;
 	vector<Projectile*> projectiles_;
 	vector<Item*> items_;
+	vector<Chest*> chests_;
 
 	double now_ = 0;
 	double last_ = 0;

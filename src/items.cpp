@@ -1,6 +1,6 @@
 #include "items.h"
 
-Item::Item(const Texture& texture, int x, int y, ItemTypes type) : Renderable(texture) {
+Item::Item(const Texture& texture, int x, int y, ItemType type) : Renderable(texture) {
 	x_ = x;
 	y_ = y;
 	type_ = type;

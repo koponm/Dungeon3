@@ -4,15 +4,16 @@
 
 #include "renderable.h"
 
-enum class ItemTypes {
+enum class ItemType {
 	health_potion,
-	mana_potion
+	mana_potion,
+	random
 };
 
 class Item : public Renderable
 {
 public:
-	Item(const Texture& texture, int x, int y, ItemTypes type);
+	Item(const Texture& texture, int x, int y, ItemType type);
 	~Item() {}
 
 	void GetPos(int& x, int& y);
@@ -23,7 +24,7 @@ private:
 	int x_ = 0;
 	int y_ = 0;
 	bool spawned_ = true;
-	ItemTypes type_;
+	ItemType type_;
 
 };
 
