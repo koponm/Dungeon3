@@ -21,10 +21,15 @@ App::App(void)
 		LoadTexture("assets/potion2_1.png");
 		LoadTexture("assets/chest_2.png");
 
-		player_ = new Player(textures_[0], 64, 64);
+		player_ = new Player(textures_[0], 256, 256);
 
-		LoadRoom("assets/room_1111.txt");
-		LoadRoom("assets/room2_1111.txt");
+		LoadRoom("assets/nwcorner_0110.txt");
+		LoadRoom("assets/largeroom_1111.txt");
+		LoadRoom("assets/largecorner_0011.txt");
+		LoadRoom("assets/largetunnel_0101.txt");
+		LoadRoom("assets/largetunnel_1010.txt");
+
+		auto rooms = room_data_.size();
 
 		size_ = (room_width_ / 32 * room_height_ / 32);
 		tiles_ = new bool[size_];
@@ -40,22 +45,101 @@ App::App(void)
 		
 		// TODO: recursive generation function
 
-		srand(2);
-
-		int x = 32;
-		int y = 32;
-		int prevh = -1;
-		for (unsigned i = 0; i < 4; i++) {
-			unsigned int index = rand() % 2;
-			if (prevh == -1) {
-				prevh = room_data_[index].height;
+		srand(time(NULL));
+		int max_x = 10, max_y = 10;
+		auto room_size = max_x * max_y;
+		int* room = new int[room_size];
+		for (unsigned j = 0; j < max_x; j++) {
+			for (unsigned i = 0; i < max_y; i++) {
+				room[j * max_x + i] = -1;
 			}
-			y += ((prevh - (int)room_data_[index].height) / 2) * 32;
-			if (AddRoom(index, x, y)) {
-				x += room_data_[index].width * 32;
-				prevh = room_data_[index].height;
+		}
+		int x = 1, y = 1;
+		room[y * max_x + x] = 0;
+		int dir = 1 + rand() % 2;
+		x = x + (dir == 1) - (dir == 3);
+		y = y + -(dir == 0) + (dir == 2);
+		int max_rooms = 9;
+		int index = 0;
+		int pindex = 0;
+		vector<int> tlist;
+
+		for (unsigned i = 0; i < max_rooms; i++) {
+
+			tlist.clear();
+			//cout << room_data_[pindex].dir[0] << " " << room_data_[pindex].dir[1] << " " << room_data_[pindex].dir[2] << " " << room_data_[pindex].dir[3] << endl;
+			for (unsigned j = 1; j < rooms; j++) {
+				//cout << room_data_[pindex].dir[dir] << " " << room_data_[j].dir[(dir + 2) % 4] << endl;
+				
+				//cout << room_data_[j].dir[0] << " " << room_data_[j].dir[1] << " " << room_data_[j].dir[2] << " " << room_data_[j].dir[3] << endl;
+
+				if (room_data_[pindex].dir[dir] == room_data_[j].dir[(dir + 2) % 4]) {
+					tlist.push_back(j);
+					//cout << "Direction " << dir << ", index " << j << " compatible with previous index " << pindex << endl;
+				}
+			}
+			//cout << tlist.size() << endl;
+			if (tlist.size() > 0) {
+				index = tlist[rand() % (tlist.size())];
+				while (index == pindex && tlist.size() > 1) {
+					index = tlist[rand() % (tlist.size())];
+				}
+			} else {
+				index = 1;
 			}
 			
+			if (i == max_rooms - 1) {
+				index = 1;
+			}
+
+			room[y * max_x + x] = index;
+			pindex = index;
+
+			bool cdir[4];
+			copy(begin(room_data_[index].dir), end(room_data_[index].dir), begin(cdir));
+
+			int nx, ny, n = 0;
+			
+			
+			for (unsigned j = 0; j < 4; j++) {
+				nx = x + (j == 1) - (j == 3);
+				ny = y - (j == 0) + (j == 2);
+				if (nx < 0 || nx >= max_x || ny < 0 || ny >= max_y) {
+					cdir[j] = 0;
+				} else {
+					cdir[j] = cdir[j] * (room[ny * max_x + nx] == -1);
+				}
+				n += (cdir[j] == 1);
+			}
+
+			//cout << cdir[0] << " " << cdir[1] << " " << cdir[2] << " " << cdir[3] << endl;
+
+			
+			if (n > 0) {
+				dir = rand() % 3;
+				while (cdir[dir] == 0) {
+					dir = (dir + 1) % 3;
+				}
+			}
+			
+			x = x + (dir == 1) - (dir == 3);
+			y = y - (dir == 0) + (dir == 2);
+
+			//cout << "New direction: " << dir << endl;
+		}
+
+		cout << "Printing map: " << endl;
+		for (unsigned j = 0; j < max_x; j++) {
+			for (unsigned i = 0; i < max_y; i++) {
+				if (room[j * max_x + i] > -1) {					
+					AddRoom(room[j * max_x + i], i * 32 * 16, j * 32 * 16);
+					cout << room[j * max_x + i] << " ";
+				} else {
+					cout << "# ";
+				}
+				
+			}
+			cout << "\n";
 		}
 
 		for (auto& monster : monsters_) {
@@ -433,8 +517,13 @@ void App::LoadRoom(const char* path) {
 	vector<int> temp;
 
 	string name = path;
+	//North East South West
+	bool dir[4] = { 0, 0, 0, 0 };
 	for (unsigned i = 0; i < 4; i++) {
-		temp_room.dir[i] = ((path[name.length() - 5 - i]) == '1');
+		dir[i] = ((path[name.length() - 5 - i]) == '1');
+	}
+	for (unsigned i = 0; i < 4; i++) {
+		temp_room.dir[i] = dir[3 - i];
 	}
 
 	unsigned w = 0, h = 0;
@@ -498,6 +587,9 @@ bool App::AddRoom(const unsigned int& index, const int& x, const int& y) {
 				break;
 				case 72:
 					AddChest(6, i * 32 + x, j * 32 + y);
+				break;
+				case 112:
+					player_ -> SetPos(i * 32 + x, j * 32 + y);
 				break;
 				}
 

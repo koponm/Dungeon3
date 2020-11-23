@@ -7,6 +7,7 @@
 #include <sstream>
 #include <string>
 #include <filesystem>
+#include <time.h>
 #include "SDL.h"
 #include "SDL_image.h"
 #include "renderable.h"
@@ -79,8 +80,8 @@ private:
 	double camera_x_ = 0.0;
 	double camera_y_ = 0.0;
 
-	unsigned int room_width_ = 2048;
-	unsigned int room_height_ = 2048;
+	unsigned int room_width_ = 8192;
+	unsigned int room_height_ = 8192;
 	unsigned size_ = 0;
 	bool* tiles_ = nullptr;
 	bool* path_tiles_ = nullptr;
