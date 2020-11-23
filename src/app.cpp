@@ -184,9 +184,9 @@ void App::Update() {
 		}
 
 		if (!monsters_.empty()) {
-			update::UpdateMonsters(monsters_, fps_desired_, 1.0 / fps_desired_,
+			update::UpdateMonsters(monsters_, delta_time_, fps_desired_,
 				up_ || down_ || left_ || right_,
-				room_width_, room_height_);
+				room_width_, walls_);
 		}
 
 		for (auto& i : projectiles_) {

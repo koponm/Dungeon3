@@ -16,20 +16,76 @@ bool nodeComp(const LocationNode* lhs, const LocationNode* rhs) {
 
 std::list<int> getNeighbours(int current_node, bool* path_tiles, unsigned int w, unsigned int size)
 {
+	
 	std::list<int> neighbours;
 	unsigned int original_row = (unsigned int)floor(current_node / w);
-
+	/*
+	int l1 = current_node + 1;
+	if ((unsigned int)floor(l1 / w) == original_row
+		&& (l1) < size && path_tiles[l1]) {
+		neighbours.push_back(l1);
+	}
+	int l2 = current_node - 1;
+	if ((unsigned int)floor(l2 / w) == original_row
+		&& (l2 >= 0) && path_tiles[l2]) {
+		neighbours.push_back(l2);
+	}
+	int l3 = current_node + w;
+	if ((l3 < size) && path_tiles[l3]) {
+		neighbours.push_back(l3);
+	}
+	int l4 = current_node - w;
+	if ((l4 >= 0) && path_tiles[l4]) {
+		neighbours.push_back(l4);
+	}
+	int l5 = current_node - w - 1;
+	if ((unsigned int)floor(l5 / w) == original_row - 1
+		&& (l5 >= 0) && path_tiles[l5]
+		&& !(l5 - 1 >= 0 && !path_tiles[l5 - 1])
+		&& !(l5 - w >= 0 && !path_tiles[l5 - w])) {
+		neighbours.push_back(l5);
+	}
+	int l6 = current_node - w + 1;
+	if ((unsigned int)floor(l6 / w) == original_row - 1
+		&& (l6 < size) && path_tiles[l6]
+		&& !(l6 + 1 < size && !path_tiles[l6 + 1])
+		&& !(l6 + w < size && !path_tiles[l6 + w])) {
+		neighbours.push_back(l6);
+	}
+	int l7 = current_node + w - 1;
+	if ((unsigned int)floor(l7 / w) == original_row + 1
+		&& (l7 < size) && path_tiles[l7]
+		&& !(l7 - 1 >= 0 && !path_tiles[l7 - 1])
+		&& !(l7 - w >= 0 && !path_tiles[l7 - w])) {
+		neighbours.push_back(l7);
+	}
+	int l8 = current_node + w + 1;
+	if ((unsigned int)floor(l8 / w) == original_row + 1
+		&& (l8 < size) && path_tiles[l8]
+		&& !(l8 + 1 < size && !path_tiles[l8 + 1])
+		&& !(l8 + w < size && !path_tiles[l8 + w])) {
+		neighbours.push_back(l8);
+	}
+	*/
+	
 	for (int i = -1; i <= 1; i++) {
 		for (int j = -1; j <= 1; j++) {
 			int current_tile = current_node + i * w + j;
 			if (current_tile >= 0 && (unsigned)current_tile < size
 				&& (int)((original_row+i)*w) <= current_tile && current_tile < (int)((original_row + i + 1)*w) ) {
-				if (current_node != current_tile && path_tiles[current_tile]) {
+				if (current_node != current_tile && path_tiles[current_tile]
+					&& !(
+						((i == 1 && j == 1)  && (((current_node + 1 < (int)size) && !path_tiles[current_node + 1]) || ((current_node + w < (int)size) && !path_tiles[current_node + w])))
+						|| ((i == 1 && j == -1)  && (((current_node - 1 >= 0) && !path_tiles[current_node - 1]) || ((current_node + w < (int)size) && !path_tiles[current_node + w])))
+						|| ((i == -1 && j == 1)  && (((current_node + 1 < (int)size) && !path_tiles[current_node + 1]) || ((current_node - w >= 0) && !path_tiles[current_node - w])))
+						|| ((i == -1 && j == -1) && (((current_node - 1 >= 0) && !path_tiles[current_node - 1]) || ((current_node - w >= 0) && !path_tiles[current_node - w])))
+						)) {
 					neighbours.push_back(current_tile);
 				}
 			}
 		}
 	}
+	
 	return neighbours;
 }
 
@@ -61,7 +117,7 @@ void A_star_algorithm(Monster* monster, bool* path_tiles,
 
 	LocationNode* last_node = nullptr;
 
-	while (!open_nodes.empty() && closed_nodes.size() < 100) {
+	while (!open_nodes.empty()) {
 		std::list<LocationNode*>::iterator small = std::min_element(open_nodes.begin(), open_nodes.end(), nodeComp);
 		if (small == open_nodes.end()) {
 			break;
@@ -76,7 +132,6 @@ void A_star_algorithm(Monster* monster, bool* path_tiles,
 		}
 
 		std::list<int> neighbours = getNeighbours(smallest->location, path_tiles, w, size);
-
 
 		for (int neighbour : neighbours) {
 
@@ -105,11 +160,16 @@ void A_star_algorithm(Monster* monster, bool* path_tiles,
 	}
 	std::list<int> monster_next_moves;
 	if (last_node != nullptr) {
-		do
+		while(true)
 		{
-			monster_next_moves.push_front(last_node->location);
-			last_node = last_node->parent;
-		} while (last_node->parent != nullptr);
+			if (last_node->parent != nullptr) {
+				monster_next_moves.push_front(last_node->location);
+				last_node = last_node->parent;
+			}
+			else {
+				break;
+			}
+		};
 	}
 	for (auto node : open_nodes) {
 		delete node;
@@ -129,43 +189,102 @@ void CalculatePath(std::vector<Monster*>& monsters, bool* path_tiles, double pla
 	}
 }
 
-void UpdateMonsters(std::vector<Monster*>& monsters, const size_t fps, double delta_speed, bool can_move,
-	unsigned int room_width, unsigned int room_height) {
+void UpdateMonsters(std::vector<Monster*>& monsters, double delta_speed, const size_t fps, bool can_move,
+	unsigned int room_width, vector<Wall*> walls) {
 
 	for (auto& monster : monsters) {
-
-			
+	
 		if (can_move) {
 			monster->PlayerMoved();
 		}
 		if (!monster->CanMove()) { continue; }
-
-		double speed = delta_speed * monster->GetSpeed();
+		double speed = monster->GetSpeed() / fps;
 
 		double current_x, current_y;
 		monster->GetPos(current_x, current_y);
 
 		int next_tile = monster->GetNextTile();
 
-		int current_tile = (int)floor(current_y / 32) * (room_width / 32) + (int)floor(current_x / 32);
+		unsigned int w = room_width / 32;
+		int current_tile = (int)floor(current_y / 32) * w + (int)floor(current_x / 32);
+
 		if (next_tile == current_tile) {
 			monster->PopNextMove();
 			next_tile = monster->GetNextTile();
 		}
-		if (next_tile != -1) {
-			int next_x = (next_tile % (room_width / 32)) * 32;
-			int next_y = (int)floor(next_tile / (room_width / 32)) * 32;
+		else if (next_tile != -1) {
+			int next_x = (next_tile % w) * 32;
+			int next_y = (int)floor(next_tile / w) * 32;
 
-			double speed_x = (next_x - current_x);
-			double speed_y = (next_y - current_y);
+			double speed_x = (next_x - current_x)*2;
+			double speed_y = (next_y - current_y)*2;
 			double t = sqrt(speed_x * speed_x + speed_y * speed_y);
 			speed_x /= t;
 			speed_y /= t;
 			speed_x *= speed;
 			speed_y *= speed;
 			monster->AddVel(speed_x, speed_y);
-			monster->CalcPos(fps);
 		}
+		double x1, y1;
+		int w1, h1;
+		monster->GetPos(x1, y1);
+		monster->GetRect(w1, h1);
+		for (auto& i : walls) {
+			int x2, y2;
+			int w2, h2;
+			i->GetPos(x2, y2);
+			i->GetRect(w2, h2);
+
+			if (x1 < ((double)x2 + w2) && x1 + w1 > x2 && y1 < ((double)y2 + h2) && y1 + h1 > y2) {
+				double x_res = (x1 - x2);
+				x_res = x_res + (x_res < 0 ? w2 : -w2);
+
+				double y_res = (y1 - y2);
+				y_res = y_res + (y_res < 0 ? h2 : -h2);
+
+				if (fabs(x_res) >= 4.0) {
+					if (fabs(y_res) > 0.0) {
+						monster->AddPos(0, -y_res);
+						monster->SetVel(1, 0.0);
+					}
+				}
+				else if (fabs(y_res) >= 4.0) {
+					if (fabs(x_res) > 0.0) {
+						monster->AddPos(-x_res, 0);
+						monster->SetVel(0, 0.0);
+					}
+				}
+			}
+		}
+		for (auto& i : monsters) {
+			if (i == monster) { continue; }
+			double x2, y2;
+			int w2, h2;
+			i->GetPos(x2, y2);
+			i->GetRect(w2, h2);
+
+			if (x1 < ((double)x2 + w2) && x1 + w1 > x2 && y1 < ((double)y2 + h2) && y1 + h1 > y2) {
+				double x_res = (x1 - x2);
+				x_res = x_res + (x_res < 0 ? w2 : -w2);
+
+				double y_res = (y1 - y2);
+				y_res = y_res + (y_res < 0 ? h2 : -h2);
+
+				if (fabs(x_res) >= 4.0) {
+					if (fabs(y_res) > 0.0) {
+						monster->AddPos(0, -y_res);
+						monster->SetVel(1, 0.0);
+					}
+				}
+				else if (fabs(y_res) >= 4.0) {
+					if (fabs(x_res) > 0.0) {
+						monster->AddPos(-x_res, 0);
+						monster->SetVel(0, 0.0);
+					}
+				}
+			}
+		}
+		monster->CalcPos(fps);
 	}
 }
 

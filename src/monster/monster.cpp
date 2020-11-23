@@ -15,7 +15,7 @@ void Monster::GetPos(double& x, double& y) {
 	x = x_;
 	y = y_;
 }
-
+ 
 void Monster::SetPos(const double& x, const double& y) {
 	x_ = x;
 	y_ = y;

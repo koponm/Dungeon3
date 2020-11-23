@@ -7,6 +7,7 @@
 
 #include "../src/monster/update.cpp"
 #include "../src/monster/monster.cpp"
+#include "../src/wall.cpp"
 #include "../src/renderable.cpp"
 
 #include <list>
@@ -79,7 +80,22 @@ TEST(Pathfinding, getNeighbours_center) {
     tiles[33] = false;
 
     std::list<int> list = update::getNeighbours(34, tiles, 8, size);
-    std::list<int> expected_list({ 25, 26, 27, 35, 41, 42, 43 });
+    std::list<int> expected_list({ 26, 27, 35, 42, 43 });
+
+    EXPECT_EQ(expected_list, list);
+}
+
+TEST(Pathfinding, getNeighbours_center_2) {
+    unsigned int size = 8 * 8;
+    bool* tiles = new bool[size];
+    for (unsigned i = 0; i < size; i++) {
+        tiles[i] = true;
+    }
+    tiles[26] = false;
+    tiles[42] = false;
+
+    std::list<int> list = update::getNeighbours(34, tiles, 8, size);
+    std::list<int> expected_list({ 33, 35 });
 
     EXPECT_EQ(expected_list, list);
 }
@@ -142,16 +158,18 @@ TEST(Pathfinding, A_star_algorithm_3) {
     for (unsigned i = 0; i < size; i++) {
         tiles[i] = true;
     }
-    tiles[10] = false;
+    tiles[4] = false;
+    tiles[11] = false;
+    tiles[12] = false;
+    tiles[27] = false;
+    tiles[28] = false;
     double x1, x2;
     monster->GetPos(x1, x2);
     EXPECT_EQ(x1, 32.0);
-    update::A_star_algorithm(monster, tiles, 4 * 32, 1 * 32, size, 8 * 32, 8 * 32);
-    monster->PopNextMove();
-    monster->PopNextMove();
-    EXPECT_EQ(monster->GetNextTile(), 12);
-    monster->PopNextMove();
-    EXPECT_EQ(monster->GetNextTile(), -1);
+    update::A_star_algorithm(monster, tiles, 5 * 32, 0 * 32, size, 8 * 32, 8 * 32);
+    for (unsigned int i = 0; i < 5; i++)
+        monster->PopNextMove();
+    EXPECT_EQ(monster->GetNextTile(), 5);
 
     delete monster;
 }
