@@ -43,7 +43,7 @@ public:
 	void AddItem(const int& x, const int& y, ItemType type = ItemType::random);
 	void AddChest(const size_t& index, const int& x, const int& y);
 	bool AddRoom(const unsigned int& index, const int& x, const int& y);
-	
+	void Generate();
 	
 private:
 	SDL_Window* window_ = nullptr;
@@ -80,8 +80,8 @@ private:
 	double camera_x_ = 0.0;
 	double camera_y_ = 0.0;
 
-	unsigned int room_width_ = 8192;
-	unsigned int room_height_ = 8192;
+	unsigned int room_width_ = 1024;
+	unsigned int room_height_ = 1024;
 	unsigned size_ = 0;
 	bool* tiles_ = nullptr;
 	bool* path_tiles_ = nullptr;

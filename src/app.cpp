@@ -21,23 +21,22 @@ App::App(void)
 		LoadTexture("assets/potion2_1.png");
 		LoadTexture("assets/chest_2.png");
 
-		player_ = new Player(textures_[0], 256, 256);
+		player_ = new Player(textures_[0], 0, 0);
 
-		LoadRoom("assets/nwcorner_0110.txt");
+		LoadRoom("assets/startroom_0110.txt");
+		LoadRoom("assets/endroom_1111.txt");
+		LoadRoom("assets/deadend_1111.txt");
+
 		LoadRoom("assets/largeroom_1111.txt");
+
 		LoadRoom("assets/largecorner_0011.txt");
+		LoadRoom("assets/largecorner_1001.txt");
 		LoadRoom("assets/largetunnel_0101.txt");
 		LoadRoom("assets/largetunnel_1010.txt");
+		
+		Generate();
 
-		auto rooms = room_data_.size();
-
-		size_ = (room_width_ / 32 * room_height_ / 32);
-		tiles_ = new bool[size_];
-		path_tiles_ = new bool[size_];
-		for (unsigned i = 0; i < size_; i++) {
-			tiles_[i] = false;
-			path_tiles_[i] = true;
-		}
+		
 
 		//AddRoom(0, 32, 32);
 		//AddRoom(0, 32, 288);
@@ -45,102 +44,8 @@ App::App(void)
 		
 		// TODO: recursive generation function
 
-		srand(time(NULL));
-		int max_x = 10, max_y = 10;
-		auto room_size = max_x * max_y;
-		int* room = new int[room_size];
-		for (unsigned j = 0; j < max_x; j++) {
-			for (unsigned i = 0; i < max_y; i++) {
-				room[j * max_x + i] = -1;
-			}
-		}
-		int x = 1, y = 1;
-		room[y * max_x + x] = 0;
-		int dir = 1 + rand() % 2;
-		x = x + (dir == 1) - (dir == 3);
-		y = y + -(dir == 0) + (dir == 2);
-		int max_rooms = 9;
-		int index = 0;
-		int pindex = 0;
-		vector<int> tlist;
-
-		for (unsigned i = 0; i < max_rooms; i++) {
-
-			tlist.clear();
-			//cout << room_data_[pindex].dir[0] << " " << room_data_[pindex].dir[1] << " " << room_data_[pindex].dir[2] << " " << room_data_[pindex].dir[3] << endl;
-			for (unsigned j = 1; j < rooms; j++) {
-				//cout << room_data_[pindex].dir[dir] << " " << room_data_[j].dir[(dir + 2) % 4] << endl;
-				
-				//cout << room_data_[j].dir[0] << " " << room_data_[j].dir[1] << " " << room_data_[j].dir[2] << " " << room_data_[j].dir[3] << endl;
-
-				if (room_data_[pindex].dir[dir] == room_data_[j].dir[(dir + 2) % 4]) {
-					tlist.push_back(j);
-					//cout << "Direction " << dir << ", index " << j << " compatible with previous index " << pindex << endl;
-				}
-			}
-			//cout << tlist.size() << endl;
-			if (tlist.size() > 0) {
-				index = tlist[rand() % (tlist.size())];
-				while (index == pindex && tlist.size() > 1) {
-					index = tlist[rand() % (tlist.size())];
-				}
-			} else {
-				index = 1;
-			}
-			
-			if (i == max_rooms - 1) {
-				index = 1;
-			}
-
-			room[y * max_x + x] = index;
-			pindex = index;
-
-			bool cdir[4];
-			copy(begin(room_data_[index].dir), end(room_data_[index].dir), begin(cdir));
-
-			int nx, ny, n = 0;
-			
-			
-			for (unsigned j = 0; j < 4; j++) {
-				nx = x + (j == 1) - (j == 3);
-				ny = y - (j == 0) + (j == 2);
-				if (nx < 0 || nx >= max_x || ny < 0 || ny >= max_y) {
-					cdir[j] = 0;
-				} else {
-					cdir[j] = cdir[j] * (room[ny * max_x + nx] == -1);
-				}
-				n += (cdir[j] == 1);
-			}
-
-			//cout << cdir[0] << " " << cdir[1] << " " << cdir[2] << " " << cdir[3] << endl;
-
-			
-			if (n > 0) {
-				dir = rand() % 3;
-				while (cdir[dir] == 0) {
-					dir = (dir + 1) % 3;
-				}
-			}
-			
-			x = x + (dir == 1) - (dir == 3);
-			y = y - (dir == 0) + (dir == 2);
-
-			//cout << "New direction: " << dir << endl;
-		}
-
-		cout << "Printing map: " << endl;
-		for (unsigned j = 0; j < max_x; j++) {
-			for (unsigned i = 0; i < max_y; i++) {
-				if (room[j * max_x + i] > -1) {					
-					AddRoom(room[j * max_x + i], i * 32 * 16, j * 32 * 16);
-					cout << room[j * max_x + i] << " ";
-				} else {
-					cout << "# ";
-				}
-				
-			}
-			cout << "\n";
-		}
+		
+		
 
 		for (auto& monster : monsters_) {
 			to_render_.push_back(monster);
@@ -441,6 +346,7 @@ void App::AddWall(const size_t& index, const int& x, const int& y) {
 	Wall* temp = new Wall(textures_[index], x, y);
 	to_render_.push_back(temp);
 	walls_.push_back(temp);
+	path_tiles_[unsigned((floor(y / 32)) * room_width_ / 32 + (floor(x / 32)))] = false;
 }
 void App::AddProjectile(const size_t& index, const int& x, const int& y,double speed, double dir) {
 	Projectile* temp = new Projectile(textures_[index], x, y,speed,dir);
@@ -579,11 +485,11 @@ bool App::AddRoom(const unsigned int& index, const int& x, const int& y) {
 				break;
 				case 80:
 					AddWall(2, i * 32 + x, j * 32 + y);
-					path_tiles_[unsigned((floor(y / 32) + j) * room_width_ / 32 + (floor(x / 32) + i))] = false;
+					//path_tiles_[unsigned((floor(y / 32) + j) * room_width_ / 32 + (floor(x / 32) + i))] = false;
 				break;
 				case 87:
 					AddWall(1, i * 32 + x, j * 32 + y);
-					path_tiles_[unsigned((floor(y / 32) + j) * room_width_ / 32 + (floor(x / 32) + i))] = false;
+					//path_tiles_[unsigned((floor(y / 32) + j) * room_width_ / 32 + (floor(x / 32) + i))] = false;
 				break;
 				case 72:
 					AddChest(6, i * 32 + x, j * 32 + y);
@@ -600,4 +506,214 @@ bool App::AddRoom(const unsigned int& index, const int& x, const int& y) {
 	}
 
 	return true;
+}
+
+void App::Generate() {
+	// TODO: This requires a lot of cleanup! But it works for now
+	srand(time(NULL));
+
+	auto rooms = room_data_.size();
+
+	int max_x = 32, max_y = 32;
+	auto room_size = max_x * max_y;
+	int* room = new int[room_size];
+	for (unsigned j = 0; j < max_x; j++) {
+		for (unsigned i = 0; i < max_y; i++) {
+			room[j * max_x + i] = -1;
+		}
+	}
+	int x = 15, y = 15;
+	room[y * max_x + x] = 0;
+	int dir = 1 + rand() % 2;
+	x = x + (dir == 1) - (dir == 3);
+	y = y + -(dir == 0) + (dir == 2);
+	int max_rooms = 15;
+	int devrooms = 3;
+	int index = 0;
+	int pindex = 0;
+
+	vector<int> tlist;
+
+	// Generate initial path to the end room
+
+	for (unsigned i = 0; i < max_rooms; i++) {
+		tlist.clear();
+		for (unsigned j = devrooms; j < rooms; j++) {
+			if (room_data_[pindex].dir[dir] == room_data_[j].dir[(dir + 2) % 4]) {
+				tlist.push_back(j);
+			}
+		}
+		if (tlist.size() > 0) {
+			index = tlist[rand() % (tlist.size())];
+			while (index == pindex && tlist.size() > 1) {
+				index = tlist[rand() % (tlist.size())];
+			}
+		} else {
+			index = devrooms;
+		}
+
+		if (i == max_rooms - 1) {
+			index = 1;
+		}
+
+		room[y * max_x + x] = index;
+		pindex = index;
+
+		bool cdir[4];
+		copy(begin(room_data_[index].dir), end(room_data_[index].dir), begin(cdir));
+
+		int nx, ny, n = 0;
+		
+		for (unsigned j = 0; j < 4; j++) {
+			nx = x + (j == 1) - (j == 3);
+			ny = y - (j == 0) + (j == 2);
+			if (nx < 0 || nx >= max_x || ny < 0 || ny >= max_y) {
+				cdir[j] = 0;
+			} else {
+				cdir[j] = cdir[j] * (room[ny * max_x + nx] == -1);
+			}
+			n += (cdir[j] == 1);
+		}
+		
+		if (n > 0) {
+			dir = rand() % 4;
+			while (cdir[dir] == 0) {
+				dir = (dir + 1) % 4;
+			}
+		}
+
+		x = x + (dir == 1) - (dir == 3);
+		y = y - (dir == 0) + (dir == 2);
+	}
+
+	// Adding dead-end rooms, fill with items, monsters, etc later.
+
+	for (unsigned j = 0; j < max_x; j++) {
+		for (unsigned i = 0; i < max_y; i++) {
+			if (room[j * max_x + i] != -1 && room[j * max_x + i] != 1 && room[j * max_x + i] != 2) {
+				bool cdir[4];
+				copy(begin(room_data_[room[j * max_x + i]].dir), end(room_data_[room[j * max_x + i]].dir), begin(cdir));
+				int nx, ny, n = 0;
+				for (unsigned k = 0; k < 4; k++) {
+					nx = i + (k == 1) - (k == 3);
+					ny = j - (k == 0) + (k == 2);
+					if (nx < 0 || nx >= max_x || ny < 0 || ny >= max_y) {
+						cdir[k] = 0;
+					} else {
+						cdir[k] = cdir[k] * (room[ny * max_x + nx] == -1);
+					}
+				}
+				for (unsigned k = 0; k < 4; k++) {
+					if (cdir[k] != 0) {
+						nx = i + (k == 1) - (k == 3);
+						ny = j - (k == 0) + (k == 2);
+						room[ny * max_x + nx] = 2;
+					}
+				}
+			}
+		}
+	}
+
+	// Shift the map
+
+	int min_i = 32, min_j = 32, max_i = 0, max_j = 0;
+
+	for (unsigned j = 0; j < max_x; j++) {
+		for (unsigned i = 0; i < max_y; i++) {
+			if (room[j * max_x + i] != -1) {
+				min_i = min((int)i, min_i);
+				min_j = min((int)j, min_j);
+				max_i = max((int)i, max_i);
+				max_j = max((int)j, max_j);
+			}
+		}
+	}
+
+	for (unsigned j = 0; j < max_x; j++) {
+		for (unsigned i = 0; i < max_y; i++) {
+			if (room[j * max_x + i] > -1) {
+				auto w = room_data_[room[j * max_x + i]].width, h = room_data_[room[j * max_x + i]].height;
+				room_width_ = max(room_width_, (i + 1 - min_i) * 32 * w);
+				room_height_ = max(room_height_, (j + 1 - min_j) * 32 * h);
+			}
+		}
+	}
+
+	size_ = (room_width_ / 32 * room_height_ / 32);
+	tiles_ = new bool[size_];
+	path_tiles_ = new bool[size_];
+	for (unsigned i = 0; i < size_; i++) {
+		tiles_[i] = false;
+		path_tiles_[i] = true;
+	}
+
+	// Add rooms and close them down if they're not connected to anything
+
+	cout << "Printing map: " << endl;
+	for (unsigned j = 0; j < max_x; j++) {
+		for (unsigned i = 0; i < max_y; i++) {
+			if (room[j * max_x + i] > -1) {
+				auto w = room_data_[room[j * max_x + i]].width, h = room_data_[room[j * max_x + i]].height;
+				AddRoom(room[j * max_x + i], (i - min_i) * 32 * w, (j - min_j) * 32 * h);
+
+				bool cdir[4];
+				copy(begin(room_data_[room[j * max_x + i]].dir), end(room_data_[room[j * max_x + i]].dir), begin(cdir));
+				int nx, ny;
+				for (unsigned k = 0; k < 4; k++) {
+					nx = i + (k == 1) - (k == 3);
+					ny = j - (k == 0) + (k == 2);
+					if (!(nx < 0 || nx >= max_x || ny < 0 || ny >= max_y)) {
+						cdir[k] = cdir[k] * (room[ny * max_x + nx] == -1);
+					}
+					if (cdir[k] == 0) {
+						if (room[ny * max_x + nx] != -1) {
+							if (room_data_[room[ny * max_x + nx]].dir[(k + 2) % 4] != room_data_[room[j * max_x + i]].dir[k] && room_data_[room[j * max_x + i]].dir[k] == 1) {
+								cdir[k] = 1;
+							}
+						}
+						
+					}
+				}
+				for (unsigned k = 0; k < 4; k++) {
+					if (cdir[k] == 1) {
+						nx = (i - min_i) * 32 * w;
+						ny = (j - min_j) * 32 * h;
+						switch (k) {
+							default:
+							break;
+							case 0:
+								nx += (w / 2 * 32);
+								AddWall(1, nx - 32, ny);
+								AddWall(1, nx, ny);
+							break;
+							case 1:
+								nx += (w - 1) * 32;
+								ny += (h / 2 * 32);
+								AddWall(1, nx, ny - 32);
+								AddWall(1, nx, ny);
+							break;
+							case 2:
+								nx += (w / 2 * 32);
+								ny += (h - 1) * 32;
+								AddWall(1, nx - 32, ny);
+								AddWall(1, nx, ny);
+							break;
+							case 3:
+								ny += (h / 2 * 32);
+								AddWall(1, nx, ny - 32);
+								AddWall(1, nx, ny);
+							break;
+						}
+						
+					}
+				}
+				cout << room[j * max_x + i] << " ";
+			} else {
+				cout << "# ";
+			}
+
+		}
+		cout << "\n";
+	}
+	cout << "Room size: " << room_width_ << " x " << room_height_ << endl;
 }
