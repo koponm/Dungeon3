@@ -10,6 +10,8 @@
 #include <time.h>
 #include "SDL.h"
 #include "SDL_image.h"
+#include "SDL_ttf.h"
+#include "SDL_mixer.h"
 #include "renderable.h"
 #include "player.h"
 #include "wall.h"
@@ -44,10 +46,14 @@ public:
 	void AddChest(const size_t& index, const int& x, const int& y);
 	bool AddRoom(const unsigned int& index, const int& x, const int& y);
 	void Generate();
+	void RenderText(const char* text, TTF_Font* font, SDL_Color color, int x, int y);
+	void LoadSound(const char* path);
+	void PlaySound(const unsigned& index, const int& loops);
 	
 private:
 	SDL_Window* window_ = nullptr;
 	SDL_Renderer* renderer_ = nullptr;
+	TTF_Font* default_font_ = nullptr;
 	const char* title_;
 	int xpos_;
 	int ypos_;
@@ -64,6 +70,8 @@ private:
 	vector<Projectile*> projectiles_;
 	vector<Item*> items_;
 	vector<Chest*> chests_;
+
+	vector<Mix_Chunk*> sounds_;
 
 	double now_ = 0;
 	double last_ = 0;

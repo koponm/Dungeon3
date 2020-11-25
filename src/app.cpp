@@ -9,9 +9,24 @@ App::App(void)
 	fullscreen_ (false)
 {
 	if (!SDL_Init(SDL_INIT_EVERYTHING)) {
+		TTF_Init();
+		Mix_Init(MIX_INIT_OGG);
+
 		window_ = SDL_CreateWindow(title_, SDL_WINDOWPOS_CENTERED, SDL_WINDOWPOS_CENTERED, width_, height_, (fullscreen_ ? (int) SDL_WINDOW_FULLSCREEN : SDL_WINDOW_SHOWN));
 		renderer_ = SDL_CreateRenderer(window_, -1, SDL_RENDERER_ACCELERATED);
+		default_font_ = TTF_OpenFont("assets/arial.ttf", 16);
 		SDL_SetRenderDrawColor(renderer_, 0, 0, 0, 255);
+		
+		// Riku: If you plan on adding more sounds, check that they're .wav files and their frequency is 44100 hz, otherwise contact me!
+		// .ogg files take up a lot of system memory, check if you can find a way to stream it instead..?
+
+		Mix_OpenAudio(44100, AUDIO_S16SYS, 2, 4096);
+		Mix_AllocateChannels(4);
+
+		LoadSound("assets/spellcast.wav");
+		LoadSound("assets/music.ogg");
+
+		PlaySound(1, -1);
 
 		LoadTexture("assets/player_8.png");
 		LoadTexture("assets/wall2_1.png");
@@ -48,9 +63,11 @@ App::App(void)
 }
 
 App::~App() {
+	TTF_CloseFont(default_font_);
 	SDL_DestroyRenderer(renderer_);
 	SDL_DestroyWindow(window_);
 	SDL_Quit();
+	TTF_Quit();
 }
 
 void App::Update() {
@@ -61,10 +78,10 @@ void App::Update() {
 	double previous_x, previous_y;
 	player_ -> GetPos(previous_x, previous_y);
 
-	// Update 4 times per second
+	// Update 2 times per second
 
-	if (second_timer_ >= 0.25) {
-		second_timer_ -= 0.25;
+	if (second_timer_ >= 0.5) {
+		second_timer_ -= 0.5;
 		update::CalculatePath(monsters_, path_tiles_, previous_x, previous_y, size_, room_width_, room_height_);
 	}
 	
@@ -96,6 +113,7 @@ void App::Update() {
 	if (m1_) {
 		m1_ = false;
 		AddProjectile(2, previous_x, previous_y, 512.0, mouse_player_angle_);
+		PlaySound(0, 0);
 	}
 
 	double x1, y1;
@@ -235,8 +253,8 @@ void App::Update() {
 
 	mouse_player_angle_ = fmod(540.0 - atan2f((y1 + 16 - camera_y_ - mouse_y_), (x1 + 16 - camera_x_ - mouse_x_)) * 180.0 / M_PI, 360.0);
 	
-	
 	last_ = now_;
+
 }
 
 void App::Event() {
@@ -314,6 +332,18 @@ void App::Event() {
 	}
 }
 
+void App::RenderText(const char* text, TTF_Font* font, SDL_Color color, int x, int y) {
+	SDL_Surface* surface = TTF_RenderText_Blended(font, text, color);
+	SDL_Texture* texture = SDL_CreateTextureFromSurface(renderer_, surface);
+	SDL_FreeSurface(surface);
+	int texW = 0;
+	int texH = 0;
+	SDL_QueryTexture(texture, NULL, NULL, &texW, &texH);
+	SDL_Rect temp = { x, y, texW, texH };
+	SDL_RenderCopy(renderer_, texture, NULL, &temp);
+	SDL_DestroyTexture(texture);
+}
+
 void App::Render() {
 	SDL_RenderClear(renderer_);
 
@@ -322,6 +352,9 @@ void App::Render() {
 		i -> Render(renderer_, camera_x_, camera_y_);
 	}
 	// Render HUD
+
+	RenderText("Health: 100", default_font_, { 255, 255, 255, 0 }, 0, 0);
+	RenderText("Mana: 100", default_font_, { 255, 255, 255, 0 }, 0, 20);
 
 	SDL_RenderPresent(renderer_);
 }
@@ -362,6 +395,14 @@ void App::AddChest(const size_t& index, const int& x, const int& y) {
 	Chest* temp = new Chest(textures_[index], x, y);
 	to_render_.push_back(temp);
 	chests_.push_back(temp);
+}
+
+void App::LoadSound(const char* path) {
+	sounds_.push_back(Mix_LoadWAV(path));
+}
+
+void App::PlaySound(const unsigned& index, const int& loops) {
+	Mix_PlayChannel(-1, sounds_[index], loops);
 }
 
 void App::LoadTexture(const char* path) {
@@ -466,19 +507,15 @@ bool App::AddRoom(const unsigned int& index, const int& x, const int& y) {
 				break;
 				case 45:
 					// Air
-					//path_tiles_[unsigned((floor(y / 32) + j) * room_width_ / 32 + (floor(x / 32) + i))] = true;
 				break;
 				case 77:
-					//path_tiles_[unsigned((floor(y / 32) + j) * room_width_ / 32 + (floor(x / 32) + i))] = true;
 					monsters_.push_back(new Monster(textures_[3], i * 32 + x, j * 32 + y));
 				break;
 				case 80:
 					AddWall(2, i * 32 + x, j * 32 + y);
-					//path_tiles_[unsigned((floor(y / 32) + j) * room_width_ / 32 + (floor(x / 32) + i))] = false;
 				break;
 				case 87:
 					AddWall(1, i * 32 + x, j * 32 + y);
-					//path_tiles_[unsigned((floor(y / 32) + j) * room_width_ / 32 + (floor(x / 32) + i))] = false;
 				break;
 				case 72:
 					AddChest(6, i * 32 + x, j * 32 + y);
