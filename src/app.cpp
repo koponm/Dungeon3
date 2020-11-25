@@ -77,7 +77,7 @@ void App::Update() {
 
 	if (second_timer_ >= 0.5) {
 		second_timer_ -= 0.5;
-		update::CalculatePath(monsters_, path_tiles_, previous_x, previous_y, size_, room_width_, room_height_);
+		monster::CalculatePath(monsters_, path_tiles_, previous_x, previous_y, size_, room_width_, room_height_);
 	}
 	
 	if (f_) {//check if player and item or chest intersect
@@ -174,7 +174,7 @@ void App::Update() {
 		}
 
 		if (!monsters_.empty()) {
-			update::UpdateMonsters(monsters_, delta_time_, fps_desired_,
+			monster::UpdateMonsters(monsters_, delta_time_, fps_desired_,
 				up_ || down_ || left_ || right_,
 				room_width_, walls_);
 		}
@@ -468,7 +468,7 @@ bool App::AddRoom(const unsigned int& index, const int& x, const int& y) {
 					// Air
 				break;
 				case 77:
-					monsters_.push_back(new Monster(textures_->Get(TextureType::zombie), i * 32 + x, j * 32 + y));
+					monster::AddMonster(monsters_, textures_, i * 32 + x, j * 32 + y, difficulty_);
 				break;
 				case 80:
 					AddWall(TextureType::fire, i * 32 + x, j * 32 + y);

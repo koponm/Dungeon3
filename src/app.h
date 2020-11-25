@@ -18,7 +18,7 @@
 #include "player.h"
 #include "wall.h"
 #include "projectile.h"
-#include "monster/monster.h"
+#include "monster/initializeMonster.h"
 #include "monster/update.h"
 #include "items.h"
 #include "chest.h"
@@ -94,6 +94,7 @@ private:
 	unsigned size_ = 0;
 	bool* tiles_ = nullptr;
 	bool* path_tiles_ = nullptr;
+	unsigned int difficulty_ = 1;
 
 	size_t fps_desired_ = 60;
 	double second_timer_ = 0.0;

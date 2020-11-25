@@ -25,6 +25,7 @@ public:
 	double GetSpeed() { return speed_;  }
 	double GetAttack() { return attack_; }
 	double GetHealth() { return health_; }
+	bool IgnoreWalls() { return ignore_walls_; }
 protected:
 	double x_ = 0.0;
 	double y_ = 0.0;
@@ -36,5 +37,6 @@ protected:
 	double speed_ = 512.0;
 	double attack_ = 1;
 	double health_ = 100;
+	bool ignore_walls_ = false;
 };
 #endif // MONSTER_H_

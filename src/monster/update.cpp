@@ -1,7 +1,7 @@
 #include "update.h"
 
 
-namespace update {
+namespace monster {
 
 unsigned int calculateHCost(int current, int target, unsigned int w) {
 	unsigned int x_diff = abs(int(target % w) - int(current % w));
@@ -24,13 +24,16 @@ std::list<int> getNeighbours(int current_node, bool* path_tiles, unsigned int w,
 			int current_tile = current_node + i * w + j;
 			if (current_tile >= 0 && (unsigned)current_tile < size
 				&& (int)((original_row+i)*w) <= current_tile && current_tile < (int)((original_row + i + 1)*w) ) {
-				if (current_node != current_tile && path_tiles[current_tile]
+				if (current_node == current_tile) {
+					continue;
+				}
+				if (path_tiles == nullptr || (path_tiles != nullptr && path_tiles[current_tile]
 					&& !(
 						((i == 1 && j == 1)  && (((current_node + 1 < (int)size) && !path_tiles[current_node + 1]) || ((current_node + w < (int)size) && !path_tiles[current_node + w])))
 						|| ((i == 1 && j == -1)  && (((current_node - 1 >= 0) && !path_tiles[current_node - 1]) || ((current_node + w < (int)size) && !path_tiles[current_node + w])))
 						|| ((i == -1 && j == 1)  && (((current_node + 1 < (int)size) && !path_tiles[current_node + 1]) || ((current_node - w >= 0) && !path_tiles[current_node - w])))
 						|| ((i == -1 && j == -1) && (((current_node - 1 >= 0) && !path_tiles[current_node - 1]) || ((current_node - w >= 0) && !path_tiles[current_node - w])))
-						)) {
+						))) {
 					neighbours.push_back(current_tile);
 				}
 			}
@@ -136,7 +139,13 @@ void A_star_algorithm(Monster* monster, bool* path_tiles,
 void CalculatePath(std::vector<Monster*>& monsters, bool* path_tiles, double player_x, double player_y,
 	unsigned size, unsigned int room_width, unsigned int room_height) {
 	for (auto& monster : monsters) {
-		A_star_algorithm(monster, path_tiles, player_x, player_y, size, room_width, room_height);
+		if (!monster->IgnoreWalls()) {
+			A_star_algorithm(monster, path_tiles, player_x, player_y, size, room_width, room_height);
+		}
+		else {
+			A_star_algorithm(monster, nullptr, player_x, player_y, size, room_width, room_height);
+		}
+		
 	}
 }
 
@@ -180,33 +189,37 @@ void UpdateMonsters(std::vector<Monster*>& monsters, double delta_speed, const s
 		int w1, h1;
 		monster->GetPos(x1, y1);
 		monster->GetRect(w1, h1);
-		for (auto& i : walls) {
-			int x2, y2;
-			int w2, h2;
-			i->GetPos(x2, y2);
-			i->GetRect(w2, h2);
 
-			if (x1 < ((double)x2 + w2) && x1 + w1 > x2 && y1 < ((double)y2 + h2) && y1 + h1 > y2) {
-				double x_res = (x1 - x2);
-				x_res = x_res + (x_res < 0 ? w2 : -w2);
+		if (!monster->IgnoreWalls()) {
+			for (auto& i : walls) {
+				int x2, y2;
+				int w2, h2;
+				i->GetPos(x2, y2);
+				i->GetRect(w2, h2);
 
-				double y_res = (y1 - y2);
-				y_res = y_res + (y_res < 0 ? h2 : -h2);
+				if (x1 < ((double)x2 + w2) && x1 + w1 > x2 && y1 < ((double)y2 + h2) && y1 + h1 > y2) {
+					double x_res = (x1 - x2);
+					x_res = x_res + (x_res < 0 ? w2 : -w2);
 
-				if (fabs(x_res) >= 4.0) {
-					if (fabs(y_res) > 0.0) {
-						monster->AddPos(0, -y_res);
-						monster->SetVel(1, 0.0);
+					double y_res = (y1 - y2);
+					y_res = y_res + (y_res < 0 ? h2 : -h2);
+
+					if (fabs(x_res) >= 4.0) {
+						if (fabs(y_res) > 0.0) {
+							monster->AddPos(0, -y_res);
+							monster->SetVel(1, 0.0);
+						}
 					}
-				}
-				else if (fabs(y_res) >= 4.0) {
-					if (fabs(x_res) > 0.0) {
-						monster->AddPos(-x_res, 0);
-						monster->SetVel(0, 0.0);
+					else if (fabs(y_res) >= 4.0) {
+						if (fabs(x_res) > 0.0) {
+							monster->AddPos(-x_res, 0);
+							monster->SetVel(0, 0.0);
+						}
 					}
 				}
 			}
 		}
+		
 		for (auto& i : monsters) {
 			if (i == monster) { continue; }
 			double x2, y2;

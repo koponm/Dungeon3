@@ -10,6 +10,7 @@ TextureHandler::TextureHandler(SDL_Renderer* renderer)
 	LoadTexture("assets/potion1_1.png");
 	LoadTexture("assets/potion2_1.png");
 	LoadTexture("assets/chest_2.png");
+	LoadTexture("assets/ghost_2.png");
 }
 
 const Texture& TextureHandler::Get(TextureType type) const {

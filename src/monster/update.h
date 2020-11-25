@@ -12,7 +12,7 @@
 #include <cmath>
 
 
-namespace update {
+namespace monster {
 
 unsigned int calculateHCost(int current, int target, unsigned int w);
 

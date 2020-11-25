@@ -17,8 +17,8 @@
 TEST(Pathfinding, calculateHCost) {
 
     unsigned int w = 5;
-    unsigned int res1  = update::calculateHCost(0, 9, w);
-    unsigned int res2 = update::calculateHCost(5, 4, w);
+    unsigned int res1  = monster::calculateHCost(0, 9, w);
+    unsigned int res2 = monster::calculateHCost(5, 4, w);
     EXPECT_EQ(res1, 44);
     EXPECT_EQ(res2, 44);
 }
@@ -34,7 +34,7 @@ TEST(Pathfinding, nodeComp) {
     list.push_back(node1);
     list.push_back(node2);
     list.push_back(node3);
-    std::list<LocationNode*>::iterator  smallest = std::min_element(list.begin(), list.end(), update::nodeComp);
+    std::list<LocationNode*>::iterator  smallest = std::min_element(list.begin(), list.end(), monster::nodeComp);
     EXPECT_EQ((*smallest)->location, node2->location);
 
     for (auto node : list) {
@@ -50,7 +50,7 @@ TEST(Pathfinding, getNeighbours_left_excluded) {
         tiles[i] = true;
     }
 
-    std::list<int> list = update::getNeighbours(0, tiles, 8, size);
+    std::list<int> list = monster::getNeighbours(0, tiles, 8, size);
 
     std::list<int> expected_list({1, 8, 9});
 
@@ -64,7 +64,7 @@ TEST(Pathfinding, getNeighbours_right_excluded) {
         tiles[i] = true;
     }
 
-    std::list<int> list = update::getNeighbours(7, tiles, 8, size);
+    std::list<int> list = monster::getNeighbours(7, tiles, 8, size);
 
     std::list<int> expected_list({ 6, 14, 15 });
 
@@ -79,7 +79,7 @@ TEST(Pathfinding, getNeighbours_center) {
     }
     tiles[33] = false;
 
-    std::list<int> list = update::getNeighbours(34, tiles, 8, size);
+    std::list<int> list = monster::getNeighbours(34, tiles, 8, size);
     std::list<int> expected_list({ 26, 27, 35, 42, 43 });
 
     EXPECT_EQ(expected_list, list);
@@ -94,7 +94,7 @@ TEST(Pathfinding, getNeighbours_center_2) {
     tiles[26] = false;
     tiles[42] = false;
 
-    std::list<int> list = update::getNeighbours(34, tiles, 8, size);
+    std::list<int> list = monster::getNeighbours(34, tiles, 8, size);
     std::list<int> expected_list({ 33, 35 });
 
     EXPECT_EQ(expected_list, list);
@@ -107,7 +107,7 @@ TEST(Pathfinding, getNeighbours_false) {
         tiles[i] = false;
     }
 
-    std::list<int> list = update::getNeighbours(1, tiles, 8, size);
+    std::list<int> list = monster::getNeighbours(1, tiles, 8, size);
 
     EXPECT_TRUE(list.empty());
 }
@@ -123,7 +123,7 @@ TEST(Pathfinding, A_star_algorithm_1) {
     double x1, x2;
     monster->GetPos(x1, x2);
     EXPECT_EQ(x1, 32.0);
-    update::A_star_algorithm(monster, tiles, 2*32, 1*32, size, 8 * 32, 8 * 32);
+    monster::A_star_algorithm(monster, tiles, 2*32, 1*32, size, 8 * 32, 8 * 32);
     EXPECT_EQ(monster->GetNextTile(), 10);
 
     delete monster;
@@ -140,7 +140,7 @@ TEST(Pathfinding, A_star_algorithm_2) {
     double x1, x2;
     monster->GetPos(x1, x2);
     EXPECT_EQ(x1, 32.0);
-    update::A_star_algorithm(monster, tiles, 3 * 32, 1 * 32, size, 8 * 32, 8 * 32);
+    monster::A_star_algorithm(monster, tiles, 3 * 32, 1 * 32, size, 8 * 32, 8 * 32);
     EXPECT_EQ(monster->GetNextTile(), 10);
     monster->PopNextMove();
     EXPECT_EQ(monster->GetNextTile(), 11);
@@ -166,7 +166,7 @@ TEST(Pathfinding, A_star_algorithm_3) {
     double x1, x2;
     monster->GetPos(x1, x2);
     EXPECT_EQ(x1, 32.0);
-    update::A_star_algorithm(monster, tiles, 5 * 32, 0 * 32, size, 8 * 32, 8 * 32);
+    monster::A_star_algorithm(monster, tiles, 5 * 32, 0 * 32, size, 8 * 32, 8 * 32);
     for (unsigned int i = 0; i < 5; i++)
         monster->PopNextMove();
     EXPECT_EQ(monster->GetNextTile(), 5);

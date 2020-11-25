@@ -7,5 +7,6 @@ enum TextureType {
 	zombie = 3,
 	healthPotion = 4,
 	manaPotion = 5,
-	chest = 6
+	chest = 6,
+	ghost = 7
 };

@@ -155,6 +155,8 @@
     <ClCompile Include="chest.cpp" />
     <ClCompile Include="items.cpp" />
     <ClCompile Include="main.cpp" />
+    <ClCompile Include="monster\ghost.cpp" />
+    <ClCompile Include="monster\initializeMonster.cpp" />
     <ClCompile Include="monster\monster.cpp" />
     <ClCompile Include="monster\update.cpp" />
     <ClCompile Include="monster\zombie.cpp" />
@@ -169,6 +171,8 @@
     <ClInclude Include="chest.h" />
     <ClInclude Include="constants.h" />
     <ClInclude Include="items.h" />
+    <ClInclude Include="monster\ghost.h" />
+    <ClInclude Include="monster\initializeMonster.h" />
     <ClInclude Include="monster\LocationNode.h" />
     <ClInclude Include="monster\monster.h" />
     <ClInclude Include="monster\update.h" />
