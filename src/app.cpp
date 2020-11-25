@@ -28,15 +28,9 @@ App::App(void)
 
 		PlaySound(1, -1);
 
-		LoadTexture("assets/player_8.png");
-		LoadTexture("assets/wall2_1.png");
-		LoadTexture("assets/fire_3.png");
-		LoadTexture("assets/monster_1.png");
-		LoadTexture("assets/potion1_1.png");
-		LoadTexture("assets/potion2_1.png");
-		LoadTexture("assets/chest_2.png");
+		textures_ = new TextureHandler(renderer_);
 
-		player_ = new Player(textures_[0], 0, 0);
+		player_ = new Player((textures_->Get(TextureType::player)), 0, 0);
 
 		LoadRoom("assets/startroom_0110.txt");
 		LoadRoom("assets/endroom_1111.txt");
@@ -66,6 +60,7 @@ App::~App() {
 	TTF_CloseFont(default_font_);
 	SDL_DestroyRenderer(renderer_);
 	SDL_DestroyWindow(window_);
+	delete textures_;
 	SDL_Quit();
 	TTF_Quit();
 }
@@ -112,7 +107,7 @@ void App::Update() {
 	}
 	if (m1_) {
 		m1_ = false;
-		AddProjectile(2, previous_x, previous_y, 512.0, mouse_player_angle_);
+		AddProjectile(TextureType::fire, previous_x, previous_y, 512.0, mouse_player_angle_);
 		PlaySound(0, 0);
 	}
 
@@ -367,14 +362,14 @@ bool App::Running() const {
 	return running_;
 }
 
-void App::AddWall(const size_t& index, const int& x, const int& y) {
-	Wall* temp = new Wall(textures_[index], x, y);
+void App::AddWall(TextureType type, const int& x, const int& y) {
+	Wall* temp = new Wall(textures_->Get(type), x, y);
 	to_render_.push_back(temp);
 	walls_.push_back(temp);
 	path_tiles_[unsigned((floor(y / 32)) * room_width_ / 32 + (floor(x / 32)))] = false;
 }
-void App::AddProjectile(const size_t& index, const int& x, const int& y,double speed, double dir) {
-	Projectile* temp = new Projectile(textures_[index], x, y,speed,dir);
+void App::AddProjectile(TextureType type, const int& x, const int& y,double speed, double dir) {
+	Projectile* temp = new Projectile(textures_->Get(type), x, y,speed,dir);
 	to_render_.push_back(temp);
 	projectiles_.push_back(temp);
 }
@@ -382,21 +377,21 @@ void App::AddItem(const int& x, const int& y, ItemType type) {
 	if (type == ItemType::random) { //random if ItemType not given
 		type = static_cast<ItemType>(rand() % (int)(ItemType::random));
 	}
-	size_t index = 0;
+	TextureType t;
 	switch (type) { //get index for texture
 	case ItemType::health_potion:
-		index = 4;
+		t = TextureType::healthPotion;
 		break;
 	case ItemType::mana_potion:
-		index = 5;
+		t = TextureType::manaPotion;
 	break;
 	}
-	Item* temp = new Item(textures_[index], x, y, type);
+	Item* temp = new Item(textures_->Get(t), x, y, type);
 	to_render_.push_back(temp);
 	items_.push_back(temp);
 }
-void App::AddChest(const size_t& index, const int& x, const int& y) {
-	Chest* temp = new Chest(textures_[index], x, y);
+void App::AddChest(TextureType type, const int& x, const int& y) {
+	Chest* temp = new Chest(textures_->Get(type), x, y);
 	to_render_.push_back(temp);
 	chests_.push_back(temp);
 }
@@ -407,46 +402,6 @@ void App::LoadSound(const char* path) {
 
 void App::PlaySound(const unsigned& index, const int& loops) {
 	Mix_PlayChannel(-1, sounds_[index], loops);
-}
-
-void App::LoadTexture(const char* path) {
-	Texture temp_texture;
-	
-	SDL_Surface* temp = IMG_Load(path);
-	
-	SDL_Rect temp_rect;
-	temp_rect.w = temp -> w;
-	temp_rect.h = temp -> h;
-	temp_rect.x = 0;
-	temp_rect.y = 0;
-
-	temp_texture.texture = SDL_CreateTextureFromSurface(renderer_, temp);
-	
-	string name = path;
-	string images;
-	char t;
-	unsigned i = 0;
-
-	while (true) {
-		t = path[name.length() - 5 - i];
-		if (t != '_') {
-			images += t;
-			i++;
-		} else {
-			break;
-		}
-	}
-
-	i = stoi(images, nullptr, 10);
-
-	temp_rect.w = temp_rect.w / i;
-	temp_texture.texture_data = temp_rect;
-	temp_texture.sprite_data = temp_rect;
-	temp_texture.subimages = i;
-
-	textures_.push_back(temp_texture);
-
-	SDL_FreeSurface(temp);
 }
 
 void App::LoadRoom(const char* path) {
@@ -513,16 +468,16 @@ bool App::AddRoom(const unsigned int& index, const int& x, const int& y) {
 					// Air
 				break;
 				case 77:
-					monsters_.push_back(new Monster(textures_[3], i * 32 + x, j * 32 + y));
+					monsters_.push_back(new Monster(textures_->Get(TextureType::zombie), i * 32 + x, j * 32 + y));
 				break;
 				case 80:
-					AddWall(2, i * 32 + x, j * 32 + y);
+					AddWall(TextureType::fire, i * 32 + x, j * 32 + y);
 				break;
 				case 87:
-					AddWall(1, i * 32 + x, j * 32 + y);
+					AddWall(TextureType::wall2, i * 32 + x, j * 32 + y);
 				break;
 				case 72:
-					AddChest(6, i * 32 + x, j * 32 + y);
+					AddChest(TextureType::chest, i * 32 + x, j * 32 + y);
 				break;
 				case 112:
 					player_ -> SetPos(i * 32 + x, j * 32 + y);
@@ -713,25 +668,25 @@ void App::Generate() {
 							break;
 							case 0:
 								nx += (w / 2 * 32);
-								AddWall(1, nx - 32, ny);
-								AddWall(1, nx, ny);
+								AddWall(TextureType::wall2, nx - 32, ny);
+								AddWall(TextureType::wall2, nx, ny);
 							break;
 							case 1:
 								nx += (w - 1) * 32;
 								ny += (h / 2 * 32);
-								AddWall(1, nx, ny - 32);
-								AddWall(1, nx, ny);
+								AddWall(TextureType::wall2, nx, ny - 32);
+								AddWall(TextureType::wall2, nx, ny);
 							break;
 							case 2:
 								nx += (w / 2 * 32);
 								ny += (h - 1) * 32;
-								AddWall(1, nx - 32, ny);
-								AddWall(1, nx, ny);
+								AddWall(TextureType::wall2, nx - 32, ny);
+								AddWall(TextureType::wall2, nx, ny);
 							break;
 							case 3:
 								ny += (h / 2 * 32);
-								AddWall(1, nx, ny - 32);
-								AddWall(1, nx, ny);
+								AddWall(TextureType::wall2, nx, ny - 32);
+								AddWall(TextureType::wall2, nx, ny);
 							break;
 						}
 						

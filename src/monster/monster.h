@@ -10,7 +10,7 @@ using namespace std;
 class Monster : public Renderable {
 public:
 	Monster(const Texture& texture, double x, double y);
-	~Monster();
+	~Monster() {}
 	void GetPos(double& x, double& y);
 	void SetPos(const double& x, const double& y);
 	void AddPos(const double& x, const double& y);
@@ -25,7 +25,7 @@ public:
 	double GetSpeed() { return speed_;  }
 	double GetAttack() { return attack_; }
 	double GetHealth() { return health_; }
-private:
+protected:
 	double x_ = 0.0;
 	double y_ = 0.0;
 	double x_vel_ = 0.0;

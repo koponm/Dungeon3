@@ -7,10 +7,6 @@ Monster::Monster(const Texture& texture, double x, double y) : Renderable(textur
 	RectPos((int)floor(x_ + .5), (int)floor(y_ + .5));
 }
 
-Monster::~Monster() {
-
-}
-
 void Monster::GetPos(double& x, double& y) {
 	x = x_;
 	y = y_;

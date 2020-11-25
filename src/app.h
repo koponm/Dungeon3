@@ -13,6 +13,8 @@
 #include "SDL_ttf.h"
 #include "SDL_mixer.h"
 #include "renderable.h"
+#include "constants.h"
+#include "textureHandler.h"
 #include "player.h"
 #include "wall.h"
 #include "projectile.h"
@@ -39,11 +41,10 @@ public:
 	void Render();
 	bool Running() const;
 	void LoadRoom(const char* path);
-	void LoadTexture(const char* path);
-	void AddProjectile(const size_t& index, const int& x, const int& y,double speed,double dir);
-	void AddWall(const size_t& index, const int& x, const int& y);
+	void AddProjectile(TextureType type, const int& x, const int& y,double speed,double dir);
+	void AddWall(TextureType type, const int& x, const int& y);
 	void AddItem(const int& x, const int& y, ItemType type = ItemType::random);
-	void AddChest(const size_t& index, const int& x, const int& y);
+	void AddChest(TextureType type, const int& x, const int& y);
 	bool AddRoom(const unsigned int& index, const int& x, const int& y);
 	void Generate();
 	void RenderText(const char* text, TTF_Font* font, SDL_Color color, int x, int y);
@@ -61,7 +62,7 @@ private:
 	int height_;
 	bool fullscreen_;
 	bool running_;
-	vector<Texture> textures_;
+	TextureHandler* textures_ = nullptr;
 	vector<Room> room_data_;
 	Player* player_ = nullptr;
 	vector<Renderable*> to_render_;
