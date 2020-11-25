@@ -16,58 +16,9 @@ bool nodeComp(const LocationNode* lhs, const LocationNode* rhs) {
 
 std::list<int> getNeighbours(int current_node, bool* path_tiles, unsigned int w, unsigned int size)
 {
-	
 	std::list<int> neighbours;
 	unsigned int original_row = (unsigned int)floor(current_node / w);
-	/*
-	int l1 = current_node + 1;
-	if ((unsigned int)floor(l1 / w) == original_row
-		&& (l1) < size && path_tiles[l1]) {
-		neighbours.push_back(l1);
-	}
-	int l2 = current_node - 1;
-	if ((unsigned int)floor(l2 / w) == original_row
-		&& (l2 >= 0) && path_tiles[l2]) {
-		neighbours.push_back(l2);
-	}
-	int l3 = current_node + w;
-	if ((l3 < size) && path_tiles[l3]) {
-		neighbours.push_back(l3);
-	}
-	int l4 = current_node - w;
-	if ((l4 >= 0) && path_tiles[l4]) {
-		neighbours.push_back(l4);
-	}
-	int l5 = current_node - w - 1;
-	if ((unsigned int)floor(l5 / w) == original_row - 1
-		&& (l5 >= 0) && path_tiles[l5]
-		&& !(l5 - 1 >= 0 && !path_tiles[l5 - 1])
-		&& !(l5 - w >= 0 && !path_tiles[l5 - w])) {
-		neighbours.push_back(l5);
-	}
-	int l6 = current_node - w + 1;
-	if ((unsigned int)floor(l6 / w) == original_row - 1
-		&& (l6 < size) && path_tiles[l6]
-		&& !(l6 + 1 < size && !path_tiles[l6 + 1])
-		&& !(l6 + w < size && !path_tiles[l6 + w])) {
-		neighbours.push_back(l6);
-	}
-	int l7 = current_node + w - 1;
-	if ((unsigned int)floor(l7 / w) == original_row + 1
-		&& (l7 < size) && path_tiles[l7]
-		&& !(l7 - 1 >= 0 && !path_tiles[l7 - 1])
-		&& !(l7 - w >= 0 && !path_tiles[l7 - w])) {
-		neighbours.push_back(l7);
-	}
-	int l8 = current_node + w + 1;
-	if ((unsigned int)floor(l8 / w) == original_row + 1
-		&& (l8 < size) && path_tiles[l8]
-		&& !(l8 + 1 < size && !path_tiles[l8 + 1])
-		&& !(l8 + w < size && !path_tiles[l8 + w])) {
-		neighbours.push_back(l8);
-	}
-	*/
-	
+
 	for (int i = -1; i <= 1; i++) {
 		for (int j = -1; j <= 1; j++) {
 			int current_tile = current_node + i * w + j;

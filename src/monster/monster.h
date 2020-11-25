@@ -23,6 +23,8 @@ public:
 	void ChangeNextMoves(list<int> moves) { next_moves_ = moves; }
 	void PopNextMove();
 	double GetSpeed() { return speed_;  }
+	double GetAttack() { return attack_; }
+	double GetHealth() { return health_; }
 private:
 	double x_ = 0.0;
 	double y_ = 0.0;
@@ -32,5 +34,7 @@ private:
 	bool can_move_ = false;
 	list<int> next_moves_;
 	double speed_ = 512.0;
+	double attack_ = 1;
+	double health_ = 100;
 };
 #endif // MONSTER_H_

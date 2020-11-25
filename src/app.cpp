@@ -352,9 +352,13 @@ void App::Render() {
 		i -> Render(renderer_, camera_x_, camera_y_);
 	}
 	// Render HUD
+	std::stringstream ss_h;
+	std::stringstream ss_m;
+	ss_h << "Health: " << player_->GetHealth();
+	ss_m << "Mana: " << player_->GetMana();
 
-	RenderText("Health: 100", default_font_, { 255, 255, 255, 0 }, 0, 0);
-	RenderText("Mana: 100", default_font_, { 255, 255, 255, 0 }, 0, 20);
+	RenderText(ss_h.str().c_str(), default_font_, { 255, 255, 255, 0 }, 0, 0);
+	RenderText(ss_m.str().c_str(), default_font_, { 255, 255, 255, 0 }, 0, 20);
 
 	SDL_RenderPresent(renderer_);
 }
