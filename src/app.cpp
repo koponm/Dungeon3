@@ -107,7 +107,7 @@ void App::Update() {
 	}
 	if (m1_) {
 		m1_ = false;
-		AddProjectile(TextureType::fire, previous_x, previous_y, 512.0, mouse_player_angle_);
+		AddProjectile(TextureType::fire, previous_x, previous_y, 512.0, mouse_player_angle_,ProjectileType::Fireball);
 		PlaySound(0, 0);
 	}
 
@@ -368,8 +368,12 @@ void App::AddWall(TextureType type, const int& x, const int& y) {
 	walls_.push_back(temp);
 	path_tiles_[unsigned((floor(y / 32)) * room_width_ / 32 + (floor(x / 32)))] = false;
 }
-void App::AddProjectile(TextureType type, const int& x, const int& y,double speed, double dir) {
-	Projectile* temp = new Projectile(textures_->Get(type), x, y,speed,dir);
+void App::AddProjectile(TextureType type, const int& x, const int& y,double speed, double dir,ProjectileType pro) {
+	Projectile* temp = nullptr;
+	switch (pro)
+	case ProjectileType::Fireball: {
+		temp = new Fireball(textures_->Get(type), x, y, speed, dir);
+	};
 	to_render_.push_back(temp);
 	projectiles_.push_back(temp);
 }

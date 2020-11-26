@@ -5,8 +5,8 @@ Projectile::Projectile(const Texture& texture, double x, double y, double speed,
 	x_ = x;
 	y_ = y;
 	speed_ = speed;
-	x_vel_ = speed_*cos(dir * M_PI / 180);
-	y_vel_ = -speed_* sin(dir* M_PI/180);
+	//x_vel_ = speed_*cos(dir * M_PI / 180);
+	//y_vel_ = -speed_* sin(dir* M_PI/180);
 	RectPos((int)floor(x_ + .5), (int)floor(y_ + .5));
 	parent_ = Self();
 }

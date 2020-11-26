@@ -60,6 +60,9 @@
     <ClCompile Include="monster\initializeMonster.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
+    <ClCompile Include="fireball.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="app.h">
@@ -105,6 +108,9 @@
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="monster\initializeMonster.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="fireball.h">
       <Filter>Header Files</Filter>
     </ClInclude>
   </ItemGroup>

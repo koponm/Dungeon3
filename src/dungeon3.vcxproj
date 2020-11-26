@@ -153,6 +153,7 @@
   <ItemGroup>
     <ClCompile Include="app.cpp" />
     <ClCompile Include="chest.cpp" />
+    <ClCompile Include="fireball.cpp" />
     <ClCompile Include="items.cpp" />
     <ClCompile Include="main.cpp" />
     <ClCompile Include="monster\ghost.cpp" />
@@ -170,6 +171,7 @@
     <ClInclude Include="app.h" />
     <ClInclude Include="chest.h" />
     <ClInclude Include="constants.h" />
+    <ClInclude Include="fireball.h" />
     <ClInclude Include="items.h" />
     <ClInclude Include="monster\ghost.h" />
     <ClInclude Include="monster\initializeMonster.h" />
