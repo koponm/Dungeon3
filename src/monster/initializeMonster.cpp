@@ -16,6 +16,10 @@ namespace monster {
 		case MonsterType::ghost:
 			m = new Ghost(texture->Get(TextureType::ghost), x, y);
 			break;
+
+		case MonsterType::skeleton:
+			m = new Skeleton(texture->Get(TextureType::skeleton), x, y);
+			break;
 		}
 		if (m)
 			monsters.push_back(m);

@@ -26,6 +26,9 @@ public:
 	double GetAttack() { return attack_; }
 	double GetHealth() { return health_; }
 	bool IgnoreWalls() { return ignore_walls_; }
+	void SetLignOfSight(bool input) { has_lign_of_sight = input; }
+	bool HasLignOfSight() { return has_lign_of_sight; }
+	bool IsMelee() { return is_melee; }
 protected:
 	double x_ = 0.0;
 	double y_ = 0.0;
@@ -38,5 +41,7 @@ protected:
 	double attack_ = 1;
 	double health_ = 100;
 	bool ignore_walls_ = false;
+	bool has_lign_of_sight = false;
+	bool is_melee = true;
 };
 #endif // MONSTER_H_

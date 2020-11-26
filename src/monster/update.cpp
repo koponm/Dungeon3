@@ -42,6 +42,27 @@ std::list<int> getNeighbours(int current_node, bool* path_tiles, unsigned int w,
 	
 	return neighbours;
 }
+bool hasLignOfSight(bool* path_tiles, int current, int target, unsigned int w, unsigned int size) {
+	int x_diff = int(target % w) - int(current % w);
+	int y_diff = (int)floor(target / w) - (int)floor(current / w);
+
+	for (int x = 0; x <= abs(x_diff); x++) {
+		for (int y = 0; y <= abs(y_diff); y++) {
+			int current_tile = current + (x_diff >= 0 ? x : -x) + (y_diff >= 0 ? y : -y) * w;
+			if (0 <= current_tile && current_tile < size) {
+				if (!path_tiles[current_tile]) {
+					return false;
+				}
+			}
+		}
+	}
+	if (std::sqrt(x_diff * x_diff + y_diff * y_diff) > 6) {
+		return false;
+	}
+	else {
+		return true;
+	}	
+}
 
 void A_star_algorithm(Monster* monster, bool* path_tiles,
 	double player_x, double player_y,
@@ -114,6 +135,9 @@ void A_star_algorithm(Monster* monster, bool* path_tiles,
 	}
 	std::list<int> monster_next_moves;
 	if (last_node != nullptr) {
+		monster->SetLignOfSight(
+			hasLignOfSight(path_tiles, current_location, target_location, w, size)
+		);
 		while(true)
 		{
 			if (last_node->parent != nullptr) {
@@ -158,6 +182,9 @@ void UpdateMonsters(std::vector<Monster*>& monsters, double delta_speed, const s
 			monster->PlayerMoved();
 		}
 		if (!monster->CanMove()) { continue; }
+
+		if (monster->HasLignOfSight() && !monster->IsMelee()) { continue; }
+
 		double speed = monster->GetSpeed() / fps;
 
 		double current_x, current_y;
