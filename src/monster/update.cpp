@@ -42,7 +42,10 @@ std::list<int> getNeighbours(int current_node, bool* path_tiles, unsigned int w,
 	
 	return neighbours;
 }
-bool hasLignOfSight(bool* path_tiles, int current, int target, unsigned int w, unsigned int size) {
+bool getLineOfSight(bool* path_tiles, int current, int target, unsigned int w, unsigned int size) {
+	if (path_tiles == nullptr)
+		return false;
+
 	int x_diff = int(target % w) - int(current % w);
 	int y_diff = (int)floor(target / w) - (int)floor(current / w);
 
@@ -135,9 +138,8 @@ void A_star_algorithm(Monster* monster, bool* path_tiles,
 	}
 	std::list<int> monster_next_moves;
 	if (last_node != nullptr) {
-		monster->SetLignOfSight(
-			hasLignOfSight(path_tiles, current_location, target_location, w, size)
-		);
+		bool temp = getLineOfSight(path_tiles, current_location, target_location, w, size);
+		//monster->SetLignOfSight(temp);
 		while(true)
 		{
 			if (last_node->parent != nullptr) {

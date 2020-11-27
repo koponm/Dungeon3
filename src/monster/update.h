@@ -21,7 +21,7 @@ bool nodeComp(const LocationNode* lhs, const LocationNode* rhs);
 std::list<int> getNeighbours(int current_node, bool* path_tiles, 
 	unsigned int w, unsigned int size);
 
-bool hasLignOfSight(bool* path_tiles, int current, int target,
+bool getLineOfSight(bool* path_tiles, int current, int target,
 	unsigned int w, unsigned int size);
 
 void A_star_algorithm(Monster* monster, bool* path_tiles, double player_x, double player_y,
