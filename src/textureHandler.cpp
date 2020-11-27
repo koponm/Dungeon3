@@ -6,14 +6,23 @@ TextureHandler::TextureHandler(SDL_Renderer* renderer)
 	LoadTexture("assets/player_8.png");
 	LoadTexture("assets/wall2_1.png");
 	LoadTexture("assets/fire_3.png");
-	LoadTexture("assets/monster_1.png");
+	LoadTexture("assets/zombie_2.png");
 	LoadTexture("assets/potion1_1.png");
 	LoadTexture("assets/potion2_1.png");
 	LoadTexture("assets/chest_2.png");
 	LoadTexture("assets/ghost_2.png");
-	LoadTexture("assets/skeldelete_1.png");
+	LoadTexture("assets/skeleton_2.png");
 	LoadTexture("assets/staff_1.png");
 	LoadTexture("assets/sword_1.png");
+
+	LoadTexture("assets/ladderdown_1.png");
+	LoadTexture("assets/ladderup_1.png");
+	LoadTexture("assets/doorh_1.png");
+	LoadTexture("assets/doorv_1.png");
+	LoadTexture("assets/skeletonmage_2.png");
+	LoadTexture("assets/skeletonarcher_2.png");
+	LoadTexture("assets/fireball_5.png");
+	LoadTexture("assets/tombstone_1.png");
 }
 
 const Texture& TextureHandler::Get(TextureType type) const {

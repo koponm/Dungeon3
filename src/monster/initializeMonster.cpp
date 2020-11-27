@@ -17,8 +17,11 @@ namespace monster {
 			m = new Ghost(texture->Get(TextureType::ghost), x, y);
 			break;
 
-		case MonsterType::skeleton:
-			m = new Skeleton(texture->Get(TextureType::skeleton), x, y);
+		case MonsterType::skeleton_archer:
+			m = new Skeleton(texture->Get(TextureType::skeletonArcher), x, y);
+			break;
+		case MonsterType::skeleton_mage:
+			m = new SkeletonMage(texture->Get(TextureType::skeletonMage), x, y);
 			break;
 		}
 		if (m)

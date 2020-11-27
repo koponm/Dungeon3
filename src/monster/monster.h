@@ -29,6 +29,10 @@ public:
 	void SetLignOfSight(bool input) { has_lign_of_sight = input; }
 	bool HasLignOfSight() { return has_lign_of_sight; }
 	bool IsMelee() { return is_melee; }
+	bool IsDead() { return health_ <= 0; }
+	void KILL() { health_ = 0; }
+	bool Dead() { return is_dead; }
+	void Kill() { is_dead = true; }
 protected:
 	double x_ = 0.0;
 	double y_ = 0.0;
@@ -43,5 +47,6 @@ protected:
 	bool ignore_walls_ = false;
 	bool has_lign_of_sight = false;
 	bool is_melee = true;
+	bool is_dead = false;
 };
 #endif // MONSTER_H_

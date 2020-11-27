@@ -23,6 +23,7 @@ public:
 	void SetImageSpeed(const double& speed);
 	Renderable* Self();
 	SDL_Rect ReturnRect() const { return rect_; }
+	void SetTexture(const Texture& texture);
 private:
 	SDL_Texture* texture_;
 	SDL_Rect rect_;

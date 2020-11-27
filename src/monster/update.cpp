@@ -52,7 +52,7 @@ bool getLineOfSight(bool* path_tiles, int current, int target, unsigned int w, u
 	for (int x = 0; x <= abs(x_diff); x++) {
 		for (int y = 0; y <= abs(y_diff); y++) {
 			int current_tile = current + (x_diff >= 0 ? x : -x) + (y_diff >= 0 ? y : -y) * w;
-			if (0 <= current_tile && current_tile < size) {
+			if (0 <= current_tile && current_tile < (int)size) {
 				if (!path_tiles[current_tile]) {
 					return false;
 				}
@@ -166,6 +166,8 @@ void A_star_algorithm(Monster* monster, bool* path_tiles,
 void CalculatePath(std::vector<Monster*>& monsters, bool* path_tiles, double player_x, double player_y,
 	unsigned size, unsigned int room_width, unsigned int room_height) {
 	for (auto& monster : monsters) {
+		if (monster->IsDead())
+			continue;
 		if (!monster->IgnoreWalls()) {
 			A_star_algorithm(monster, path_tiles, player_x, player_y, size, room_width, room_height);
 		}
@@ -177,14 +179,27 @@ void CalculatePath(std::vector<Monster*>& monsters, bool* path_tiles, double pla
 }
 
 void UpdateMonsters(std::vector<Monster*>& monsters, double delta_speed, const size_t fps, bool can_move,
-	unsigned int room_width, vector<Wall*> walls) {
+	unsigned int room_width, vector<Wall*> walls, const Texture& tombstone) {
 
 	for (auto& monster : monsters) {
-	
+		if (monster->Dead()) { continue; }
+		
+		if (monster->IsDead()) {
+			monster->Kill();
+			monster->SetTexture(tombstone);
+
+			monster->AddVel(0, 0);
+			monster->CalcPos(fps);
+
+			continue;
+		}
+		
 		if (can_move) {
 			monster->PlayerMoved();
 		}
-		if (!monster->CanMove()) { continue; }
+		if (!monster->CanMove()) {
+			continue;
+		}
 
 		if (monster->HasLignOfSight() && !monster->IsMelee()) { continue; }
 

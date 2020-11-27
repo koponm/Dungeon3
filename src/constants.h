@@ -11,5 +11,13 @@ enum TextureType {
 	ghost = 7,
 	skeleton = 8,
 	staff = 9,
-	sword = 10
+	sword = 10,
+	ladderdown = 11,
+	ladderup = 12,
+	doorh = 13,
+	doorv = 14,
+	skeletonMage = 15,
+	skeletonArcher = 16,
+	fireball = 17,
+	tombstone = 18
 };

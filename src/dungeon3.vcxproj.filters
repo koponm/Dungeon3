@@ -66,6 +66,9 @@
     <ClCompile Include="monster\skeleton.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
+    <ClCompile Include="monster\skeletonMage.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
     <ClCompile Include="melee.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
@@ -120,6 +123,9 @@
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="monster\skeleton.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="monster\skeletonMage.h">
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="melee.h">

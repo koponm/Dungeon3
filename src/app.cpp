@@ -115,9 +115,15 @@ void App::Update() {
 		two_ = false;
 		player_->UseManaPotion();
 	}
+	if (three_) {
+		three_ = false;
+		for (auto monster : monsters_) {
+			monster->KILL();
+		}
+	}
 	if (m1_) {
 		m1_ = false;
-		AddProjectile(TextureType::fire, previous_x, previous_y, 512.0, mouse_player_angle_,ProjectileType::Fireball);
+		AddProjectile(TextureType::fireball, previous_x, previous_y, 400, mouse_player_angle_,ProjectileType::Fireball);
 		PlaySound(0, 0);
 	}
 
@@ -186,7 +192,7 @@ void App::Update() {
 		if (!monsters_.empty()) {
 			monster::UpdateMonsters(monsters_, delta_time_, fps_desired_,
 				up_ || down_ || left_ || right_,
-				room_width_, walls_);
+				room_width_, walls_, textures_->Get(TextureType::tombstone));
 		}
 
 		for (auto& i : projectiles_) {
@@ -301,6 +307,9 @@ void App::Event() {
 					break;
 				case SDLK_2:
 					two_ = event.key.type == SDL_KEYDOWN ? true : false;
+					break;
+				case SDLK_3:
+					three_ = event.key.type == SDL_KEYDOWN ? true : false;
 					break;
 				case SDLK_ESCAPE:
 					SDL_Quit();
@@ -506,6 +515,9 @@ bool App::AddRoom(const unsigned int& index, const int& x, const int& y) {
 				case 45:
 					// Air
 				break;
+				case 69:
+					AddWall(TextureType::ladderdown, i * 32 + x, j * 32 + y);
+				break;
 				case 77:
 					monster::AddMonster(monsters_, textures_, i * 32 + x, j * 32 + y, difficulty_);
 				break;
@@ -604,6 +616,10 @@ void App::Generate() {
 			while (cdir[dir] == 0) {
 				dir = (dir + 1) % 4;
 			}
+		} else {
+			index = 3;
+			room[y * max_x + x] = index;
+			pindex = index;
 		}
 
 		x = x + (dir == 1) - (dir == 3);

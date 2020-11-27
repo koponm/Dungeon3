@@ -9,13 +9,15 @@
 #include "zombie.h"
 #include "ghost.h"
 #include "skeleton.h"
+#include "skeletonMage.h"
 
 #include <vector>
 
 enum class MonsterType {
 	zombie,
 	ghost,
-	skeleton,
+	skeleton_archer,
+	skeleton_mage,
 	MONSTER_COUNT
 };
 
