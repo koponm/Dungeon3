@@ -19,6 +19,7 @@
 #include "wall.h"
 #include "projectile.h"
 #include "fireball.h"
+#include "melee.h"
 #include "monster/initializeMonster.h"
 #include "monster/update.h"
 #include "items.h"

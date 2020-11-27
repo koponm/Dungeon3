@@ -191,6 +191,9 @@ void App::Update() {
 
 		for (auto& i : projectiles_) {
 			if (i->GetActive()) {
+				if (i->GetSpeed() == 0) {
+					i->SetActive(false);
+				}
 				i -> CalcPos(fps_desired_);
 				double x2, y2;
 				int w2, h2;
@@ -392,10 +395,14 @@ void App::AddWall(TextureType type, const int& x, const int& y) {
 }
 void App::AddProjectile(TextureType type, const int& x, const int& y,double speed, double dir,ProjectileType pro) {
 	Projectile* temp = nullptr;
-	switch (pro)
-	case ProjectileType::Fireball: {
+	switch (pro) {
+	case ProjectileType::Fireball: 
 		temp = new Fireball(textures_->Get(type), x, y, speed, dir);
-	};
+		break;
+	case ProjectileType::Melee: 
+		temp = new Melee(textures_->Get(type), x, y, 0.0, dir);
+		break;
+	}
 	to_render_.push_back(temp);
 	projectiles_.push_back(temp);
 }
