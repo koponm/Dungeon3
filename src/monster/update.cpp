@@ -138,8 +138,9 @@ void A_star_algorithm(Monster* monster, bool* path_tiles,
 	}
 	std::list<int> monster_next_moves;
 	if (last_node != nullptr) {
-		bool temp = getLineOfSight(path_tiles, current_location, target_location, w, size);
-		//monster->SetLignOfSight(temp);
+		monster->SetLignOfSight(
+			getLineOfSight(path_tiles, current_location, target_location, w, size)
+		);
 		while(true)
 		{
 			if (last_node->parent != nullptr) {
