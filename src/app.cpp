@@ -499,6 +499,9 @@ bool App::AddRoom(const unsigned int& index, const int& x, const int& y) {
 				case 45:
 					// Air
 				break;
+				case 69:
+					AddWall(TextureType::ladderdown, i * 32 + x, j * 32 + y);
+				break;
 				case 77:
 					monster::AddMonster(monsters_, textures_, i * 32 + x, j * 32 + y, difficulty_);
 				break;
@@ -597,6 +600,10 @@ void App::Generate() {
 			while (cdir[dir] == 0) {
 				dir = (dir + 1) % 4;
 			}
+		} else {
+			index = 3;
+			room[y * max_x + x] = index;
+			pindex = index;
 		}
 
 		x = x + (dir == 1) - (dir == 3);
