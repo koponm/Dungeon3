@@ -117,7 +117,7 @@ void App::Update() {
 	}
 	if (m1_) {
 		m1_ = false;
-		AddProjectile(TextureType::fire, previous_x, previous_y, 512.0, mouse_player_angle_,ProjectileType::Fireball);
+		AddProjectile(TextureType::fireball, previous_x, previous_y, 400, mouse_player_angle_,ProjectileType::Fireball);
 		PlaySound(0, 0);
 	}
 

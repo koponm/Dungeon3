@@ -21,6 +21,7 @@ TextureHandler::TextureHandler(SDL_Renderer* renderer)
 	LoadTexture("assets/doorv_1.png");
 	LoadTexture("assets/skeletonmage_2.png");
 	LoadTexture("assets/skeletonarcher_2.png");
+	LoadTexture("assets/fireball_5.png");
 }
 
 const Texture& TextureHandler::Get(TextureType type) const {
