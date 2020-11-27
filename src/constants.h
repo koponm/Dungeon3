@@ -15,5 +15,7 @@ enum TextureType {
 	ladderdown = 11,
 	ladderup = 12,
 	doorh = 13,
-	doorv = 14
+	doorv = 14,
+	skeletonMage = 15,
+	skeletonArcher = 16
 };

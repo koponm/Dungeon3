@@ -160,6 +160,7 @@
     <ClCompile Include="monster\initializeMonster.cpp" />
     <ClCompile Include="monster\monster.cpp" />
     <ClCompile Include="monster\skeleton.cpp" />
+    <ClCompile Include="monster\skeletonMage.cpp" />
     <ClCompile Include="monster\update.cpp" />
     <ClCompile Include="monster\zombie.cpp" />
     <ClCompile Include="player.cpp" />
@@ -179,6 +180,7 @@
     <ClInclude Include="monster\LocationNode.h" />
     <ClInclude Include="monster\monster.h" />
     <ClInclude Include="monster\skeleton.h" />
+    <ClInclude Include="monster\skeletonMage.h" />
     <ClInclude Include="monster\update.h" />
     <ClInclude Include="monster\zombie.h" />
     <ClInclude Include="player.h" />
