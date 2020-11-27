@@ -2,12 +2,15 @@
 #ifndef ITEMS_H_
 #define ITEMS_H_
 
+#include "player.h"
 #include "renderable.h"
 
 enum class ItemType {
 	health_potion,
 	mana_potion,
-	random
+	random, // cut-off for randomised items
+	staff,
+	sword
 };
 
 class Item : public Renderable
@@ -17,7 +20,7 @@ public:
 	~Item() {}
 
 	void GetPos(int& x, int& y);
-	void Pickup();
+	void Pickup(Player* player);
 	bool Spawned() { return spawned_; } //despawn if false
 
 private:

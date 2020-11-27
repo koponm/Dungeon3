@@ -51,6 +51,41 @@ double Player::GetMana() const {
 	return mana_;
 }
 
+double Player::GetMaxHealth() const {
+	return max_health_;
+}
+
+double Player::GetMaxMana() const {
+	return max_mana_;
+}
+int Player::GetHealthPotions() const {
+	return health_potions_;
+}
+
+int Player::GetManaPotions() const {
+	return mana_potions_;
+}
+void Player::AddHealth(double health) {
+	health_ += health;
+	if (health_ > max_health_) health_ = max_health_;
+}
+void Player::AddMana(double mana) {
+	mana_ += mana;
+	if (mana_ > max_mana_) mana_ = max_mana_;
+}
+void Player::UseHealthPotion(){
+	if (health_potions_ > 0 && health_ < max_health_) {
+		AddHealth(5);
+		health_potions_--;
+	}
+}
+void Player::UseManaPotion(){
+	if (mana_potions_ > 0 && mana_ < max_mana_) {
+		AddMana(5);
+		mana_potions_--;
+	}
+}
+
 void Player::CalcPos(const size_t& fps_desired) {
 	x_vel_ -= x_vel_ * fric_ / fps_desired;
 	y_vel_ -= y_vel_ * fric_ / fps_desired;

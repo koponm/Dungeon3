@@ -25,6 +25,7 @@ App::App(void)
 
 		LoadSound("assets/spellcast.wav");
 		LoadSound("assets/music.ogg");
+		LoadSound("assets/pop.wav");
 
 		PlaySound(1, -1);
 
@@ -87,7 +88,8 @@ void App::Update() {
 			for (auto& i : items_) {
 				SDL_Rect rect2 = i->ReturnRect();
 				if (SDL_HasIntersection(&rect1, &rect2)) {
-					i -> Pickup();
+					i -> Pickup(player_);
+					PlaySound(2, 0);
 					break;
 				}
 			}
@@ -104,6 +106,14 @@ void App::Update() {
 				}
 			}
 		}
+	}
+	if (one_) {
+		one_ = false;
+		player_->UseHealthPotion();
+	}
+	if (two_) {
+		two_ = false;
+		player_->UseManaPotion();
 	}
 	if (m1_) {
 		m1_ = false;
@@ -283,6 +293,12 @@ void App::Event() {
 				case SDLK_SPACE:
 					space_ = event.key.type == SDL_KEYDOWN ? true : false;
 				break;
+				case SDLK_1:
+					one_ = event.key.type == SDL_KEYDOWN ? true : false;
+					break;
+				case SDLK_2:
+					two_ = event.key.type == SDL_KEYDOWN ? true : false;
+					break;
 				case SDLK_ESCAPE:
 					SDL_Quit();
 				break;
@@ -349,11 +365,17 @@ void App::Render() {
 	// Render HUD
 	std::stringstream ss_h;
 	std::stringstream ss_m;
-	ss_h << "Health: " << player_->GetHealth();
-	ss_m << "Mana: " << player_->GetMana();
+	std::stringstream ss_hh;
+	std::stringstream ss_mm;
+	ss_h << "Health: " << player_->GetHealth() << " / " << player_->GetMaxHealth();
+	ss_m << "Mana: " << player_->GetMana() << " / " << player_->GetMaxMana();;
+	ss_hh << "Health Potions: " << player_->GetHealthPotions();
+	ss_mm << "Mana Potions: " << player_->GetManaPotions();
 
 	RenderText(ss_h.str().c_str(), default_font_, { 255, 255, 255, 0 }, 0, 0);
 	RenderText(ss_m.str().c_str(), default_font_, { 255, 255, 255, 0 }, 0, 20);
+	RenderText(ss_hh.str().c_str(), default_font_, { 255, 255, 255, 0 }, 0, 40);
+	RenderText(ss_mm.str().c_str(), default_font_, { 255, 255, 255, 0 }, 0, 60);
 
 	SDL_RenderPresent(renderer_);
 }
@@ -389,6 +411,12 @@ void App::AddItem(const int& x, const int& y, ItemType type) {
 	case ItemType::mana_potion:
 		t = TextureType::manaPotion;
 	break;
+	case ItemType::staff:
+		t = TextureType::staff;
+		break;
+	case ItemType::sword:
+		t = TextureType::sword;
+		break;
 	}
 	Item* temp = new Item(textures_->Get(t), x, y, type);
 	to_render_.push_back(temp);

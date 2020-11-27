@@ -9,5 +9,7 @@ enum TextureType {
 	manaPotion = 5,
 	chest = 6,
 	ghost = 7,
-	skeleton = 8
+	skeleton = 8,
+	staff = 9,
+	sword = 10
 };

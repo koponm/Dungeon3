@@ -84,6 +84,8 @@ private:
 	bool right_ = false;
 	bool f_ = false;
 	bool space_ = false;
+	bool one_ = false;
+	bool two_ = false;
 	bool m1_ = false;
 	bool m1_released_ = true;
 

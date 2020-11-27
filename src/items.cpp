@@ -11,6 +11,14 @@ void Item::GetPos(int& x, int& y) {
 	y = y_;
 }
 
-void Item::Pickup() {
+void Item::Pickup(Player* player) {
 	spawned_ = false;
+	switch (type_) {
+	case ItemType::health_potion:
+		player->AddHealthPotion();
+		break;
+	case ItemType::mana_potion:
+		player->AddManaPotion();
+		break;
+	}
 }
