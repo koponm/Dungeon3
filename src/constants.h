@@ -18,5 +18,6 @@ enum TextureType {
 	doorv = 14,
 	skeletonMage = 15,
 	skeletonArcher = 16,
-	fireball = 17
+	fireball = 17,
+	tombstone = 18
 };

@@ -115,6 +115,12 @@ void App::Update() {
 		two_ = false;
 		player_->UseManaPotion();
 	}
+	if (three_) {
+		three_ = false;
+		for (auto monster : monsters_) {
+			monster->KILL();
+		}
+	}
 	if (m1_) {
 		m1_ = false;
 		AddProjectile(TextureType::fireball, previous_x, previous_y, 400, mouse_player_angle_,ProjectileType::Fireball);
@@ -186,7 +192,7 @@ void App::Update() {
 		if (!monsters_.empty()) {
 			monster::UpdateMonsters(monsters_, delta_time_, fps_desired_,
 				up_ || down_ || left_ || right_,
-				room_width_, walls_);
+				room_width_, walls_, textures_->Get(TextureType::tombstone));
 		}
 
 		for (auto& i : projectiles_) {
@@ -298,6 +304,9 @@ void App::Event() {
 					break;
 				case SDLK_2:
 					two_ = event.key.type == SDL_KEYDOWN ? true : false;
+					break;
+				case SDLK_3:
+					three_ = event.key.type == SDL_KEYDOWN ? true : false;
 					break;
 				case SDLK_ESCAPE:
 					SDL_Quit();

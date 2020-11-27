@@ -47,3 +47,12 @@ void Renderable::AddFrame(const double& frame) {
 void Renderable::SetImageSpeed(const double& speed) {
 	image_speed_ = speed;
 }
+
+void Renderable::SetTexture(const Texture& texture) {
+	texture_ = texture.texture;
+	rect_ = texture.texture_data;
+	sprite_rect_ = texture.sprite_data;
+	subimages_ = texture.subimages;
+	image_speed_ = 1.0 / subimages_;
+	subimage_ = 0;
+}
