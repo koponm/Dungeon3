@@ -171,7 +171,7 @@ void App::Update() {
 		i->GetRect(w4, h4);
 		if (i->HasLignOfSight() && !i->IsMelee() && i->GetTimer()==0 && !i->Dead()) {
 			double monster_player_angle_ = fmod(540.0 - atan2f((y4 - 16 - y1), (x4 - 16 - x1)) * 180.0 / M_PI, 360.0);
-			AddProjectile(TextureType::fireball, x4, y4, 400, monster_player_angle_, i, ProjectileType::Fireball);
+			AddProjectile(TextureType::iceball, x4, y4, 400, monster_player_angle_, i, ProjectileType::IceBall);
 			i->SetTimer(1.0);
 		}
 		if (i->IsMelee() && i->GetTimer() == 0 && !i->Dead()) {
