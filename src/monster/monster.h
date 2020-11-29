@@ -33,6 +33,9 @@ public:
 	void KILL() { health_ = 0; }
 	bool Dead() { return is_dead; }
 	void Kill() { is_dead = true; }
+	double GetTimer() { return shoot_timer;}
+	void SetTimer(double timer) { shoot_timer = timer; }
+	void SetHealth(double newHealth) { health_ = newHealth; }
 protected:
 	double x_ = 0.0;
 	double y_ = 0.0;
@@ -48,5 +51,6 @@ protected:
 	bool has_lign_of_sight = false;
 	bool is_melee = true;
 	bool is_dead = false;
+	double shoot_timer = 0.0;
 };
 #endif // MONSTER_H_

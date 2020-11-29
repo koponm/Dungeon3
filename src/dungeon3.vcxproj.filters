@@ -72,6 +72,9 @@
     <ClCompile Include="melee.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
+    <ClCompile Include="iceball.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="app.h">
@@ -129,6 +132,9 @@
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="melee.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="iceball.h">
       <Filter>Header Files</Filter>
     </ClInclude>
   </ItemGroup>

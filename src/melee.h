@@ -5,6 +5,6 @@
 
 class Melee : public Projectile {
 public:
-	Melee(const Texture& texture, double x, double y, double speed, double dir);
+	Melee(const Texture& texture, double x, double y, double speed, double dir, Renderable* parent);
 	~Melee();
 };

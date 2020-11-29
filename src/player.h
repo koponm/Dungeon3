@@ -29,6 +29,9 @@ public:
 	void AddMana(double mana);
 	void UseHealthPotion();
 	void UseManaPotion();
+	void SetHealth(double newHealth) {
+		health_ = newHealth;
+	}
 
 private:
 	double x_ = 0.0;

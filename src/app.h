@@ -19,6 +19,7 @@
 #include "wall.h"
 #include "projectile.h"
 #include "fireball.h"
+#include "iceball.h"
 #include "melee.h"
 #include "monster/initializeMonster.h"
 #include "monster/update.h"
@@ -43,7 +44,7 @@ public:
 	void Render();
 	bool Running() const;
 	void LoadRoom(const char* path);
-	void AddProjectile(TextureType type, const int& x, const int& y,double speed,double dir, ProjectileType pro);
+	void AddProjectile(TextureType type, const int& x, const int& y,double speed,double dir, Renderable* parent, ProjectileType pro);
 	void AddWall(TextureType type, const int& x, const int& y);
 	void AddItem(const int& x, const int& y, ItemType type = ItemType::random);
 	void AddChest(TextureType type, const int& x, const int& y);

@@ -79,6 +79,12 @@ void App::Update() {
 	if (second_timer_ >= 0.5) {
 		second_timer_ -= 0.5;
 		monster::CalculatePath(monsters_, path_tiles_, previous_x, previous_y, size_, room_width_, room_height_);
+		//
+		for (auto& i : monsters_) {
+			if (i->GetTimer() != 0) {
+				i->SetTimer(i->GetTimer() - 0.5);
+			}
+		}
 	}
 	
 	if (f_) {//check if player and item or chest intersect
@@ -123,7 +129,7 @@ void App::Update() {
 	}
 	if (m1_) {
 		m1_ = false;
-		AddProjectile(TextureType::fireball, previous_x, previous_y, 400, mouse_player_angle_,ProjectileType::Fireball);
+		AddProjectile(TextureType::fireball, previous_x, previous_y, 400, mouse_player_angle_,player_,ProjectileType::Fireball);
 		PlaySound(0, 0);
 	}
 
@@ -157,6 +163,24 @@ void App::Update() {
 				}
 			}
 		}
+	}
+	for (auto& i : monsters_) {
+		double x4, y4;
+		int w4, h4;
+		i->GetPos(x4, y4);
+		i->GetRect(w4, h4);
+		if (i->HasLignOfSight() && !i->IsMelee() && i->GetTimer()==0 && !i->Dead()) {
+			double monster_player_angle_ = fmod(540.0 - atan2f((y4 - 16 - y1), (x4 - 16 - x1)) * 180.0 / M_PI, 360.0);
+			AddProjectile(TextureType::fireball, x4, y4, 400, monster_player_angle_, i, ProjectileType::Fireball);
+			i->SetTimer(1.0);
+		}
+		if (i->IsMelee() && i->GetTimer() == 0 && !i->Dead()) {
+			if (x1 < ((double)x4 + w4) && x1 + w1 > x4 && y1 < ((double)y4 + h4) && y1 + h1 > y4) {
+				AddProjectile(TextureType::fire, x4, y4, 0, 0, i, ProjectileType::Melee);
+				i->SetTimer(1.0);
+			}
+		}
+
 	}
 
 	if (tick_timer_ >= 1.0) {
@@ -216,17 +240,34 @@ void App::Update() {
 						i -> SetActive(false);
 					}
 				}
-				for (auto& j : monsters_) {
-					double x3, y3;
-					int w3, h3;
-					j->GetPos(x3, y3);
-					j->GetRect(w3, h3);
-					if (x2 < ((double)x3 + w3) && x2 + w2 > x3 && y2 < ((double)y3 + h3) && y2 + h2 > y3) {
-						//i->SetVel(1, 0);
-						//i->SetVel(0, 0);
-						i -> SetActive(false);
+				if(i->GetParent()==player_){
+					for (auto& j : monsters_) {
+						double x3, y3;
+						int w3, h3;
+						j->GetPos(x3, y3);
+						j->GetRect(w3, h3);
+						if (x2 < ((double)x3 + w3) && x2 + w2 > x3 && y2 < ((double)y3 + h3) && y2 + h2 > y3) {
+							//i->SetVel(1, 0);
+							//i->SetVel(0, 0);
+							i->SetActive(false);
+							if (j->GetHealth() <= i->GetDamage()) {
+								j->KILL();
+								j->KILL();
+							}else{
+								j->SetHealth(j->GetHealth() - i->GetDamage());
+							}
+						}
 					}
 				}
+				else { //monsters projectile hit the player
+					if (x2 < ((double)x1 + w1) && x2 + w2 > x1 && y2 < ((double)y1 + h1) && y2 + h2 > y1) {
+						//i->SetVel(1, 0);
+						//i->SetVel(0, 0);
+						i->SetActive(false);
+						player_->SetHealth(player_->GetHealth() - i->GetDamage());
+					}
+				}
+
 			}
 		}
 		while (tick_timer_ >= 1.0) {
@@ -402,14 +443,17 @@ void App::AddWall(TextureType type, const int& x, const int& y) {
 	walls_.push_back(temp);
 	path_tiles_[unsigned((floor(y / 32)) * room_width_ / 32 + (floor(x / 32)))] = false;
 }
-void App::AddProjectile(TextureType type, const int& x, const int& y,double speed, double dir,ProjectileType pro) {
+void App::AddProjectile(TextureType type, const int& x, const int& y,double speed, double dir, Renderable* parent,ProjectileType pro) {
 	Projectile* temp = nullptr;
 	switch (pro) {
 	case ProjectileType::Fireball: 
-		temp = new Fireball(textures_->Get(type), x, y, speed, dir);
+		temp = new Fireball(textures_->Get(type), x, y, speed, dir, parent);
+		break;
+	case ProjectileType::IceBall:
+		temp = new IceBall(textures_->Get(type), x, y, speed, dir, parent);
 		break;
 	case ProjectileType::Melee: 
-		temp = new Melee(textures_->Get(type), x, y, 0.0, dir);
+		temp = new Melee(textures_->Get(type), x, y, 0.0, dir, parent);
 		break;
 	}
 	to_render_.push_back(temp);
