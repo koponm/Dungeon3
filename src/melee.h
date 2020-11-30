@@ -1,7 +1,7 @@
 #pragma once
 #include <utility>
 #include <list>
-#include "Projectile.h"
+#include "projectile.h"
 
 class Melee : public Projectile {
 public:

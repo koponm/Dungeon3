@@ -2,7 +2,7 @@
 
 #include <utility>
 #include <list>
-#include "Projectile.h"
+#include "projectile.h"
 
 class IceBall : public Projectile {
 public:
