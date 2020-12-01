@@ -3,6 +3,7 @@
 #define PLAYER_H_
 #include <utility>
 #include "renderable.h"
+#include "items.h"
 
 using namespace std;
 
@@ -23,12 +24,12 @@ public:
 	double GetMaxMana() const;
 	int GetHealthPotions() const;
 	int GetManaPotions() const;
-	void AddHealthPotion() { health_potions_++; }
-	void AddManaPotion() { mana_potions_++;  }
 	void AddHealth(double health);
 	void AddMana(double mana);
 	void UseHealthPotion();
 	void UseManaPotion();
+	void AddItem(Item* item);
+	ItemType GetWeapon() { return weapon_; }
 	void SetHealth(double newHealth) {
 		health_ = newHealth;
 	}
@@ -46,5 +47,6 @@ private:
 	double mana_ = 100;
 	int health_potions_ = 0;
 	int mana_potions_ = 0;
+	ItemType weapon_ = ItemType::sword;
 };
 #endif

@@ -86,6 +86,24 @@ void Player::UseManaPotion(){
 	}
 }
 
+void Player::AddItem(Item* item) {
+	ItemType type = item->GetItemType();
+	switch (type) {
+	case ItemType::health_potion:
+		health_potions_++;
+		break;
+	case ItemType::mana_potion:
+		mana_potions_++;
+		break;
+	case ItemType::sword:
+		weapon_ = type;
+		break;
+	case ItemType::staff:
+		weapon_ = type;
+		break;
+	}
+}
+
 void Player::CalcPos(const size_t& fps_desired) {
 	x_vel_ -= x_vel_ * fric_ / fps_desired;
 	y_vel_ -= y_vel_ * fric_ / fps_desired;
