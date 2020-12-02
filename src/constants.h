@@ -20,7 +20,6 @@ enum TextureType {
 	skeletonArcher = 16,
 	fireball = 17,
 	tombstone = 18,
-	iceball = 19
-	tombstone = 18,
-	hud = 19
+	hud = 19,
+	iceball = 20
 };
