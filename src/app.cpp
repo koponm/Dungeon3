@@ -419,8 +419,7 @@ SDL_Color App::color(Uint8 r, Uint8 g, Uint8 b, Uint8 a) {
 }
 
 void App::RenderBar(int x, int y, int w, int h, double max_value, double value, SDL_Color FGColor, SDL_Color BGColor) {
-	float percentage = value > 0.f ? (value / max_value) : 0.f;
-	percentage = percentage > 1.f ? 1.f : percentage < 0.f ? 0.f : percentage;
+	double percentage = value > 0.f ? (value / max_value) : 0.f;
 	SDL_Color old;
 	SDL_GetRenderDrawColor(renderer_, &old.r, &old.g, &old.g, &old.a);
 	SDL_Rect bgrect = { x, y, w, h };
