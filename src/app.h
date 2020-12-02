@@ -4,6 +4,7 @@
 #include <fstream>
 #include <iostream>
 #include <vector>
+#include <list>
 #include <sstream>
 #include <string>
 #include <filesystem>
@@ -69,7 +70,7 @@ private:
 	TextureHandler* textures_ = nullptr;
 	vector<Room> room_data_;
 	Player* player_ = nullptr;
-	vector<Renderable*> to_render_;
+	list<Renderable*> to_render_;
 	vector<Wall*> walls_;
 	vector<Monster*> monsters_;
 	vector<Projectile*> projectiles_;

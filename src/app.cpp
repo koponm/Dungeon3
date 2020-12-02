@@ -129,9 +129,7 @@ void App::Update() {
 	}
 	if (three_) {
 		three_ = false;
-		for (auto monster : monsters_) {
-			monster->KILL();
-		}
+		// this could be used for something
 	}
 	if (m1_) {
 		m1_ = false;
@@ -222,7 +220,7 @@ void App::Update() {
 		if (!monsters_.empty()) {
 			monster::UpdateMonsters(monsters_, delta_time_, fps_desired_,
 				up_ || down_ || left_ || right_,
-				room_width_, walls_, textures_->Get(TextureType::tombstone));
+				room_width_, walls_, textures_->Get(TextureType::tombstone), to_render_);
 		}
 
 		for (auto& i : projectiles_) {
@@ -248,6 +246,7 @@ void App::Update() {
 				}
 				if(i->GetParent()==player_){
 					for (auto& j : monsters_) {
+						if (j->Dead()) { continue; }
 						double x3, y3;
 						int w3, h3;
 						j->GetPos(x3, y3);
@@ -256,12 +255,7 @@ void App::Update() {
 							//i->SetVel(1, 0);
 							//i->SetVel(0, 0);
 							i->SetActive(false);
-							if (j->GetHealth() <= i->GetDamage()) {
-								j->KILL();
-								j->KILL();
-							}else{
-								j->SetHealth(j->GetHealth() - i->GetDamage());
-							}
+							j->SetHealth(j->GetHealth() - i->GetDamage());
 						}
 					}
 				}

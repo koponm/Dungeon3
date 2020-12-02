@@ -30,9 +30,8 @@ public:
 	bool HasLignOfSight() { return has_lign_of_sight; }
 	bool IsMelee() { return is_melee; }
 	bool IsDead() { return health_ <= 0; }
-	void KILL() { health_ = 0; }
 	bool Dead() { return is_dead; }
-	void Kill() { is_dead = true; }
+	void Kill();
 	double GetTimer() { return shoot_timer;}
 	void SetTimer(double timer) { shoot_timer = timer; }
 	void SetHealth(double newHealth) { health_ = newHealth; }

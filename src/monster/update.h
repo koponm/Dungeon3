@@ -33,7 +33,7 @@ void CalculatePath(std::vector<Monster*>& monsters, bool* path_tiles, double pla
 	unsigned size, unsigned int room_width, unsigned int room_height);
 	
 void UpdateMonsters(vector<Monster*>& monsters, double delta_speed, const size_t fps, bool can_move,
-	unsigned int room_width, vector<Wall*> walls, const Texture& tombstone);
+	unsigned int room_width, vector<Wall*> walls, const Texture& tombstone, std::list<Renderable*>& to_render);
 
 }; // namespace udpate
 

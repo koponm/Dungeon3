@@ -95,7 +95,7 @@ void A_star_algorithm(Monster* monster, bool* path_tiles,
 
 	LocationNode* last_node = nullptr;
 
-	while (!open_nodes.empty()) {
+	while (!open_nodes.empty() && closed_nodes.size() < 300) {
 		std::list<LocationNode*>::iterator small = std::min_element(open_nodes.begin(), open_nodes.end(), nodeComp);
 		if (small == open_nodes.end()) {
 			break;
@@ -179,7 +179,7 @@ void CalculatePath(std::vector<Monster*>& monsters, bool* path_tiles, double pla
 }
 
 void UpdateMonsters(std::vector<Monster*>& monsters, double delta_speed, const size_t fps, bool can_move,
-	unsigned int room_width, vector<Wall*> walls, const Texture& tombstone) {
+	unsigned int room_width, vector<Wall*> walls, const Texture& tombstone, std::list<Renderable*>& to_render) {
 
 	for (auto& monster : monsters) {
 		if (monster->Dead()) { continue; }
@@ -188,6 +188,10 @@ void UpdateMonsters(std::vector<Monster*>& monsters, double delta_speed, const s
 			monster->Kill();
 			monster->SetTexture(tombstone);
 
+			if (!to_render.empty()) {
+				to_render.erase(remove(to_render.begin(), to_render.end(), monster), to_render.end());
+				to_render.push_front(monster);
+			}
 			monster->AddVel(0, 0);
 			monster->CalcPos(fps);
 
@@ -266,7 +270,7 @@ void UpdateMonsters(std::vector<Monster*>& monsters, double delta_speed, const s
 		}
 		
 		for (auto& i : monsters) {
-			if (i == monster) { continue; }
+			if (i == monster || i->Dead()) { continue; }
 			double x2, y2;
 			int w2, h2;
 			i->GetPos(x2, y2);

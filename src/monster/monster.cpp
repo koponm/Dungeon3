@@ -60,3 +60,10 @@ void Monster::PopNextMove() {
 		next_moves_.pop_front();
 	}
 }
+
+void Monster::Kill() {
+{
+	is_dead = true;
+}
+
+}
