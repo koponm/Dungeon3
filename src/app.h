@@ -53,6 +53,8 @@ public:
 	bool AddRoom(const unsigned int& index, const int& x, const int& y);
 	void Generate();
 	void RenderText(const char* text, TTF_Font* font, SDL_Color color, int x, int y);
+	void RenderBar(int x, int y, int w, int h, double max_value, double value, SDL_Color FGColor, SDL_Color BGColor);
+	SDL_Color color(Uint8 r, Uint8 g, Uint8 b, Uint8 a);
 	void LoadSound(const char* path);
 	void PlaySound(const unsigned& index, const int& loops);
 	

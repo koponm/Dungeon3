@@ -413,6 +413,28 @@ void App::RenderText(const char* text, TTF_Font* font, SDL_Color color, int x, i
 	SDL_DestroyTexture(texture);
 }
 
+SDL_Color App::color(Uint8 r, Uint8 g, Uint8 b, Uint8 a) {
+	SDL_Color col = { r,g,b,a };
+	return col;
+}
+
+void App::RenderBar(int x, int y, int w, int h, double max_value, double value, SDL_Color FGColor, SDL_Color BGColor) {
+	float percentage = value > 0.f ? (value / max_value) : 0.f;
+	percentage = percentage > 1.f ? 1.f : percentage < 0.f ? 0.f : percentage;
+	SDL_Color old;
+	SDL_GetRenderDrawColor(renderer_, &old.r, &old.g, &old.g, &old.a);
+	SDL_Rect bgrect = { x, y, w, h };
+	SDL_SetRenderDrawColor(renderer_, BGColor.r, BGColor.g, BGColor.b, BGColor.a);
+	SDL_RenderFillRect(renderer_, &bgrect);
+	SDL_SetRenderDrawColor(renderer_, FGColor.r, FGColor.g, FGColor.b, FGColor.a);
+	SDL_Rect fgrect = {x, y, w - w * (1.f - percentage), h};
+	SDL_RenderFillRect(renderer_, &fgrect);
+	std::stringstream ss;
+	ss << value << " / " << max_value;
+	RenderText(ss.str().c_str(), default_font_, { 255, 255, 255, 0 }, x + 5, y + 5);
+	SDL_SetRenderDrawColor(renderer_, old.r, old.g, old.b, old.a);
+}
+
 void App::Render() {
 	SDL_RenderClear(renderer_);
 
@@ -425,20 +447,24 @@ void App::Render() {
 		i->Render(renderer_, 0, 0);
 	}
 
-	std::stringstream ss_h;
-	std::stringstream ss_m;
+	SDL_Color red = color(255, 0, 0, 0);
+	SDL_Color blue = color(0, 191, 255, 0);
+	SDL_Color grey = color(192, 192, 192, 0);
+	double hp_percentage = player_->GetHealth() > 0 ? player_->GetHealth() / player_->GetMaxHealth() : 0.0;
+	double mana_percentage = player_->GetMana() > 0 ? player_->GetMana() / player_->GetMaxMana() : 0.0;
+	RenderBar(50, 10, 120, 30, player_->GetMaxHealth(), player_->GetHealth(), red, grey); // center x 340
+	RenderBar(50, 60, 120, 30, player_->GetMaxMana(), player_->GetMana(), blue, grey);
+
 	std::stringstream ss_hh;
 	std::stringstream ss_mm;
-	ss_h << "Health: " << player_->GetHealth() << " / " << player_->GetMaxHealth();
-	ss_m << "Mana: " << player_->GetMana() << " / " << player_->GetMaxMana();
+
 	ss_hh << player_->GetHealthPotions();
 	ss_mm << player_->GetManaPotions();
 
-	RenderText(ss_h.str().c_str(), default_font_, { 255, 255, 255, 0 }, 0, 0);
-	RenderText(ss_m.str().c_str(), default_font_, { 255, 255, 255, 0 }, 0, 20);
+	RenderText("HP", default_font_, { 255, 255, 255, 0 }, 5, 15);
+	RenderText("Mana", default_font_, { 255, 255, 255, 0 }, 5, 65);
 	RenderText(ss_hh.str().c_str(), default_font_, { 255, 255, 255, 0 }, 380, 580);
 	RenderText(ss_mm.str().c_str(), default_font_, { 255, 255, 255, 0 }, 438, 580);
-
 	SDL_RenderPresent(renderer_);
 }
 
