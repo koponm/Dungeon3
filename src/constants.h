@@ -21,4 +21,6 @@ enum TextureType {
 	fireball = 17,
 	tombstone = 18,
 	iceball = 19
+	tombstone = 18,
+	hud = 19
 };

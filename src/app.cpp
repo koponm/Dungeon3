@@ -51,6 +51,11 @@ App::App(void)
 
 		to_render_.push_back(player_);
 
+		//HUD
+		hud_.push_back(new HUD_object(textures_->Get(hud), 735, 5, ItemType::sword, 5));
+		hud_.push_back(new HUD_object(textures_->Get(hud), 342, 540, ItemType::health_potion, 0));
+		hud_.push_back(new HUD_object(textures_->Get(hud), 400, 540, ItemType::mana_potion, 2));
+
 		running_ = true;
 	} else {
 		running_ = false;
@@ -94,7 +99,8 @@ void App::Update() {
 			for (auto& i : items_) {
 				SDL_Rect rect2 = i->ReturnRect();
 				if (SDL_HasIntersection(&rect1, &rect2)) {
-					i -> Pickup(player_);
+					i -> Pickup();
+					player_->AddItem(i);
 					PlaySound(2, 0);
 					break;
 				}
@@ -274,6 +280,11 @@ void App::Update() {
 			tick_timer_ -= 1.0;
 		}
 	}
+
+	for (auto i : hud_) {
+		i->UpdateHUD(player_);
+	}
+
 	//despawn items
 	if (!items_.empty()){
 		for (auto i : items_) {
@@ -416,19 +427,23 @@ void App::Render() {
 		i -> Render(renderer_, camera_x_, camera_y_);
 	}
 	// Render HUD
+	for (auto i : hud_) {
+		i->Render(renderer_, 0, 0);
+	}
+
 	std::stringstream ss_h;
 	std::stringstream ss_m;
 	std::stringstream ss_hh;
 	std::stringstream ss_mm;
 	ss_h << "Health: " << player_->GetHealth() << " / " << player_->GetMaxHealth();
-	ss_m << "Mana: " << player_->GetMana() << " / " << player_->GetMaxMana();;
-	ss_hh << "Health Potions: " << player_->GetHealthPotions();
-	ss_mm << "Mana Potions: " << player_->GetManaPotions();
+	ss_m << "Mana: " << player_->GetMana() << " / " << player_->GetMaxMana();
+	ss_hh << player_->GetHealthPotions();
+	ss_mm << player_->GetManaPotions();
 
 	RenderText(ss_h.str().c_str(), default_font_, { 255, 255, 255, 0 }, 0, 0);
 	RenderText(ss_m.str().c_str(), default_font_, { 255, 255, 255, 0 }, 0, 20);
-	RenderText(ss_hh.str().c_str(), default_font_, { 255, 255, 255, 0 }, 0, 40);
-	RenderText(ss_mm.str().c_str(), default_font_, { 255, 255, 255, 0 }, 0, 60);
+	RenderText(ss_hh.str().c_str(), default_font_, { 255, 255, 255, 0 }, 380, 580);
+	RenderText(ss_mm.str().c_str(), default_font_, { 255, 255, 255, 0 }, 438, 580);
 
 	SDL_RenderPresent(renderer_);
 }

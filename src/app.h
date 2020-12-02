@@ -25,6 +25,7 @@
 #include "monster/update.h"
 #include "items.h"
 #include "chest.h"
+#include "hud.h"
 
 using namespace std;
 
@@ -74,6 +75,7 @@ private:
 	vector<Projectile*> projectiles_;
 	vector<Item*> items_;
 	vector<Chest*> chests_;
+	vector<HUD_object*> hud_;
 
 	vector<Mix_Chunk*> sounds_;
 
