@@ -7,6 +7,8 @@ Renderable::Renderable(const Texture& texture) {
 	sprite_rect_ = texture.sprite_data;
 	subimages_ = texture.subimages;
 	image_speed_ = 1.0 / subimages_;
+	angle_ = 0.0;
+	parent_ = -1;
 }
 
 Renderable::~Renderable() {
@@ -22,7 +24,7 @@ void Renderable::Render(SDL_Renderer* renderer, double x, double y) const {
 	temp.y -= y;
 	SDL_Rect temp_sprite = sprite_rect_;
 	temp_sprite.x = floor(subimage_) * temp_sprite.w;
-	SDL_RenderCopy(renderer, texture_, &temp_sprite, &temp);
+	SDL_RenderCopyEx(renderer, texture_, &temp_sprite, &temp, angle_, NULL, SDL_FLIP_NONE);
 }
 
 void Renderable::RectPos(const int& x, const int& y) {
@@ -33,6 +35,10 @@ void Renderable::RectPos(const int& x, const int& y) {
 void Renderable::GetRect(int& w, int& h) const {
 	w = sprite_rect_.w;
 	h = sprite_rect_.h;
+}
+
+double Renderable::GetFrames() const {
+	return subimages_;
 }
 
 void Renderable::SetFrame(const double& frame) {
@@ -55,4 +61,8 @@ void Renderable::SetTexture(const Texture& texture) {
 	subimages_ = texture.subimages;
 	image_speed_ = 1.0 / subimages_;
 	subimage_ = 0;
+}
+
+void Renderable::SetAngle(const double& angle) {
+	angle_ = angle;
 }

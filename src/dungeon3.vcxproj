@@ -153,7 +153,9 @@
   <ItemGroup>
     <ClCompile Include="app.cpp" />
     <ClCompile Include="chest.cpp" />
+    <ClCompile Include="door.cpp" />
     <ClCompile Include="fireball.cpp" />
+    <ClCompile Include="floor.cpp" />
     <ClCompile Include="hud.cpp" />
     <ClCompile Include="iceball.cpp" />
     <ClCompile Include="items.cpp" />
@@ -176,7 +178,9 @@
     <ClInclude Include="app.h" />
     <ClInclude Include="chest.h" />
     <ClInclude Include="constants.h" />
+    <ClInclude Include="door.h" />
     <ClInclude Include="fireball.h" />
+    <ClInclude Include="floor.h" />
     <ClInclude Include="hud.h" />
     <ClInclude Include="iceball.h" />
     <ClInclude Include="items.h" />

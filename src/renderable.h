@@ -24,6 +24,10 @@ public:
 	Renderable* Self();
 	SDL_Rect ReturnRect() const { return rect_; }
 	void SetTexture(const Texture& texture);
+	void SetAngle(const double& angle);
+	double GetFrames() const;
+	void SetVParent(const int& parent) { parent_ = parent; }
+	int GetVParent() const { return parent_; }
 private:
 	SDL_Texture* texture_;
 	SDL_Rect rect_;
@@ -31,5 +35,7 @@ private:
 	double subimages_ = 0;
 	double subimage_ = 0;
 	double image_speed_ = 1;
+	double angle_ = 0.0;
+	int parent_ = -1;
 };
 #endif

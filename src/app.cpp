@@ -45,11 +45,7 @@ App::App(void)
 		LoadRoom("assets/largetunnel_1010.txt");
 		Generate();
 
-		for (auto& monster : monsters_) {
-			to_render_.push_back(monster);
-		}
-
-		to_render_.push_back(player_);
+		entities_.push_back(player_);
 
 		//HUD
 		hud_.push_back(new HUD_object(textures_->Get(hud), 735, 5, ItemType::sword, 5));
@@ -118,6 +114,79 @@ void App::Update() {
 				}
 			}
 		}
+
+		double xx, yy;
+		player_ -> GetPos(xx, yy);
+
+		for (auto* i : doors_) {
+			int begin = i -> GetFirst();
+			SDL_Rect rect2 = i -> ReturnRect();
+			if (SDL_HasIntersection(&rect1, &rect2)) {
+				vector<int> connected = i -> GetConnected();
+				for (auto& r : connected) {
+					if (r != -1) {
+						hidden_[r] = false;
+						cout << room_[r].monster_spawns.size() << endl;
+						for (auto& m : room_[r].monster_spawns) {
+							
+							int nx = (m % (room_width_ / 32)) * 32;
+							int ny = floor(m / (room_width_ / 32)) * 32;
+
+							cout << nx << " " << ny << endl;
+
+							monster::AddMonster(monsters_, textures_, nx, ny, difficulty_);
+							entities_.push_front(monsters_[monsters_.size() - 1]);
+						}
+					}
+				}
+				int end = connected[connected.size() - 1];
+				int tile0, tile1;
+
+				Wall* wall0 = nullptr;
+				Wall* wall1 = nullptr;
+
+				for (auto* j : doors_) {
+					int begin2 = j -> GetFirst();
+					vector<int> connected2 = j -> GetConnected();
+					int end2 = connected2[connected2.size() - 1];
+					if (begin2 == end && end2 == begin) {
+						j -> GetTiles(tile0, tile1);
+						j -> GetWalls(wall0, wall1);
+
+						if (wall0 != nullptr && wall1 != nullptr) {
+							to_render_.erase(remove(to_render_.begin(), to_render_.end(), wall0), to_render_.end());
+							walls_.erase(remove(walls_.begin(), walls_.end(), wall0), walls_.end());
+							to_render_.erase(remove(to_render_.begin(), to_render_.end(), wall1), to_render_.end());
+							walls_.erase(remove(walls_.begin(), walls_.end(), wall1), walls_.end());
+						}
+
+						path_tiles_[tile0] = true;
+						path_tiles_[tile1] = true;
+						to_render_.erase(remove(to_render_.begin(), to_render_.end(), j), to_render_.end());
+						doors_.erase(remove(doors_.begin(), doors_.end(), j), doors_.end());
+						delete j;
+						break;
+					}
+				}
+				i -> GetTiles(tile0, tile1);
+				i -> GetWalls(wall0, wall1);
+
+				if (wall0 != nullptr && wall1 != nullptr) {
+					to_render_.erase(remove(to_render_.begin(), to_render_.end(), wall0), to_render_.end());
+					walls_.erase(remove(walls_.begin(), walls_.end(), wall0), walls_.end());
+					to_render_.erase(remove(to_render_.begin(), to_render_.end(), wall1), to_render_.end());
+					walls_.erase(remove(walls_.begin(), walls_.end(), wall1), walls_.end());
+				}
+
+				path_tiles_[tile0] = true;
+				path_tiles_[tile1] = true;
+				to_render_.erase(remove(to_render_.begin(), to_render_.end(), i), to_render_.end());
+				doors_.erase(remove(doors_.begin(), doors_.end(), i), doors_.end());
+				delete i;
+				break;
+			}
+		}
+		
 	}
 	if (one_) {
 		one_ = false;
@@ -133,7 +202,7 @@ void App::Update() {
 	}
 	if (m1_) {
 		m1_ = false;
-		AddProjectile(TextureType::fireball, previous_x, previous_y, 400, mouse_player_angle_,player_,ProjectileType::Fireball);
+		AddProjectile(TextureType::fireball, previous_x + 8, previous_y + 8, 400, mouse_player_angle_, player_, ProjectileType::Fireball);
 		PlaySound(0, 0);
 	}
 
@@ -180,7 +249,7 @@ void App::Update() {
 		}
 		if (i->IsMelee() && i->GetTimer() == 0 && !i->Dead()) {
 			if (x1 < ((double)x4 + w4) && x1 + w1 > x4 && y1 < ((double)y4 + h4) && y1 + h1 > y4) {
-				AddProjectile(TextureType::fire, x4, y4, 0, 0, i, ProjectileType::Melee);
+				AddProjectile(TextureType::invisible, x4, y4, 0, 0, i, ProjectileType::Melee);
 				i->SetTimer(1.0);
 			}
 		}
@@ -217,10 +286,14 @@ void App::Update() {
 			i -> AddFrame(delta_time_);
 		}
 
+		for (auto& i : entities_) {
+			i->AddFrame(delta_time_);
+		}
+
 		if (!monsters_.empty()) {
 			monster::UpdateMonsters(monsters_, delta_time_, fps_desired_,
 				up_ || down_ || left_ || right_,
-				room_width_, walls_, textures_->Get(TextureType::tombstone), to_render_);
+				room_width_, walls_, textures_->Get(TextureType::tombstone), entities_);
 		}
 
 		for (auto& i : projectiles_) {
@@ -270,18 +343,27 @@ void App::Update() {
 
 			}
 		}
+
+		// Room "frustum culling"
+		for (unsigned j = 0; j < dungeon_height_; j++) {
+			for (unsigned i = 0; i < dungeon_width_; i++) {
+				int x0 = i * 512, x1 = (i + 1) * 512;
+				int y0 = j * 512, y1 = (j + 1) * 512;
+				visible_[unsigned(j * dungeon_width_ + i)] = (x1 - camera_x_ >= 0 && x0 <= camera_x_ + width_) && (y1 - camera_y_ >= 0 && y0 <= camera_y_ + height_);
+			}
+		}
 		while (tick_timer_ >= 1.0) {
 			tick_timer_ -= 1.0;
 		}
 	}
 
 	for (auto i : hud_) {
-		i->UpdateHUD(player_);
+		i -> UpdateHUD(player_);
 	}
 
 	//despawn items
 	if (!items_.empty()){
-		for (auto i : items_) {
+		for (auto* i : items_) {
 			if (!i->Spawned()) {
 				to_render_.erase(remove(to_render_.begin(), to_render_.end(), i), to_render_.end());
 				items_.erase(remove(items_.begin(), items_.end(), i), items_.end());
@@ -291,9 +373,9 @@ void App::Update() {
 	}
 
 	if (projectiles_.size() > 0) {
-		for (auto i : projectiles_) {
-			if (!i -> GetActive()) {
-				to_render_.erase(remove(to_render_.begin(), to_render_.end(), i), to_render_.end());
+		for (auto* i : projectiles_) {
+			if (!(i -> GetActive())) {
+				entities_.erase(remove(entities_.begin(), entities_.end(), i), entities_.end());
 				projectiles_.erase(remove(projectiles_.begin(), projectiles_.end(), i), projectiles_.end());
 				delete i;
 			}
@@ -418,8 +500,16 @@ void App::Render() {
 
 	// Render "renderables" aka. entities
 	for (auto& i : to_render_) {
+		int p = i -> GetVParent();
+		if (p == -1 || (visible_[p] && !hidden_[p])) {
+			i -> Render(renderer_, camera_x_, camera_y_);
+		}
+	}
+
+	for (auto& i : entities_) {
 		i -> Render(renderer_, camera_x_, camera_y_);
 	}
+
 	// Render HUD
 	for (auto i : hud_) {
 		i->Render(renderer_, 0, 0);
@@ -446,26 +536,51 @@ bool App::Running() const {
 	return running_;
 }
 
-void App::AddWall(TextureType type, const int& x, const int& y) {
+Wall* App::AddWall(TextureType type, const int& x, const int& y) {
 	Wall* temp = new Wall(textures_->Get(type), x, y);
+	temp-> SetVParent(int(y / 512) * dungeon_width_ + int(x / 512));
 	to_render_.push_back(temp);
 	walls_.push_back(temp);
 	path_tiles_[unsigned((floor(y / 32)) * room_width_ / 32 + (floor(x / 32)))] = false;
+	return temp;
 }
+
+void App::AddFloor(TextureType type, const int& x, const int& y) {
+	Floor* temp = new Floor(textures_->Get(type), x, y);
+	temp -> SetVParent(int(y / 512) * dungeon_width_ + int(x / 512));
+	to_render_.push_back(temp);
+	floor_.push_back(temp);
+}
+
+Door* App::AddDoor(TextureType type, const int& x, const int& y) {
+	Door* temp = new Door(textures_->Get(type), x, y);
+	temp -> SetVParent(int(y / 512) * dungeon_width_ + int(x / 512));
+	to_render_.push_back(temp);
+	doors_.push_back(temp);
+	return temp;
+}
+
 void App::AddProjectile(TextureType type, const int& x, const int& y,double speed, double dir, Renderable* parent,ProjectileType pro) {
 	Projectile* temp = nullptr;
+	double angle = 2 * M_PI - dir;
 	switch (pro) {
 	case ProjectileType::Fireball: 
 		temp = new Fireball(textures_->Get(type), x, y, speed, dir, parent);
+		temp -> SetAngle(angle);
+		temp -> SetImageSpeed(4);
 		break;
 	case ProjectileType::IceBall:
 		temp = new IceBall(textures_->Get(type), x, y, speed, dir, parent);
+		temp -> SetAngle(angle);
+		temp -> SetImageSpeed(4);
 		break;
 	case ProjectileType::Melee: 
 		temp = new Melee(textures_->Get(type), x, y, 0.0, dir, parent);
+		temp -> SetAngle(angle);
+		temp -> SetImageSpeed(4);
 		break;
 	}
-	to_render_.push_back(temp);
+	entities_.push_back(temp);
 	projectiles_.push_back(temp);
 }
 void App::AddItem(const int& x, const int& y, ItemType type) {
@@ -493,6 +608,7 @@ void App::AddItem(const int& x, const int& y, ItemType type) {
 }
 void App::AddChest(TextureType type, const int& x, const int& y) {
 	Chest* temp = new Chest(textures_->Get(type), x, y);
+	temp -> SetVParent(int(y / 512) * dungeon_width_ + int(x / 512));
 	to_render_.push_back(temp);
 	chests_.push_back(temp);
 }
@@ -562,29 +678,47 @@ bool App::AddRoom(const unsigned int& index, const int& x, const int& y) {
 	for (unsigned j = 0; j < h; j++) {
 		for (unsigned i = 0; i < w; i++) {
 			if ((x + i * 32 < room_width_) && (y + i * 32 < room_height_)) {
+				unsigned t = (j * 32 + y) / 512 * dungeon_width_ + (i * 32 + x) / 512;
 				switch (room_data_[index].data[unsigned (j * h + i)]) {
 				default:
 				break;
 				case 45:
 					// Air
+					AddFloor(TextureType::dfloor, i * 32 + x, j * 32 + y);
+				break;
+				case 68:
+					// Mark this location for door generation
+					door_spots_.push_back(unsigned((floor(y / 32) + j) * room_width_ / 32 + (floor(x / 32) + i)));
+					door_spots_.push_back(0);
 				break;
 				case 69:
-					AddWall(TextureType::ladderdown, i * 32 + x, j * 32 + y);
+					AddFloor(TextureType::ladderdown, i * 32 + x, j * 32 + y);
 				break;
 				case 77:
-					monster::AddMonster(monsters_, textures_, i * 32 + x, j * 32 + y, difficulty_);
+					AddFloor(TextureType::dfloor, i * 32 + x, j * 32 + y);
+					room_[t].monster_spawns.push_back((floor(y / 32) + j) * room_width_ / 32 + (floor(x / 32) + i));
 				break;
 				case 80:
 					AddWall(TextureType::fire, i * 32 + x, j * 32 + y);
+				break;
+				case 86:
+					// Void, add nothing
 				break;
 				case 87:
 					AddWall(TextureType::wall2, i * 32 + x, j * 32 + y);
 				break;
 				case 72:
+					AddFloor(TextureType::dfloor, i * 32 + x, j * 32 + y);
 					AddChest(TextureType::chest, i * 32 + x, j * 32 + y);
+				break;
+				case 100:
+					// Mark this location for door generation
+					door_spots_.push_back(unsigned((floor(y / 32) + j) * room_width_ / 32 + (floor(x / 32) + i)));
+					door_spots_.push_back(1);
 				break;
 				case 112:
 					player_ -> SetPos(i * 32 + x, j * 32 + y);
+					AddFloor(TextureType::ladderup, i * 32 + x, j * 32 + y);
 				break;
 				}
 
@@ -645,9 +779,6 @@ void App::Generate() {
 			index = 1;
 		}
 
-		room[y * max_x + x] = index;
-		pindex = index;
-
 		bool cdir[4];
 		copy(begin(room_data_[index].dir), end(room_data_[index].dir), begin(cdir));
 
@@ -671,12 +802,22 @@ void App::Generate() {
 			}
 		} else {
 			index = 3;
-			room[y * max_x + x] = index;
-			pindex = index;
 		}
+
+		bool exit = false;
+		if (room[y * max_x + x] != -1) {
+			index = 1;
+			exit = true;
+		}
+
+		room[y * max_x + x] = index;
+		pindex = index;
 
 		x = x + (dir == 1) - (dir == 3);
 		y = y - (dir == 0) + (dir == 2);
+		if (exit) {
+			break;
+		}
 	}
 
 	// Adding dead-end rooms, fill with items, monsters, etc later.
@@ -732,6 +873,35 @@ void App::Generate() {
 		}
 	}
 
+	dungeon_width_ = (max_i - min_i) + 1;
+	dungeon_height_ = (max_j - min_j) + 1;
+
+	hidden_ = new bool[dungeon_height_ * dungeon_width_];
+	visible_ = new bool[dungeon_height_ * dungeon_width_];
+	room_ = new DungeonRoom[dungeon_height_ * dungeon_width_];
+
+	cout << "Printing map: " << endl;
+	for (unsigned j = 0; j < dungeon_height_; j++) {
+		for (unsigned i = 0; i < dungeon_width_; i++) {
+			visible_[unsigned(j * dungeon_width_ + i)] = false;
+			hidden_[unsigned(j * dungeon_width_ + i)] = true;
+			int r = room[(j + min_j) * max_x + (i + min_i)];
+			DungeonRoom temp;
+			temp.index = r;
+			room_[unsigned(j * dungeon_width_ + i)] = temp;
+			if (r != -1) {
+				if (r == 0) {
+					hidden_[unsigned(j * dungeon_width_ + i)] = false;
+				}
+				cout << r << " ";
+			} else {
+				cout << "# ";
+			}
+		}
+		cout << "\n";
+	}
+	cout << "Room size: " << room_width_ << " x " << room_height_ << endl;
+
 	size_ = (room_width_ / 32 * room_height_ / 32);
 	tiles_ = new bool[size_];
 	path_tiles_ = new bool[size_];
@@ -742,7 +912,7 @@ void App::Generate() {
 
 	// Add rooms and close them down if they're not connected to anything
 
-	cout << "Printing map: " << endl;
+	
 	for (unsigned j = 0; j < max_x; j++) {
 		for (unsigned i = 0; i < max_y; i++) {
 			if (room[j * max_x + i] > -1) {
@@ -751,6 +921,7 @@ void App::Generate() {
 
 				bool cdir[4];
 				copy(begin(room_data_[room[j * max_x + i]].dir), end(room_data_[room[j * max_x + i]].dir), begin(cdir));
+				
 				int nx, ny;
 				for (unsigned k = 0; k < 4; k++) {
 					nx = i + (k == 1) - (k == 3);
@@ -764,9 +935,23 @@ void App::Generate() {
 								cdir[k] = 1;
 							}
 						}
-						
 					}
 				}
+				bool ddir[4];
+				copy(begin(room_data_[room[j * max_x + i]].dir), end(room_data_[room[j * max_x + i]].dir), begin(ddir));
+
+				for (unsigned k = 0; k < 4; k++) {
+					nx = i + (k == 1) - (k == 3);
+					ny = j - (k == 0) + (k == 2);
+					if (!(nx < 0 || nx >= max_x || ny < 0 || ny >= max_y)) {
+						ddir[k] = ddir[k] * (room[ny * max_x + nx] != -1);
+					}
+
+				}
+
+				DungeonRoom& temp = room_[unsigned((j - min_j) * dungeon_width_ + (i - min_i))];
+				copy(begin(ddir), end(ddir), begin(temp.dir));
+
 				for (unsigned k = 0; k < 4; k++) {
 					if (cdir[k] == 1) {
 						nx = (i - min_i) * 32 * w;
@@ -797,16 +982,125 @@ void App::Generate() {
 								AddWall(TextureType::wall2, nx, ny);
 							break;
 						}
-						
 					}
 				}
-				cout << room[j * max_x + i] << " ";
-			} else {
-				cout << "# ";
 			}
-
 		}
-		cout << "\n";
 	}
-	cout << "Room size: " << room_width_ << " x " << room_height_ << endl;
+
+	for (unsigned i = 0; i < door_spots_.size() / 2; i++) {
+		int j = door_spots_[i * 2];
+		if (path_tiles_[j]) {
+			int nx = (j % (room_width_ / 32)) * 32;
+			int ny = floor(j / (room_width_ / 32)) * 32;
+
+			int cx = floor(nx / 512) * 512 + 256;
+			int cy = floor(ny / 512) * 512 + 256;
+			
+			AddFloor(TextureType::dfloor, nx, ny);
+
+			int t = floor(ny / 512) * dungeon_width_ + floor(nx / 512);
+			DungeonRoom& temp = room_[t];
+
+			if (door_spots_[i * 2 + 1]) {
+				if (nx > cx) {
+					temp.door[1] = 1;
+				} else {
+					temp.door[3] = 1;
+				}
+			} else {
+ 				if (ny > cy) {
+					temp.door[2] = 1;
+				} else {
+					temp.door[0] = 1;
+				}
+			}
+		}
+	}
+
+	for (unsigned i = 0; i < door_spots_.size() / 2; i++) {
+		int j = door_spots_[i * 2];
+		if (path_tiles_[j]) {
+			int nx = (j % (room_width_ / 32)) * 32;
+			int ny = floor(j / (room_width_ / 32)) * 32;
+
+			int cx = floor(nx / 512) * 512 + 256;
+			int cy = floor(ny / 512) * 512 + 256;
+			
+			AddFloor(TextureType::dfloor, nx, ny);
+
+			int t = floor(ny / 512) * dungeon_width_ + floor(nx / 512);
+
+			if (door_spots_[i * 2 + 1]) {
+				if (nx > cx) {
+					Door* a = AddDoor(TextureType::vdoor1, nx, ny);
+					Recursive(t + 1, a, 3);
+					a -> SetFirst(t);
+					a -> SetTiles(j, j + (room_width_ / 32));
+
+					Wall* wall0 = AddWall(TextureType::invisible, nx + 16, ny);
+					Wall* wall1 = AddWall(TextureType::invisible, nx + 16, ny + 32);
+
+					a -> SetWalls(wall0, wall1);
+
+				} else {
+					Door* a = AddDoor(TextureType::vdoor2, nx, ny);
+					Recursive(t - 1, a, 1);
+					a -> SetFirst(t);
+					a -> SetTiles(j, j + (room_width_ / 32));
+
+					Wall* wall0 = AddWall(TextureType::invisible, nx - 16, ny);
+					Wall* wall1 = AddWall(TextureType::invisible, nx - 16, ny + 32);
+
+					a->SetWalls(wall0, wall1);
+				}
+				path_tiles_[j] = false;
+				path_tiles_[j + (room_width_ / 32)] = false;
+			} else {
+ 				if (ny > cy) {
+					Door* a = AddDoor(TextureType::hdoor1, nx, ny);
+					Recursive(t + dungeon_width_, a, 0);
+					a -> SetFirst(t);
+					a -> SetTiles(j, j + 1);
+
+					Wall* wall0 = AddWall(TextureType::invisible, nx, ny + 16);
+					Wall* wall1 = AddWall(TextureType::invisible, nx + 32, ny + 16);
+
+					a->SetWalls(wall0, wall1);
+				} else {
+					Door* a = AddDoor(TextureType::hdoor2, nx, ny);
+					Recursive(t - dungeon_width_, a, 2);
+					a -> SetFirst(t);
+					a -> SetTiles(j, j + 1);
+					Wall* wall0 = AddWall(TextureType::invisible, nx, ny - 16);
+					Wall* wall1 = AddWall(TextureType::invisible, nx + 32, ny - 16);
+
+					a->SetWalls(wall0, wall1);
+				}
+				path_tiles_[j] = false;
+				path_tiles_[j + 1] = false;
+			}
+		}
+	}
+}
+
+void App::Recursive(const unsigned int& index, Door* pointer, const unsigned int& previous_dir) {
+	pointer -> AddConnected(index);
+	bool cdir[4];
+	copy(begin(room_[index].dir), end(room_[index].dir), begin(cdir));
+	bool ddir[4];
+	copy(begin(room_[index].door), end(room_[index].door), begin(ddir));
+
+	if (!ddir[previous_dir]) {
+		for (unsigned k = 0; k < 4; k++) {
+			if (k != previous_dir) {
+				if (cdir[k] && !ddir[k]) {
+					int ni = index + (k == 1) - (k == 3) + (-(k == 0) + (k == 2)) * dungeon_width_;
+					Recursive(ni, pointer, (k + 2) % 4);
+				}
+			}
+		}
+	} else {
+		last_dir_ = previous_dir;
+	}
 }

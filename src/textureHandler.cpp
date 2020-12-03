@@ -3,7 +3,7 @@
 TextureHandler::TextureHandler(SDL_Renderer* renderer)
 	: renderer_(renderer)
 {
-	LoadTexture("assets/player_8.png");
+	LoadTexture("assets/player_2.png");
 	LoadTexture("assets/wall2_1.png");
 	LoadTexture("assets/fire_3.png");
 	LoadTexture("assets/zombie_2.png");
@@ -26,6 +26,13 @@ TextureHandler::TextureHandler(SDL_Renderer* renderer)
 
 	LoadTexture("assets/hud_6.png");
 	LoadTexture("assets/iceball_5.png");
+	LoadTexture("assets/arrow_1.png");
+	LoadTexture("assets/floor_8.png");
+	LoadTexture("assets/invisible_1.png");
+	LoadTexture("assets/hdoor1_1.png");
+	LoadTexture("assets/hdoor2_1.png");
+	LoadTexture("assets/vdoor1_1.png");
+	LoadTexture("assets/vdoor2_1.png");
 }
 
 const Texture& TextureHandler::Get(TextureType type) const {

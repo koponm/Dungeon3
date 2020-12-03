@@ -27,6 +27,8 @@
 #include "items.h"
 #include "chest.h"
 #include "hud.h"
+#include "floor.h"
+#include "door.h"
 
 using namespace std;
 
@@ -35,6 +37,13 @@ struct Room {
 	unsigned int height = 0;
 	vector<int> data;
 	bool dir[4] = {0, 0, 0, 0};
+};
+
+struct DungeonRoom {
+	int index = 0;
+	bool dir[4] = { 0, 0, 0, 0 };
+	bool door[4] = { 0, 0, 0, 0 };
+	vector<int> monster_spawns;
 };
 
 class App {
@@ -47,7 +56,9 @@ public:
 	bool Running() const;
 	void LoadRoom(const char* path);
 	void AddProjectile(TextureType type, const int& x, const int& y,double speed,double dir, Renderable* parent, ProjectileType pro);
-	void AddWall(TextureType type, const int& x, const int& y);
+	Wall* AddWall(TextureType type, const int& x, const int& y);
+	void AddFloor(TextureType type, const int& x, const int& y);
+	Door* AddDoor(TextureType type, const int& x, const int& y);
 	void AddItem(const int& x, const int& y, ItemType type = ItemType::random);
 	void AddChest(TextureType type, const int& x, const int& y);
 	bool AddRoom(const unsigned int& index, const int& x, const int& y);
@@ -55,6 +66,7 @@ public:
 	void RenderText(const char* text, TTF_Font* font, SDL_Color color, int x, int y);
 	void LoadSound(const char* path);
 	void PlaySound(const unsigned& index, const int& loops);
+	void Recursive(const unsigned int& index, Door* pointer, const unsigned int& previous_dir);
 	
 private:
 	SDL_Window* window_ = nullptr;
@@ -71,14 +83,20 @@ private:
 	vector<Room> room_data_;
 	Player* player_ = nullptr;
 	list<Renderable*> to_render_;
+	list<Renderable*> entities_;
+
 	vector<Wall*> walls_;
 	vector<Monster*> monsters_;
 	vector<Projectile*> projectiles_;
 	vector<Item*> items_;
 	vector<Chest*> chests_;
+	vector<Floor*> floor_;
+	vector<Door*> doors_;
 	vector<HUD_object*> hud_;
 
 	vector<Mix_Chunk*> sounds_;
+
+	vector<int> door_spots_;
 
 	double now_ = 0;
 	double last_ = 0;
@@ -103,7 +121,13 @@ private:
 	unsigned size_ = 0;
 	bool* tiles_ = nullptr;
 	bool* path_tiles_ = nullptr;
+	bool* hidden_ = nullptr;
+	bool* visible_ = nullptr;
+	DungeonRoom* room_ = nullptr;
+	unsigned int dungeon_width_ = 0;
+	unsigned int dungeon_height_ = 0;
 	unsigned int difficulty_ = 1;
+	int last_dir_ = 0;
 
 	size_t fps_desired_ = 60;
 	double second_timer_ = 0.0;

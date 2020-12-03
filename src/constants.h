@@ -21,5 +21,12 @@ enum TextureType {
 	fireball = 17,
 	tombstone = 18,
 	hud = 19,
-	iceball = 20
+	iceball = 20,
+	arrow = 21,
+	dfloor = 22,
+	invisible = 23,
+	hdoor1 = 24,
+	hdoor2 = 25,
+	vdoor1 = 26,
+	vdoor2 = 27
 };
