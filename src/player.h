@@ -33,6 +33,11 @@ public:
 	void SetHealth(double newHealth) {
 		health_ = newHealth;
 	}
+	double GetXp() const { return xp_; }
+	double GetNextXp() const { return next_xp_; }
+	double GetLevel() const { return level_; }
+	double GetMoney() const { return money_; }
+	void AddXp(const double& xp);
 
 private:
 	double x_ = 0.0;
@@ -41,10 +46,14 @@ private:
 	double y_vel_ = 0.0;
 	double fric_ = 4.0;
 	double speed_ = 800.0;
-	double max_health_ = 110;
+	double max_health_ = 100;
 	double health_ = 100;
-	double max_mana_ = 110;
+	double max_mana_ = 100;
 	double mana_ = 100;
+	double xp_ = 0;
+	double next_xp_ = 100;
+	double level_ = 1;
+	double money_ = 20;
 	int health_potions_ = 0;
 	int mana_potions_ = 0;
 	ItemType weapon_ = ItemType::sword;

@@ -25,8 +25,6 @@ public:
 	void CalcPos(const size_t& fps_desired);
 	double GetSpeed() { return speed_; };
 	Renderable* GetParent() { return parent_; };
-	void SetActive(const bool& a) { active_ = a; };
-	bool GetActive() const { return active_; };
 	double GetDamage() const { return damage_; };
 
 protected:
@@ -37,7 +35,6 @@ protected:
 	double speed_ = 0.0;
 	double damage_ = 0.0;
 	double timer_ = 0.0;
-	bool active_ = true;
 	Renderable* parent_ = nullptr;
 };
 

@@ -36,6 +36,7 @@ public:
 	double GetTimer() { return shoot_timer; }
 	void SetTimer(double timer) { shoot_timer = timer; }
 	void SetHealth(double newHealth) { health_ = newHealth; }
+	double GetMaxHealth() { return max_health_; }
 	ProjectileType GetProjectile() { return projectile; }
 protected:
 	double x_ = 0.0;
@@ -48,6 +49,7 @@ protected:
 	double speed_ = 512.0;
 	double attack_ = 1;
 	double health_ = 100;
+	double max_health_ = health_;
 	bool ignore_walls_ = false;
 	bool has_lign_of_sight = false;
 	bool is_melee = true;
