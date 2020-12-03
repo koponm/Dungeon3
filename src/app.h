@@ -21,6 +21,7 @@
 #include "projectile.h"
 #include "fireball.h"
 #include "iceball.h"
+#include "arrow.h"
 #include "melee.h"
 #include "monster/initializeMonster.h"
 #include "monster/update.h"

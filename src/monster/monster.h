@@ -4,6 +4,7 @@
 #include <utility>
 #include <list>
 #include "../renderable.h"
+#include "../projectile.h"
 
 using namespace std;
 
@@ -22,7 +23,7 @@ public:
 	int GetNextTile();
 	void ChangeNextMoves(list<int> moves) { next_moves_ = moves; }
 	void PopNextMove();
-	double GetSpeed() { return speed_;  }
+	double GetSpeed() { return speed_; }
 	double GetAttack() { return attack_; }
 	double GetHealth() { return health_; }
 	bool IgnoreWalls() { return ignore_walls_; }
@@ -32,9 +33,10 @@ public:
 	bool IsDead() { return health_ <= 0; }
 	bool Dead() { return is_dead; }
 	void Kill();
-	double GetTimer() { return shoot_timer;}
+	double GetTimer() { return shoot_timer; }
 	void SetTimer(double timer) { shoot_timer = timer; }
 	void SetHealth(double newHealth) { health_ = newHealth; }
+	ProjectileType GetProjectile() { return projectile; }
 protected:
 	double x_ = 0.0;
 	double y_ = 0.0;
@@ -51,5 +53,6 @@ protected:
 	bool is_melee = true;
 	bool is_dead = false;
 	double shoot_timer = 0.0;
+	ProjectileType projectile = ProjectileType::Melee;
 };
 #endif // MONSTER_H_

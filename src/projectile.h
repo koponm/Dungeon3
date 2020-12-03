@@ -5,11 +5,13 @@
 #include <utility>
 #include <list>
 #include "renderable.h"
+#include "constants.h"
 
 enum class ProjectileType {
 	Fireball,
 	Melee,
-	IceBall
+	IceBall,
+	Arrow
 };
 class Projectile : public Renderable {
 public:

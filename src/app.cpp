@@ -244,12 +244,17 @@ void App::Update() {
 		i->GetRect(w4, h4);
 		if (i->HasLignOfSight() && !i->IsMelee() && i->GetTimer()==0 && !i->Dead()) {
 			double monster_player_angle_ = fmod(540.0 - atan2f((y4 - 16 - y1), (x4 - 16 - x1)) * 180.0 / M_PI, 360.0);
-			AddProjectile(TextureType::iceball, x4, y4, 400, monster_player_angle_, i, ProjectileType::IceBall);
+			if (i->GetProjectile() == ProjectileType::Arrow) {
+				AddProjectile(TextureType::arrow, x4, y4, 400, monster_player_angle_, i, ProjectileType::Arrow);
+			}
+			else if (i->GetProjectile() == ProjectileType::IceBall) {
+				AddProjectile(TextureType::iceball, x4, y4, 400, monster_player_angle_, i, i->GetProjectile());
+			}
 			i->SetTimer(1.0);
 		}
 		if (i->IsMelee() && i->GetTimer() == 0 && !i->Dead()) {
 			if (x1 < ((double)x4 + w4) && x1 + w1 > x4 && y1 < ((double)y4 + h4) && y1 + h1 > y4) {
-				AddProjectile(TextureType::invisible, x4, y4, 0, 0, i, ProjectileType::Melee);
+				AddProjectile(TextureType::invisible, x4, y4, 0, 0, i, i->GetProjectile());
 				i->SetTimer(1.0);
 			}
 		}
@@ -603,6 +608,11 @@ void App::AddProjectile(TextureType type, const int& x, const int& y,double spee
 		temp = new Melee(textures_->Get(type), x, y, 0.0, dir, parent);
 		temp -> SetAngle(angle);
 		temp -> SetImageSpeed(4);
+		break;
+	case ProjectileType::Arrow:
+		temp = new Arrow(textures_->Get(type), x, y, speed, dir, parent);
+		temp -> SetAngle(angle);
+		temp-> SetImageSpeed(4);
 		break;
 	}
 	entities_.push_back(temp);

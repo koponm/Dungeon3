@@ -152,6 +152,7 @@
   </ItemDefinitionGroup>
   <ItemGroup>
     <ClCompile Include="app.cpp" />
+    <ClCompile Include="arrow.cpp" />
     <ClCompile Include="chest.cpp" />
     <ClCompile Include="door.cpp" />
     <ClCompile Include="fireball.cpp" />
@@ -176,6 +177,7 @@
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="app.h" />
+    <ClInclude Include="arrow.h" />
     <ClInclude Include="chest.h" />
     <ClInclude Include="constants.h" />
     <ClInclude Include="door.h" />

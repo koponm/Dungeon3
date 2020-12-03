@@ -9,6 +9,7 @@ Skeleton::Skeleton(const Texture& texture, double x, double y)
 	attack_ = 100;
 	health_ = 100;
 	is_melee = false;
+	projectile = ProjectileType::Arrow;
 }
 
 Skeleton::~Skeleton() {
