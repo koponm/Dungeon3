@@ -74,12 +74,23 @@ void Player::AddMana(double mana) {
 	if (mana_ > max_mana_) mana_ = max_mana_;
 }
 void Player::UseHealthPotion(){
-	AddHealth(5);
+	AddHealth(20);
 	health_potions_--;
 }
 void Player::UseManaPotion(){
-	AddMana(5);
+	AddMana(20);
 	mana_potions_--;
+}
+
+void Player::AddXp(const double& xp) {
+	xp_ += xp;
+	while (xp_ >= next_xp_) {
+		level_++;
+		next_xp_ += next_xp_ * 1.1;
+		next_xp_ = floor(next_xp_);
+		max_health_ = 100 + level_ * 15;
+		max_mana_ = 100 + level_ * 5;
+	}
 }
 
 void Player::AddItem(Item* item) {
