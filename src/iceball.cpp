@@ -1,7 +1,7 @@
 #pragma once
 #include "iceball.h"
 
-IceBall::IceBall(const Texture& texture, double x, double y, double speed, double dir, Renderable* parent)
+IceBall::IceBall(const Texture& texture, double x, double y, double speed, double dir, std::shared_ptr<Renderable> parent)
 	: Projectile(texture, x, y, speed, dir, parent)
 {
 	x_vel_ = speed_ * cos(dir * M_PI / 180);

@@ -4,6 +4,7 @@
 
 #include <utility>
 #include <list>
+#include <memory>
 #include "renderable.h"
 #include "constants.h"
 
@@ -15,7 +16,7 @@ enum class ProjectileType {
 };
 class Projectile : public Renderable {
 public:
-	Projectile(const Texture& texture, double x, double y, double speed,double dir, Renderable* parent);
+	Projectile(const Texture& texture, double x, double y, double speed,double dir, std::shared_ptr<Renderable> parent);
 	~Projectile();
 	void GetPos(double& x, double& y);
 	void SetPos(const double& x, const double& y);
@@ -24,7 +25,7 @@ public:
 	void SetVel(bool t, const double& v);
 	void CalcPos(const size_t& fps_desired);
 	double GetSpeed() { return speed_; };
-	Renderable* GetParent() { return parent_; };
+	std::shared_ptr<Renderable> GetParent() { return parent_; };
 	double GetDamage() const { return damage_; };
 
 protected:
@@ -35,7 +36,7 @@ protected:
 	double speed_ = 0.0;
 	double damage_ = 0.0;
 	double timer_ = 0.0;
-	Renderable* parent_ = nullptr;
+	std::shared_ptr<Renderable> parent_ = nullptr;
 };
 
 #endif

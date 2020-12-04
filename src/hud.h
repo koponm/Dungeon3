@@ -5,6 +5,8 @@
 #include "items.h"
 #include "player.h"
 
+#include <memory>
+
 class HUD_object :
     public Renderable
 {
@@ -12,7 +14,7 @@ public:
     HUD_object(const Texture& texture, int x, int y, ItemType type, int frame);
     ~HUD_object() {}
 
-    void UpdateHUD(Player* player);
+    void UpdateHUD(std::shared_ptr<Player> player);
 
 private:
     int x_ = 0;

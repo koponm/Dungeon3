@@ -67,7 +67,7 @@ bool getLineOfSight(bool* path_tiles, int current, int target, unsigned int w, u
 	}	
 }
 
-void A_star_algorithm(Monster* monster, bool* path_tiles,
+void A_star_algorithm(std::shared_ptr<Monster> monster, bool* path_tiles,
 	double player_x, double player_y,
 	unsigned int size, unsigned int room_width, unsigned int room_height) {
 	unsigned int w = room_width / 32;
@@ -163,7 +163,7 @@ void A_star_algorithm(Monster* monster, bool* path_tiles,
 	monster->ChangeNextMoves(monster_next_moves);
 }
 
-void CalculatePath(std::vector<Monster*>& monsters, bool* path_tiles, double player_x, double player_y,
+void CalculatePath(std::vector<std::shared_ptr<Monster>>& monsters, bool* path_tiles, double player_x, double player_y,
 	unsigned size, unsigned int room_width, unsigned int room_height) {
 	for (auto& monster : monsters) {
 		if (monster->IsDead())
@@ -178,8 +178,8 @@ void CalculatePath(std::vector<Monster*>& monsters, bool* path_tiles, double pla
 	}
 }
 
-void UpdateMonsters(std::vector<Monster*>& monsters, double delta_speed, const size_t fps, bool can_move,
-	unsigned int room_width, vector<Wall*> walls, const Texture& tombstone, std::list<Renderable*>& to_render) {
+void UpdateMonsters(std::vector<std::shared_ptr<Monster>>& monsters, double delta_speed, const size_t fps, bool can_move,
+	unsigned int room_width, std::vector<std::shared_ptr<Wall>> walls, const Texture& tombstone, std::list<std::shared_ptr<Renderable>>& to_render) {
 
 	for (auto& monster : monsters) {
 		if (monster->Dead()) { continue; }

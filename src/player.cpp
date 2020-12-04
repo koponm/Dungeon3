@@ -93,7 +93,7 @@ void Player::AddXp(const double& xp) {
 	}
 }
 
-void Player::AddItem(Item* item) {
+void Player::AddItem(std::shared_ptr<Item> item) {
 	ItemType type = item->GetItemType();
 	switch (type) {
 	case ItemType::health_potion:

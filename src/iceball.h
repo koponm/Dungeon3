@@ -6,6 +6,6 @@
 
 class IceBall : public Projectile {
 public:
-	IceBall(const Texture& texture, double x, double y, double speed, double dir, Renderable* parent);
+	IceBall(const Texture& texture, double x, double y, double speed, double dir, std::shared_ptr<Renderable> parent);
 	~IceBall();
 };

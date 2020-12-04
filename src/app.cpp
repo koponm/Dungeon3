@@ -33,7 +33,7 @@ App::App(void)
 
 		textures_ = new TextureHandler(renderer_);
 
-		player_ = new Player((textures_->Get(TextureType::player)), 0, 0);
+		player_ = std::shared_ptr<Player>(new Player((textures_->Get(TextureType::player)), 0, 0));
 
 		LoadRoom("assets/startroom_0110.txt");
 		LoadRoom("assets/endroom_1111.txt");
@@ -52,9 +52,9 @@ App::App(void)
 		entities_.push_back(player_);
 
 		//HUD
-		hud_.push_back(new HUD_object(textures_->Get(hud), 735, 5, ItemType::sword, 5));
-		hud_.push_back(new HUD_object(textures_->Get(hud), 342, 540, ItemType::health_potion, 0));
-		hud_.push_back(new HUD_object(textures_->Get(hud), 400, 540, ItemType::mana_potion, 2));
+		hud_.emplace_back(new HUD_object(textures_->Get(hud), 735, 5, ItemType::sword, 5));
+		hud_.emplace_back(new HUD_object(textures_->Get(hud), 342, 540, ItemType::health_potion, 0));
+		hud_.emplace_back(new HUD_object(textures_->Get(hud), 400, 540, ItemType::mana_potion, 2));
 
 		running_ = true;
 	} else {
@@ -83,8 +83,7 @@ void App::Update() {
 		death_ = false;
 		Reset();
 		entities_.clear();
-		delete player_;
-		player_ = new Player((textures_->Get(TextureType::player)), 0, 0);
+		player_ = std::shared_ptr<Player>(new Player((textures_->Get(TextureType::player)), 0, 0));
 		entities_.push_back(player_);
 		Generate();
 	}
@@ -148,7 +147,7 @@ void App::Update() {
 		double xx, yy;
 		player_ -> GetPos(xx, yy);
 
-		for (auto* i : doors_) {
+		for (auto i : doors_) {
 			int begin = i -> GetFirst();
 			SDL_Rect rect2 = i -> ReturnRect();
 			if (SDL_HasIntersection(&rect1, &rect2)) {
@@ -164,17 +163,17 @@ void App::Update() {
 							
 
 							monster::AddMonster(monsters_, textures_, nx, ny, difficulty_);
-							entities_.push_front(monsters_[monsters_.size() - 1]);
+							entities_.emplace_front(monsters_[monsters_.size() - 1]);
 						}
 					}
 				}
 				int end = connected[connected.size() - 1];
 				int tile0, tile1;
 
-				Wall* wall0 = nullptr;
-				Wall* wall1 = nullptr;
+				std::shared_ptr<Wall> wall0 = nullptr;
+				std::shared_ptr<Wall> wall1 = nullptr;
 
-				for (auto* j : doors_) {
+				for (auto j : doors_) {
 					int begin2 = j -> GetFirst();
 					vector<int> connected2 = j -> GetConnected();
 					int end2 = connected2[connected2.size() - 1];
@@ -193,7 +192,6 @@ void App::Update() {
 						path_tiles_[tile1] = true;
 						j -> SetActive(false);
 						doors_.erase(remove(doors_.begin(), doors_.end(), j), doors_.end());
-						delete j;
 						break;
 					}
 				}
@@ -211,7 +209,6 @@ void App::Update() {
 				path_tiles_[tile1] = true;
 				i -> SetActive(false);
 				doors_.erase(remove(doors_.begin(), doors_.end(), i), doors_.end());
-				delete i;
 				break;
 			}
 		}
@@ -407,11 +404,10 @@ void App::Update() {
 
 	//despawn items
 	if (!items_.empty()){
-		for (auto* i : items_) {
+		for (auto& i : items_) {
 			if (!i->Spawned()) {
 				to_render_.erase(remove(to_render_.begin(), to_render_.end(), i), to_render_.end());
 				items_.erase(remove(items_.begin(), items_.end(), i), items_.end());
-				delete i;
 			}
 		}
 	}
@@ -434,9 +430,8 @@ void App::Update() {
 
 	for (auto it = projectiles_.begin(); it != projectiles_.end();) {
 		if (!((*it) -> GetActive())) {
-			Projectile* ptr = (*it);
+			std::shared_ptr<Projectile> ptr = (*it);
 			it = projectiles_.erase(it);
-			delete ptr;
 		} else {
 			it++;
 		}
@@ -635,8 +630,8 @@ bool App::Running() const {
 	return running_;
 }
 
-Wall* App::AddWall(TextureType type, const int& x, const int& y) {
-	Wall* temp = new Wall(textures_->Get(type), x, y);
+std::shared_ptr<Wall> App::AddWall(TextureType type, const int& x, const int& y) {
+	std::shared_ptr<Wall> temp(new Wall(textures_->Get(type), x, y));
 	temp-> SetVParent(int(y / 512) * dungeon_width_ + int(x / 512));
 	to_render_.push_back(temp);
 	walls_.push_back(temp);
@@ -645,41 +640,41 @@ Wall* App::AddWall(TextureType type, const int& x, const int& y) {
 }
 
 void App::AddFloor(TextureType type, const int& x, const int& y) {
-	Floor* temp = new Floor(textures_->Get(type), x, y);
+	std::shared_ptr<Floor> temp(new Floor(textures_->Get(type), x, y));
 	temp -> SetVParent(int(y / 512) * dungeon_width_ + int(x / 512));
 	to_render_.push_back(temp);
 	floor_.push_back(temp);
 }
 
-Door* App::AddDoor(TextureType type, const int& x, const int& y) {
-	Door* temp = new Door(textures_->Get(type), x, y);
+std::shared_ptr<Door> App::AddDoor(TextureType type, const int& x, const int& y) {
+	std::shared_ptr<Door> temp(new Door(textures_->Get(type), x, y));
 	temp -> SetVParent(int(y / 512) * dungeon_width_ + int(x / 512));
 	to_render_.push_back(temp);
 	doors_.push_back(temp);
 	return temp;
 }
 
-void App::AddProjectile(TextureType type, const int& x, const int& y,double speed, double dir, Renderable* parent,ProjectileType pro) {
-	Projectile* temp = nullptr;
+void App::AddProjectile(TextureType type, const int& x, const int& y,double speed, double dir, std::shared_ptr<Renderable> parent,ProjectileType pro) {
+	std::shared_ptr<Projectile> temp = nullptr;
 	double angle = 2 * M_PI - dir;
 	switch (pro) {
 	case ProjectileType::Fireball: 
-		temp = new Fireball(textures_->Get(type), x, y, speed, dir, parent);
+		temp = std::shared_ptr<Projectile>(new Fireball(textures_->Get(type), x, y, speed, dir, parent));
 		temp -> SetAngle(angle);
 		temp -> SetImageSpeed(4);
 		break;
 	case ProjectileType::IceBall:
-		temp = new IceBall(textures_->Get(type), x, y, speed, dir, parent);
+		temp = std::shared_ptr<Projectile>(new IceBall(textures_->Get(type), x, y, speed, dir, parent));
 		temp -> SetAngle(angle);
 		temp -> SetImageSpeed(4);
 		break;
 	case ProjectileType::Melee: 
-		temp = new Melee(textures_->Get(type), x, y, 0.0, dir, parent);
+		temp = std::shared_ptr<Projectile>(new Melee(textures_->Get(type), x, y, 0.0, dir, parent));
 		temp -> SetAngle(angle);
 		temp -> SetImageSpeed(4);
 		break;
 	case ProjectileType::Arrow:
-		temp = new Arrow(textures_->Get(type), x, y, speed, dir, parent);
+		temp = std::shared_ptr<Projectile>(new Arrow(textures_->Get(type), x, y, speed, dir, parent));
 		temp -> SetAngle(angle);
 		temp-> SetImageSpeed(4);
 		break;
@@ -706,12 +701,12 @@ void App::AddItem(const int& x, const int& y, ItemType type) {
 		t = TextureType::sword;
 		break;
 	}
-	Item* temp = new Item(textures_->Get(t), x, y, type);
+	std::shared_ptr<Item> temp(new Item(textures_->Get(t), x, y, type));
 	to_render_.push_back(temp);
 	items_.push_back(temp);
 }
 void App::AddChest(TextureType type, const int& x, const int& y) {
-	Chest* temp = new Chest(textures_->Get(type), x, y);
+	std::shared_ptr<Chest> temp(new Chest(textures_->Get(type), x, y));
 	temp -> SetVParent(int(y / 512) * dungeon_width_ + int(x / 512));
 	to_render_.push_back(temp);
 	chests_.push_back(temp);
@@ -1137,24 +1132,24 @@ void App::Generate() {
 
 			if (door_spots_[i * 2 + 1]) {
 				if (nx > cx) {
-					Door* a = AddDoor(TextureType::vdoor1, nx, ny);
+					std::shared_ptr<Door> a = AddDoor(TextureType::vdoor1, nx, ny);
 					Recursive(t + 1, a, 3);
 					a -> SetFirst(t);
 					a -> SetTiles(j, j + (room_width_ / 32));
 
-					Wall* wall0 = AddWall(TextureType::invisible, nx + 16, ny);
-					Wall* wall1 = AddWall(TextureType::invisible, nx + 16, ny + 32);
+					std::shared_ptr<Wall> wall0 = AddWall(TextureType::invisible, nx + 16, ny);
+					std::shared_ptr<Wall> wall1 = AddWall(TextureType::invisible, nx + 16, ny + 32);
 
 					a -> SetWalls(wall0, wall1);
 
 				} else {
-					Door* a = AddDoor(TextureType::vdoor2, nx, ny);
+					std::shared_ptr<Door> a = AddDoor(TextureType::vdoor2, nx, ny);
 					Recursive(t - 1, a, 1);
 					a -> SetFirst(t);
 					a -> SetTiles(j, j + (room_width_ / 32));
 
-					Wall* wall0 = AddWall(TextureType::invisible, nx - 16, ny);
-					Wall* wall1 = AddWall(TextureType::invisible, nx - 16, ny + 32);
+					std::shared_ptr<Wall> wall0 = AddWall(TextureType::invisible, nx - 16, ny);
+					std::shared_ptr<Wall> wall1 = AddWall(TextureType::invisible, nx - 16, ny + 32);
 
 					a->SetWalls(wall0, wall1);
 				}
@@ -1162,22 +1157,22 @@ void App::Generate() {
 				path_tiles_[j + (room_width_ / 32)] = false;
 			} else {
  				if (ny > cy) {
-					Door* a = AddDoor(TextureType::hdoor1, nx, ny);
+					std::shared_ptr<Door> a = AddDoor(TextureType::hdoor1, nx, ny);
 					Recursive(t + dungeon_width_, a, 0);
 					a -> SetFirst(t);
 					a -> SetTiles(j, j + 1);
 
-					Wall* wall0 = AddWall(TextureType::invisible, nx, ny + 16);
-					Wall* wall1 = AddWall(TextureType::invisible, nx + 32, ny + 16);
+					std::shared_ptr<Wall> wall0 = AddWall(TextureType::invisible, nx, ny + 16);
+					std::shared_ptr<Wall> wall1 = AddWall(TextureType::invisible, nx + 32, ny + 16);
 
 					a->SetWalls(wall0, wall1);
 				} else {
-					Door* a = AddDoor(TextureType::hdoor2, nx, ny);
+					std::shared_ptr<Door> a = AddDoor(TextureType::hdoor2, nx, ny);
 					Recursive(t - dungeon_width_, a, 2);
 					a -> SetFirst(t);
 					a -> SetTiles(j, j + 1);
-					Wall* wall0 = AddWall(TextureType::invisible, nx, ny - 16);
-					Wall* wall1 = AddWall(TextureType::invisible, nx + 32, ny - 16);
+					std::shared_ptr<Wall> wall0 = AddWall(TextureType::invisible, nx, ny - 16);
+					std::shared_ptr<Wall> wall1 = AddWall(TextureType::invisible, nx + 32, ny - 16);
 
 					a->SetWalls(wall0, wall1);
 				}
@@ -1205,7 +1200,7 @@ void App::Generate() {
 
 }
 
-void App::Recursive(const unsigned int& index, Door* pointer, const unsigned int& previous_dir) {
+void App::Recursive(const unsigned int& index, std::shared_ptr<Door> pointer, const unsigned int& previous_dir) {
 	pointer -> AddConnected(index);
 	bool cdir[4];
 	copy(begin(room_[index].dir), end(room_[index].dir), begin(cdir));
@@ -1241,41 +1236,13 @@ void App::Reset() {
 	}
 	end_ladder_ = nullptr;
 
-	for (auto* i : floor_) {
-		delete i;
-	}
 	floor_.clear();
-
-	for (auto* i : walls_) {
-		delete i;
-	}
 	walls_.clear();
-
-	for (auto* i : doors_) {
-		delete i;
-	}
 	doors_.clear();
-
-	for (auto* i : monsters_) {
-		delete i;
-	}
 	monsters_.clear();
-
-	for (auto* i : projectiles_) {
-		delete i;
-	}
 	projectiles_.clear();
-
-	for (auto* i : chests_) {
-		delete i;
-	}
 	chests_.clear();
-
-	for (auto* i : items_) {
-		delete i;
-	}
 	items_.clear();
-
 	entities_.clear();
 	entities_.push_back(player_);
 	to_render_.clear();

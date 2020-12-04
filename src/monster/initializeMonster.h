@@ -12,6 +12,7 @@
 #include "skeletonMage.h"
 
 #include <vector>
+#include <memory>
 
 enum class MonsterType {
 	zombie,
@@ -23,7 +24,7 @@ enum class MonsterType {
 
 namespace monster {
 	
-	void AddMonster(std::vector<Monster*>& monsters, TextureHandler* texture,
+	void AddMonster(std::vector<std::shared_ptr<Monster>>& monsters, TextureHandler* texture,
 		double x, double y, unsigned int difficulty, MonsterType type = MonsterType::MONSTER_COUNT);
 
 

@@ -1,7 +1,7 @@
 #include "projectile.h"
 #include <iostream>
 
-Projectile::Projectile(const Texture& texture, double x, double y, double speed,double dir, Renderable* parent) : Renderable(texture) {
+Projectile::Projectile(const Texture& texture, double x, double y, double speed,double dir, std::shared_ptr<Renderable> parent) : Renderable(texture) {
 	x_ = x;
 	y_ = y;
 	speed_ = speed;

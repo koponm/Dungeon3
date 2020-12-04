@@ -57,10 +57,10 @@ public:
 	void Render();
 	bool Running() const;
 	void LoadRoom(const char* path);
-	void AddProjectile(TextureType type, const int& x, const int& y,double speed,double dir, Renderable* parent, ProjectileType pro);
-	Wall* AddWall(TextureType type, const int& x, const int& y);
+	void AddProjectile(TextureType type, const int& x, const int& y,double speed,double dir, shared_ptr<Renderable> parent, ProjectileType pro);
+	std::shared_ptr<Wall> AddWall(TextureType type, const int& x, const int& y);
 	void AddFloor(TextureType type, const int& x, const int& y);
-	Door* AddDoor(TextureType type, const int& x, const int& y);
+	std::shared_ptr<Door> AddDoor(TextureType type, const int& x, const int& y);
 	void AddItem(const int& x, const int& y, ItemType type = ItemType::random);
 	void AddChest(TextureType type, const int& x, const int& y);
 	bool AddRoom(const unsigned int& index, const int& x, const int& y);
@@ -70,7 +70,7 @@ public:
 	SDL_Color color(Uint8 r, Uint8 g, Uint8 b, Uint8 a);
 	void LoadSound(const char* path);
 	void PlaySound(const unsigned& index, const int& loops);
-	void Recursive(const unsigned int& index, Door* pointer, const unsigned int& previous_dir);
+	void Recursive(const unsigned int& index, std::shared_ptr<Door> pointer, const unsigned int& previous_dir);
 	void Reset();
 	void NextLevel();
 	
@@ -87,18 +87,18 @@ private:
 	bool running_;
 	TextureHandler* textures_ = nullptr;
 	vector<Room> room_data_;
-	Player* player_ = nullptr;
-	list<Renderable*> to_render_;
-	list<Renderable*> entities_;
+	shared_ptr<Player> player_ = nullptr;
+	list<shared_ptr<Renderable>> to_render_;
+	list<shared_ptr<Renderable>> entities_;
 
-	vector<Wall*> walls_;
-	vector<Monster*> monsters_;
-	vector<Projectile*> projectiles_;
-	vector<Item*> items_;
-	vector<Chest*> chests_;
-	vector<Floor*> floor_;
-	vector<Door*> doors_;
-	vector<HUD_object*> hud_;
+	vector<shared_ptr<Wall>> walls_;
+	vector<shared_ptr<Monster>> monsters_;
+	vector<shared_ptr<Projectile>> projectiles_;
+	vector<shared_ptr<Item>> items_;
+	vector<shared_ptr<Chest>> chests_;
+	vector<shared_ptr<Floor>> floor_;
+	vector<shared_ptr<Door>> doors_;
+	vector<shared_ptr<HUD_object>> hud_;
 
 	Ladder* end_ladder_ = nullptr;
 

@@ -9,7 +9,7 @@ HUD_object::HUD_object(const Texture& texture, int x, int y, ItemType type, int 
 	SetFrame(frame);
 }
 
-void HUD_object::UpdateHUD(Player* player) {
+void HUD_object::UpdateHUD(std::shared_ptr<Player> player) {
 	switch (type_) {
 	case ItemType::health_potion:
 		if (player->GetHealthPotions() > 0) {

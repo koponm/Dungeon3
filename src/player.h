@@ -2,6 +2,7 @@
 #ifndef PLAYER_H_
 #define PLAYER_H_
 #include <utility>
+#include <memory>
 #include "renderable.h"
 #include "items.h"
 
@@ -28,7 +29,7 @@ public:
 	void AddMana(double mana);
 	void UseHealthPotion();
 	void UseManaPotion();
-	void AddItem(Item* item);
+	void AddItem(std::shared_ptr<Item> item);
 	ItemType GetWeapon() { return weapon_; }
 	void SetHealth(double newHealth) {
 		health_ = newHealth;
