@@ -11,7 +11,9 @@ file(GLOB SOURCES
 	"src/*.h"
 	"src/*.cpp"
 	"src/monster/*.h"
-	"src/monster/*.cpp")
+	"src/monster/*.cpp"
+	"src/projectile/*.h"
+	"src/projectile/*.cpp")
 add_executable(${PROJECT_NAME} ${SOURCES})
 
 
