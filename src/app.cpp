@@ -26,6 +26,8 @@ App::App(void)
 		LoadSound("assets/spellcast.wav");
 		LoadSound("assets/music.ogg");
 		LoadSound("assets/pop.wav");
+		LoadSound("assets/chest.wav");
+		LoadSound("assets/potion.wav");
 
 		PlaySound(1, -1);
 
@@ -110,6 +112,7 @@ void App::Update() {
 					int x1, y1;
 					i->GetPos(x1, y1);
 					AddItem(x1, y1);
+					PlaySound(3, 0);
 					break;
 				}
 			}
@@ -190,11 +193,17 @@ void App::Update() {
 	}
 	if (one_) {
 		one_ = false;
-		player_->UseHealthPotion();
+		if (player_->GetHealthPotions() > 0) {
+			player_->UseHealthPotion();
+			PlaySound(4, 0);
+		}	
 	}
 	if (two_) {
 		two_ = false;
-		player_->UseManaPotion();
+		if (player_->GetManaPotions() > 0) {
+			player_->UseManaPotion();
+			PlaySound(4, 0);
+		}
 	}
 	if (three_) {
 		three_ = false;

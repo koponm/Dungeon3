@@ -74,16 +74,12 @@ void Player::AddMana(double mana) {
 	if (mana_ > max_mana_) mana_ = max_mana_;
 }
 void Player::UseHealthPotion(){
-	if (health_potions_ > 0 && health_ < max_health_) {
-		AddHealth(5);
-		health_potions_--;
-	}
+	AddHealth(5);
+	health_potions_--;
 }
 void Player::UseManaPotion(){
-	if (mana_potions_ > 0 && mana_ < max_mana_) {
-		AddMana(5);
-		mana_potions_--;
-	}
+	AddMana(5);
+	mana_potions_--;
 }
 
 void Player::AddItem(Item* item) {
