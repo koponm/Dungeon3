@@ -87,9 +87,6 @@
     <ClCompile Include="arrow.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="ladder.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="app.h">
@@ -162,9 +159,6 @@
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="arrow.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="ladder.h">
       <Filter>Header Files</Filter>
     </ClInclude>
   </ItemGroup>

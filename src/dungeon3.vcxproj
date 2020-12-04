@@ -160,7 +160,6 @@
     <ClCompile Include="hud.cpp" />
     <ClCompile Include="iceball.cpp" />
     <ClCompile Include="items.cpp" />
-    <ClCompile Include="ladder.cpp" />
     <ClCompile Include="main.cpp" />
     <ClCompile Include="melee.cpp" />
     <ClCompile Include="monster\ghost.cpp" />
@@ -187,7 +186,6 @@
     <ClInclude Include="hud.h" />
     <ClInclude Include="iceball.h" />
     <ClInclude Include="items.h" />
-    <ClInclude Include="ladder.h" />
     <ClInclude Include="melee.h" />
     <ClInclude Include="monster\ghost.h" />
     <ClInclude Include="monster\initializeMonster.h" />

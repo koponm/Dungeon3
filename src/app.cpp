@@ -26,8 +26,6 @@ App::App(void)
 		LoadSound("assets/spellcast.wav");
 		LoadSound("assets/music.ogg");
 		LoadSound("assets/pop.wav");
-		LoadSound("assets/chest.wav");
-		LoadSound("assets/potion.wav");
 
 		PlaySound(1, -1);
 
@@ -45,8 +43,6 @@ App::App(void)
 		LoadRoom("assets/largecorner_1001.txt");
 		LoadRoom("assets/largetunnel_0101.txt");
 		LoadRoom("assets/largetunnel_1010.txt");
-
-		srand(time(NULL));
 		Generate();
 
 		entities_.push_back(player_);
@@ -72,24 +68,6 @@ App::~App() {
 }
 
 void App::Update() {
-
-	if (next_level_) {
-		next_level_ = false;
-		Reset();
-		Generate();
-	}
-
-	if (death_) {
-		death_ = false;
-		Reset();
-		entities_.clear();
-		delete player_;
-		player_ = new Player((textures_->Get(TextureType::player)), 0, 0);
-		entities_.push_back(player_);
-		Generate();
-	}
-	
-
 	now_ = (double)SDL_GetTicks();
 	delta_time_ = max((now_ - last_) / 1000.0f * fps_desired_, 1.0 / 1000.0f);
 	second_timer_ += delta_time_ / fps_desired_;
@@ -132,16 +110,8 @@ void App::Update() {
 					int x1, y1;
 					i->GetPos(x1, y1);
 					AddItem(x1, y1);
-					PlaySound(3, 0);
 					break;
 				}
-			}
-		}
-
-		if (end_ladder_ != nullptr) {
-			SDL_Rect rect2 = end_ladder_ -> ReturnRect();
-			if (SDL_HasIntersection(&rect1, &rect2)) {
-				next_level_ = true;
 			}
 		}
 
@@ -156,12 +126,13 @@ void App::Update() {
 				for (auto& r : connected) {
 					if (r != -1) {
 						hidden_[r] = false;
+						cout << room_[r].monster_spawns.size() << endl;
 						for (auto& m : room_[r].monster_spawns) {
 							
 							int nx = (m % (room_width_ / 32)) * 32;
 							int ny = floor(m / (room_width_ / 32)) * 32;
 
-							
+							cout << nx << " " << ny << endl;
 
 							monster::AddMonster(monsters_, textures_, nx, ny, difficulty_);
 							entities_.push_front(monsters_[monsters_.size() - 1]);
@@ -183,15 +154,15 @@ void App::Update() {
 						j -> GetWalls(wall0, wall1);
 
 						if (wall0 != nullptr && wall1 != nullptr) {
-							wall0 -> SetActive(false);
-							wall1 -> SetActive(false);
+							to_render_.erase(remove(to_render_.begin(), to_render_.end(), wall0), to_render_.end());
 							walls_.erase(remove(walls_.begin(), walls_.end(), wall0), walls_.end());
+							to_render_.erase(remove(to_render_.begin(), to_render_.end(), wall1), to_render_.end());
 							walls_.erase(remove(walls_.begin(), walls_.end(), wall1), walls_.end());
 						}
 
 						path_tiles_[tile0] = true;
 						path_tiles_[tile1] = true;
-						j -> SetActive(false);
+						to_render_.erase(remove(to_render_.begin(), to_render_.end(), j), to_render_.end());
 						doors_.erase(remove(doors_.begin(), doors_.end(), j), doors_.end());
 						delete j;
 						break;
@@ -201,15 +172,15 @@ void App::Update() {
 				i -> GetWalls(wall0, wall1);
 
 				if (wall0 != nullptr && wall1 != nullptr) {
-					wall0 -> SetActive(false);
-					wall1 -> SetActive(false);
+					to_render_.erase(remove(to_render_.begin(), to_render_.end(), wall0), to_render_.end());
 					walls_.erase(remove(walls_.begin(), walls_.end(), wall0), walls_.end());
+					to_render_.erase(remove(to_render_.begin(), to_render_.end(), wall1), to_render_.end());
 					walls_.erase(remove(walls_.begin(), walls_.end(), wall1), walls_.end());
 				}
 
 				path_tiles_[tile0] = true;
 				path_tiles_[tile1] = true;
-				i -> SetActive(false);
+				to_render_.erase(remove(to_render_.begin(), to_render_.end(), i), to_render_.end());
 				doors_.erase(remove(doors_.begin(), doors_.end(), i), doors_.end());
 				delete i;
 				break;
@@ -219,17 +190,11 @@ void App::Update() {
 	}
 	if (one_) {
 		one_ = false;
-		if (player_->GetHealthPotions() > 0) {
-			player_->UseHealthPotion();
-			PlaySound(4, 0);
-		}
+		player_->UseHealthPotion();
 	}
 	if (two_) {
 		two_ = false;
-		if (player_->GetManaPotions() > 0) {
-			player_->UseManaPotion();
-			PlaySound(4, 0);
-		}
+		player_->UseManaPotion();
 	}
 	if (three_) {
 		three_ = false;
@@ -369,9 +334,6 @@ void App::Update() {
 							//i->SetVel(0, 0);
 							i->SetActive(false);
 							j->SetHealth(j->GetHealth() - i->GetDamage());
-							if (j -> GetHealth() <= 0) {
-								player_ -> AddXp(j -> GetMaxHealth());
-							}
 						}
 					}
 				}
@@ -385,7 +347,6 @@ void App::Update() {
 				}
 
 			}
-
 		}
 
 		// Room "frustum culling"
@@ -416,34 +377,14 @@ void App::Update() {
 		}
 	}
 
-	for (auto it = to_render_.begin(); it != to_render_.end();) {
-		if (!((*it)->GetActive())) {
-			it = to_render_.erase(it);
-		} else {
-			it++;
+	if (projectiles_.size() > 0) {
+		for (auto* i : projectiles_) {
+			if (!(i -> GetActive())) {
+				entities_.erase(remove(entities_.begin(), entities_.end(), i), entities_.end());
+				projectiles_.erase(remove(projectiles_.begin(), projectiles_.end(), i), projectiles_.end());
+				delete i;
+			}
 		}
-	}
-
-	for (auto it = entities_.begin(); it != entities_.end();) {
-		if (!((*it)->GetActive())) {
-			it = entities_.erase(it);
-		} else {
-			it++;
-		}
-	}
-
-	for (auto it = projectiles_.begin(); it != projectiles_.end();) {
-		if (!((*it) -> GetActive())) {
-			Projectile* ptr = (*it);
-			it = projectiles_.erase(it);
-			delete ptr;
-		} else {
-			it++;
-		}
-	}
-
-	if (player_->GetHealth() <= 0) {
-		death_ = true;
 	}
 
 	player_ -> GetPos(camera_x_, camera_y_);
@@ -601,7 +542,7 @@ void App::Render() {
 	}
 
 	SDL_Color red = color(255, 0, 0, 0);
-	SDL_Color blue = color(0, 0, 192, 0);
+	SDL_Color blue = color(0, 191, 255, 0);
 	SDL_Color grey = color(192, 192, 192, 0);
 	double hp_percentage = player_->GetHealth() > 0 ? player_->GetHealth() / player_->GetMaxHealth() : 0.0;
 	double mana_percentage = player_->GetMana() > 0 ? player_->GetMana() / player_->GetMaxMana() : 0.0;
@@ -618,16 +559,6 @@ void App::Render() {
 	RenderText("Mana", default_font_, { 255, 255, 255, 0 }, 5, 65);
 	RenderText(ss_hh.str().c_str(), default_font_, { 255, 255, 255, 0 }, 380, 580);
 	RenderText(ss_mm.str().c_str(), default_font_, { 255, 255, 255, 0 }, 438, 580);
-
-	std::stringstream ss_xp;
-	std::stringstream ss_money;
-
-	ss_xp << "Level: " << player_ -> GetLevel() << " XP: " << player_ -> GetXp() << " / " << player_ -> GetNextXp();
-	ss_money << "Money: " << player_->GetMoney() << " gp";
-
-	RenderText(ss_xp.str().c_str(), default_font_, { 255, 255, 255, 0 }, 5, 115);
-	RenderText(ss_money.str().c_str(), default_font_, { 255, 255, 255, 0 }, 5, 140);
-
 	SDL_RenderPresent(renderer_);
 }
 
@@ -797,7 +728,6 @@ bool App::AddRoom(const unsigned int& index, const int& x, const int& y) {
 				break;
 				case 69:
 					AddFloor(TextureType::ladderdown, i * 32 + x, j * 32 + y);
-					end_ladder_ = new Ladder(textures_->Get(invisible), i * 32 + x, j * 32 + y);
 				break;
 				case 77:
 					AddFloor(TextureType::dfloor, i * 32 + x, j * 32 + y);
@@ -838,6 +768,7 @@ bool App::AddRoom(const unsigned int& index, const int& x, const int& y) {
 
 void App::Generate() {
 	// TODO: This requires a lot of cleanup! But it works for now
+	srand(time(NULL));
 
 	auto rooms = room_data_.size();
 
@@ -1186,23 +1117,6 @@ void App::Generate() {
 			}
 		}
 	}
-
-	bool has_start = false;
-	bool has_end = false;
-
-	for (unsigned i = 0; i < dungeon_width_ * dungeon_height_; i++) {
-		if (room_[i].index == 0) {
-			has_start = true;
-		} else if (room_[i].index == 1) {
-			has_end = true;
-		}
-	}
-
-	if (!(has_start && has_end)) {
-		Reset();
-		Generate();
-	}
-
 }
 
 void App::Recursive(const unsigned int& index, Door* pointer, const unsigned int& previous_dir) {
@@ -1224,63 +1138,4 @@ void App::Recursive(const unsigned int& index, Door* pointer, const unsigned int
 	} else {
 		last_dir_ = previous_dir;
 	}
-}
-
-void App::Reset() {
-	tiles_ = nullptr;
-	path_tiles_ = nullptr;
-	hidden_ = nullptr;
-	visible_ = nullptr;
-	room_ = nullptr;
-	dungeon_width_ = 0;
-	dungeon_height_ = 0;
-	door_spots_.clear();
-
-	if (end_ladder_ != nullptr) {
-		delete end_ladder_;
-	}
-	end_ladder_ = nullptr;
-
-	for (auto* i : floor_) {
-		delete i;
-	}
-	floor_.clear();
-
-	for (auto* i : walls_) {
-		delete i;
-	}
-	walls_.clear();
-
-	for (auto* i : doors_) {
-		delete i;
-	}
-	doors_.clear();
-
-	for (auto* i : monsters_) {
-		delete i;
-	}
-	monsters_.clear();
-
-	for (auto* i : projectiles_) {
-		delete i;
-	}
-	projectiles_.clear();
-
-	for (auto* i : chests_) {
-		delete i;
-	}
-	chests_.clear();
-
-	for (auto* i : items_) {
-		delete i;
-	}
-	items_.clear();
-
-	entities_.clear();
-	entities_.push_back(player_);
-	to_render_.clear();
-}
-
-void App::NextLevel() {
-
 }

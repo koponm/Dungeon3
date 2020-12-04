@@ -30,7 +30,6 @@
 #include "hud.h"
 #include "floor.h"
 #include "door.h"
-#include "ladder.h"
 
 using namespace std;
 
@@ -71,8 +70,6 @@ public:
 	void LoadSound(const char* path);
 	void PlaySound(const unsigned& index, const int& loops);
 	void Recursive(const unsigned int& index, Door* pointer, const unsigned int& previous_dir);
-	void Reset();
-	void NextLevel();
 	
 private:
 	SDL_Window* window_ = nullptr;
@@ -99,8 +96,6 @@ private:
 	vector<Floor*> floor_;
 	vector<Door*> doors_;
 	vector<HUD_object*> hud_;
-
-	Ladder* end_ladder_ = nullptr;
 
 	vector<Mix_Chunk*> sounds_;
 
@@ -136,8 +131,7 @@ private:
 	unsigned int dungeon_height_ = 0;
 	unsigned int difficulty_ = 1;
 	int last_dir_ = 0;
-	bool next_level_ = false;
-	bool death_ = false;
+
 	size_t fps_desired_ = 60;
 	double second_timer_ = 0.0;
 	double delta_time_ = 0.0;

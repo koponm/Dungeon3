@@ -7,8 +7,7 @@ Ghost::Ghost(const Texture& texture, double x, double y)
 {
 	speed_ = 800;
 	attack_ = 100;
-	health_ = 20;
-	max_health_ = health_;
+	health_ = 100;
 	ignore_walls_ = true;
 }
 

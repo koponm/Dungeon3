@@ -28,8 +28,6 @@ public:
 	double GetFrames() const;
 	void SetVParent(const int& parent) { parent_ = parent; }
 	int GetVParent() const { return parent_; }
-	void SetActive(const bool& a) { active_ = a; };
-	bool GetActive() const { return active_; };
 private:
 	SDL_Texture* texture_;
 	SDL_Rect rect_;
@@ -38,7 +36,6 @@ private:
 	double subimage_ = 0;
 	double image_speed_ = 1;
 	double angle_ = 0.0;
-	bool active_ = true;
 	int parent_ = -1;
 };
 #endif
