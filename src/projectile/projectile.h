@@ -5,8 +5,8 @@
 #include <utility>
 #include <list>
 #include <memory>
-#include "renderable.h"
-#include "constants.h"
+#include "../renderable.h"
+#include "../constants.h"
 
 enum class ProjectileType {
 	Fireball,

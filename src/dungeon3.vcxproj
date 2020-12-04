@@ -152,17 +152,17 @@
   </ItemDefinitionGroup>
   <ItemGroup>
     <ClCompile Include="app.cpp" />
-    <ClCompile Include="arrow.cpp" />
+    <ClCompile Include="projectile\arrow.cpp" />
     <ClCompile Include="chest.cpp" />
     <ClCompile Include="door.cpp" />
-    <ClCompile Include="fireball.cpp" />
+    <ClCompile Include="projectile\fireball.cpp" />
     <ClCompile Include="floor.cpp" />
     <ClCompile Include="hud.cpp" />
-    <ClCompile Include="iceball.cpp" />
+    <ClCompile Include="projectile\iceball.cpp" />
     <ClCompile Include="items.cpp" />
     <ClCompile Include="ladder.cpp" />
     <ClCompile Include="main.cpp" />
-    <ClCompile Include="melee.cpp" />
+    <ClCompile Include="projectile\melee.cpp" />
     <ClCompile Include="monster\ghost.cpp" />
     <ClCompile Include="monster\initializeMonster.cpp" />
     <ClCompile Include="monster\monster.cpp" />
@@ -171,24 +171,24 @@
     <ClCompile Include="monster\update.cpp" />
     <ClCompile Include="monster\zombie.cpp" />
     <ClCompile Include="player.cpp" />
-    <ClCompile Include="projectile.cpp" />
+    <ClCompile Include="projectile\projectile.cpp" />
     <ClCompile Include="renderable.cpp" />
     <ClCompile Include="textureHandler.cpp" />
     <ClCompile Include="wall.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="app.h" />
-    <ClInclude Include="arrow.h" />
+    <ClInclude Include="projectile\arrow.h" />
     <ClInclude Include="chest.h" />
     <ClInclude Include="constants.h" />
     <ClInclude Include="door.h" />
-    <ClInclude Include="fireball.h" />
+    <ClInclude Include="projectile\fireball.h" />
     <ClInclude Include="floor.h" />
     <ClInclude Include="hud.h" />
-    <ClInclude Include="iceball.h" />
+    <ClInclude Include="projectile\iceball.h" />
     <ClInclude Include="items.h" />
     <ClInclude Include="ladder.h" />
-    <ClInclude Include="melee.h" />
+    <ClInclude Include="projectile\melee.h" />
     <ClInclude Include="monster\ghost.h" />
     <ClInclude Include="monster\initializeMonster.h" />
     <ClInclude Include="monster\LocationNode.h" />
@@ -198,7 +198,7 @@
     <ClInclude Include="monster\update.h" />
     <ClInclude Include="monster\zombie.h" />
     <ClInclude Include="player.h" />
-    <ClInclude Include="projectile.h" />
+    <ClInclude Include="projectile\projectile.h" />
     <ClInclude Include="renderable.h" />
     <ClInclude Include="textureHandler.h" />
     <ClInclude Include="wall.h" />

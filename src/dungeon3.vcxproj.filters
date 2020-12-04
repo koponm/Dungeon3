@@ -39,9 +39,6 @@
     <ClCompile Include="monster\update.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="projectile.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
     <ClCompile Include="items.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
@@ -60,19 +57,10 @@
     <ClCompile Include="monster\initializeMonster.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="fireball.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
     <ClCompile Include="monster\skeleton.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
     <ClCompile Include="monster\skeletonMage.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
-    <ClCompile Include="melee.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
-    <ClCompile Include="iceball.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
     <ClCompile Include="hud.cpp">
@@ -84,10 +72,22 @@
     <ClCompile Include="door.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="arrow.cpp">
+    <ClCompile Include="ladder.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="ladder.cpp">
+    <ClCompile Include="projectile\fireball.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="projectile\iceball.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="projectile\arrow.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="projectile\melee.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="projectile\projectile.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
   </ItemGroup>
@@ -113,9 +113,6 @@
     <ClInclude Include="monster\LocationNode.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="projectile.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
     <ClInclude Include="items.h">
       <Filter>Header Files</Filter>
     </ClInclude>
@@ -137,19 +134,10 @@
     <ClInclude Include="monster\initializeMonster.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="fireball.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
     <ClInclude Include="monster\skeleton.h">
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="monster\skeletonMage.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="melee.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="iceball.h">
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="hud.h">
@@ -161,10 +149,22 @@
     <ClInclude Include="door.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="arrow.h">
+    <ClInclude Include="ladder.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="ladder.h">
+    <ClInclude Include="projectile\fireball.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="projectile\iceball.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="projectile\arrow.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="projectile\melee.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="projectile\projectile.h">
       <Filter>Header Files</Filter>
     </ClInclude>
   </ItemGroup>

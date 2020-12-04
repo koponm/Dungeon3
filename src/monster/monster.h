@@ -4,7 +4,7 @@
 #include <utility>
 #include <list>
 #include "../renderable.h"
-#include "../projectile.h"
+#include "../projectile/projectile.h"
 
 using namespace std;
 
