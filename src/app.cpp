@@ -46,7 +46,7 @@ App::App(void)
 		LoadRoom("assets/largetunnel_0101.txt");
 		LoadRoom("assets/largetunnel_1010.txt");
 
-		srand(time(NULL));
+		srand((unsigned)time(NULL));
 		Generate();
 
 		entities_.push_back(player_);
@@ -158,7 +158,7 @@ void App::Update() {
 						for (auto& m : room_[r].monster_spawns) {
 							
 							int nx = (m % (room_width_ / 32)) * 32;
-							int ny = floor(m / (room_width_ / 32)) * 32;
+							int ny = (int)floor(m / (room_width_ / 32)) * 32;
 
 							
 
@@ -234,7 +234,7 @@ void App::Update() {
 	}
 	if (m1_) {
 		m1_ = false;
-		AddProjectile(TextureType::fireball, previous_x + 8, previous_y + 8, 400, mouse_player_angle_, player_, ProjectileType::Fireball);
+		AddProjectile(TextureType::fireball, (int)previous_x + 8, (int)previous_y + 8, 400, mouse_player_angle_, player_, ProjectileType::Fireball);
 		PlaySound(0, 0);
 	}
 
@@ -275,18 +275,18 @@ void App::Update() {
 		i->GetPos(x4, y4);
 		i->GetRect(w4, h4);
 		if (i->HasLignOfSight() && !i->IsMelee() && i->GetTimer()==0 && !i->Dead()) {
-			double monster_player_angle_ = fmod(540.0 - atan2f((y4 - 16 - y1), (x4 - 16 - x1)) * 180.0 / M_PI, 360.0);
+			double monster_player_angle_ = fmod(540.0 - atan2f((float)(y4 - 16 - y1), (float)(x4 - 16 - x1)) * 180.0 / M_PI, 360.0);
 			if (i->GetProjectile() == ProjectileType::Arrow) {
-				AddProjectile(TextureType::arrow, x4, y4, 400, monster_player_angle_, i, ProjectileType::Arrow);
+				AddProjectile(TextureType::arrow, (int)x4, (int)y4, 400, monster_player_angle_, i, ProjectileType::Arrow);
 			}
 			else if (i->GetProjectile() == ProjectileType::IceBall) {
-				AddProjectile(TextureType::iceball, x4, y4, 400, monster_player_angle_, i, i->GetProjectile());
+				AddProjectile(TextureType::iceball, (int)x4, (int)y4, 400, monster_player_angle_, i, i->GetProjectile());
 			}
 			i->SetTimer(1.0);
 		}
 		if (i->IsMelee() && i->GetTimer() == 0 && !i->Dead()) {
 			if (x1 < ((double)x4 + w4) && x1 + w1 > x4 && y1 < ((double)y4 + h4) && y1 + h1 > y4) {
-				AddProjectile(TextureType::invisible, x4, y4, 0, 0, i, i->GetProjectile());
+				AddProjectile(TextureType::invisible, (int)x4, (int)y4, 0, 0, i, i->GetProjectile());
 				i->SetTimer(1.0);
 			}
 		}
@@ -452,7 +452,7 @@ void App::Update() {
 	camera_x_ = min(max(0.0, camera_x_), max(0.0, room_width_ - x_offset * 2));
 	camera_y_ = min(max(0.0, camera_y_), max(0.0, room_height_ - y_offset * 2));
 
-	mouse_player_angle_ = fmod(540.0 - atan2f((y1 + 16 - camera_y_ - mouse_y_), (x1 + 16 - camera_x_ - mouse_x_)) * 180.0 / M_PI, 360.0);
+	mouse_player_angle_ = fmod(540.0 - atan2f((float)(y1 + 16 - camera_y_ - mouse_y_), (float)(x1 + 16 - camera_x_ - mouse_x_)) * 180.0 / M_PI, 360.0);
 	
 	last_ = now_;
 
@@ -567,7 +567,7 @@ void App::RenderBar(int x, int y, int w, int h, double max_value, double value, 
 	SDL_SetRenderDrawColor(renderer_, BGColor.r, BGColor.g, BGColor.b, BGColor.a);
 	SDL_RenderFillRect(renderer_, &bgrect);
 	SDL_SetRenderDrawColor(renderer_, FGColor.r, FGColor.g, FGColor.b, FGColor.a);
-	SDL_Rect fgrect = {x, y, w - w * (1.f - percentage), h};
+	SDL_Rect fgrect = {x, y, w - (int)(w * (1.f - percentage)), h};
 	SDL_RenderFillRect(renderer_, &fgrect);
 	std::stringstream ss;
 	ss << value << " / " << max_value;
@@ -796,7 +796,7 @@ bool App::AddRoom(const unsigned int& index, const int& x, const int& y) {
 				break;
 				case 77:
 					AddFloor(TextureType::dfloor, i * 32 + x, j * 32 + y);
-					room_[t].monster_spawns.push_back((floor(y / 32) + j) * room_width_ / 32 + (floor(x / 32) + i));
+					room_[t].monster_spawns.push_back((int)((floor(y / 32) + j) * room_width_ / 32 + (floor(x / 32) + i)));
 				break;
 				case 80:
 					AddWall(TextureType::fire, i * 32 + x, j * 32 + y);
@@ -836,7 +836,7 @@ void App::Generate() {
 
 	auto rooms = room_data_.size();
 
-	int max_x = 32, max_y = 32;
+	unsigned int max_x = 32, max_y = 32;
 	auto room_size = max_x * max_y;
 	int* room = new int[room_size];
 	for (unsigned j = 0; j < max_x; j++) {
@@ -849,8 +849,8 @@ void App::Generate() {
 	int dir = 1 + rand() % 2;
 	x = x + (dir == 1) - (dir == 3);
 	y = y + -(dir == 0) + (dir == 2);
-	int max_rooms = 15;
-	int devrooms = 3;
+	unsigned int max_rooms = 15;
+	unsigned int devrooms = 3;
 	int index = 0;
 	int pindex = 0;
 
@@ -881,9 +881,9 @@ void App::Generate() {
 		bool cdir[4];
 		copy(begin(room_data_[index].dir), end(room_data_[index].dir), begin(cdir));
 
-		int nx, ny, n = 0;
+		unsigned int nx, ny, n = 0;
 		
-		for (unsigned j = 0; j < 4; j++) {
+		for (unsigned int j = 0; j < 4; j++) {
 			nx = x + (j == 1) - (j == 3);
 			ny = y - (j == 0) + (j == 2);
 			if (nx < 0 || nx >= max_x || ny < 0 || ny >= max_y) {
@@ -926,7 +926,7 @@ void App::Generate() {
 			if (room[j * max_x + i] != -1 && room[j * max_x + i] != 1 && room[j * max_x + i] != 2) {
 				bool cdir[4];
 				copy(begin(room_data_[room[j * max_x + i]].dir), end(room_data_[room[j * max_x + i]].dir), begin(cdir));
-				int nx, ny, n = 0;
+				unsigned nx, ny, n = 0;
 				for (unsigned k = 0; k < 4; k++) {
 					nx = i + (k == 1) - (k == 3);
 					ny = j - (k == 0) + (k == 2);
@@ -1021,7 +1021,7 @@ void App::Generate() {
 				bool cdir[4];
 				copy(begin(room_data_[room[j * max_x + i]].dir), end(room_data_[room[j * max_x + i]].dir), begin(cdir));
 				
-				int nx, ny;
+				unsigned nx, ny;
 				for (unsigned k = 0; k < 4; k++) {
 					nx = i + (k == 1) - (k == 3);
 					ny = j - (k == 0) + (k == 2);
@@ -1091,14 +1091,14 @@ void App::Generate() {
 		int j = door_spots_[i * 2];
 		if (path_tiles_[j]) {
 			int nx = (j % (room_width_ / 32)) * 32;
-			int ny = floor(j / (room_width_ / 32)) * 32;
+			int ny = (int)floor(j / (room_width_ / 32)) * 32;
 
-			int cx = floor(nx / 512) * 512 + 256;
-			int cy = floor(ny / 512) * 512 + 256;
+			int cx = (int)floor(nx / 512) * 512 + 256;
+			int cy = (int)floor(ny / 512) * 512 + 256;
 			
 			AddFloor(TextureType::dfloor, nx, ny);
 
-			int t = floor(ny / 512) * dungeon_width_ + floor(nx / 512);
+			int t = (int)floor(ny / 512) * dungeon_width_ + (int)floor(nx / 512);
 			DungeonRoom& temp = room_[t];
 
 			if (door_spots_[i * 2 + 1]) {
@@ -1121,14 +1121,14 @@ void App::Generate() {
 		int j = door_spots_[i * 2];
 		if (path_tiles_[j]) {
 			int nx = (j % (room_width_ / 32)) * 32;
-			int ny = floor(j / (room_width_ / 32)) * 32;
+			int ny = (int)floor(j / (room_width_ / 32)) * 32;
 
-			int cx = floor(nx / 512) * 512 + 256;
-			int cy = floor(ny / 512) * 512 + 256;
+			int cx = (int)floor(nx / 512) * 512 + 256;
+			int cy = (int)floor(ny / 512) * 512 + 256;
 			
 			AddFloor(TextureType::dfloor, nx, ny);
 
-			int t = floor(ny / 512) * dungeon_width_ + floor(nx / 512);
+			int t = (int)floor(ny / 512) * dungeon_width_ + (int)floor(nx / 512);
 
 			if (door_spots_[i * 2 + 1]) {
 				if (nx > cx) {

@@ -12,6 +12,7 @@
 
 #include <list>
 #include <algorithm>
+#include <memory>
 
 
 TEST(Pathfinding, calculateHCost) {
@@ -114,7 +115,7 @@ TEST(Pathfinding, getNeighbours_false) {
 
 TEST(Pathfinding, A_star_algorithm_1) {
     Texture text;
-    Monster* monster = new Monster(text, 1 * 32, 1 * 32);
+    std::shared_ptr<Monster> monster(new Monster(text, 1 * 32, 1 * 32));
     unsigned int size = 8 * 8;
     bool* tiles = new bool[size];
     for (unsigned i = 0; i < size; i++) {
@@ -126,12 +127,11 @@ TEST(Pathfinding, A_star_algorithm_1) {
     monster::A_star_algorithm(monster, tiles, 2*32, 1*32, size, 8 * 32, 8 * 32);
     EXPECT_EQ(monster->GetNextTile(), 10);
 
-    delete monster;
 }
 
 TEST(Pathfinding, A_star_algorithm_2) {
     Texture text;
-    Monster* monster = new Monster(text, 1 * 32, 1 * 32);
+    std::shared_ptr<Monster> monster(new Monster(text, 1 * 32, 1 * 32));
     unsigned int size = 8 * 8;
     bool* tiles = new bool[size];
     for (unsigned i = 0; i < size; i++) {
@@ -147,12 +147,11 @@ TEST(Pathfinding, A_star_algorithm_2) {
     monster->PopNextMove();
     EXPECT_EQ(monster->GetNextTile(), -1);
 
-    delete monster;
 }
 
 TEST(Pathfinding, A_star_algorithm_3) {
     Texture text;
-    Monster* monster = new Monster(text, 1 * 32, 1 * 32);
+    std::shared_ptr<Monster> monster(new Monster(text, 1 * 32, 1 * 32));
     unsigned int size = 8 * 8;
     bool* tiles = new bool[size];
     for (unsigned i = 0; i < size; i++) {
@@ -171,6 +170,6 @@ TEST(Pathfinding, A_star_algorithm_3) {
         monster->PopNextMove();
     EXPECT_EQ(monster->GetNextTile(), 5);
 
-    delete monster;
 }
+
 

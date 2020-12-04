@@ -20,10 +20,10 @@ Renderable* Renderable::Self() {
 
 void Renderable::Render(SDL_Renderer* renderer, double x, double y) const {
 	SDL_Rect temp = rect_;
-	temp.x -= x;
-	temp.y -= y;
+	temp.x -= (int)x;
+	temp.y -= (int)y;
 	SDL_Rect temp_sprite = sprite_rect_;
-	temp_sprite.x = floor(subimage_) * temp_sprite.w;
+	temp_sprite.x = (int)floor(subimage_) * temp_sprite.w;
 	SDL_RenderCopyEx(renderer, texture_, &temp_sprite, &temp, angle_, NULL, SDL_FLIP_NONE);
 }
 
