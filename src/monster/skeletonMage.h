@@ -10,7 +10,7 @@
 
 class SkeletonMage : public Monster {
 public:
-	SkeletonMage(const Texture& texture, double x, double y);
+	SkeletonMage(const Texture& texture, double x, double y, unsigned int difficulty);
 	~SkeletonMage();
 
 };

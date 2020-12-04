@@ -9,7 +9,7 @@
 
 class Ghost : public Monster {
 public:
-	Ghost(const Texture& texture, double x, double y);
+	Ghost(const Texture& texture, double x, double y, unsigned int difficulty);
 	~Ghost();
 
 };

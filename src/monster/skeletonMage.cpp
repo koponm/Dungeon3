@@ -2,12 +2,11 @@
 #include "skeletonMage.h"
 
 
-SkeletonMage::SkeletonMage(const Texture& texture, double x, double y)
+SkeletonMage::SkeletonMage(const Texture& texture, double x, double y, unsigned int difficulty)
 	: Monster(texture, x, y)
 {
-	speed_ = 700;
-	attack_ = 100;
-	health_ = 25;
+	speed_ = 700.0 * (1.0 + 0.02 * difficulty);
+	health_ = 25.0 * (1.0 + 0.25 * difficulty);
 	max_health_ = health_;
 	is_melee = false;
 	projectile = ProjectileType::IceBall;

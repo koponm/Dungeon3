@@ -75,6 +75,7 @@ void App::Update() {
 
 	if (next_level_) {
 		next_level_ = false;
+		difficulty_++;
 		Reset();
 		Generate();
 	}
@@ -377,7 +378,9 @@ void App::Update() {
 						//i->SetVel(1, 0);
 						//i->SetVel(0, 0);
 						i->SetActive(false);
-						player_->SetHealth(player_->GetHealth() - i->GetDamage());
+						player_->SetHealth(player_->GetHealth() - (
+							i->GetDamage() * (1.0 + 0.25 * difficulty_)
+							));
 					}
 				}
 

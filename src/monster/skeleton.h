@@ -9,7 +9,7 @@
 
 class Skeleton : public Monster {
 public:
-	Skeleton(const Texture& texture, double x, double y);
+	Skeleton(const Texture& texture, double x, double y, unsigned int difficulty);
 	~Skeleton();
 
 };

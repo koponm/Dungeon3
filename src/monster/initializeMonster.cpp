@@ -11,17 +11,17 @@ namespace monster {
 		std::shared_ptr<Monster> m = nullptr;
 		switch (type) { //get index for texture
 		case MonsterType::zombie:
-			m = std::shared_ptr<Monster>(new Zombie(texture->Get(TextureType::zombie), x, y));
+			m = std::shared_ptr<Monster>(new Zombie(texture->Get(TextureType::zombie), x, y, difficulty));
 			break;
 		case MonsterType::ghost:
-			m = std::shared_ptr<Monster>(new Ghost(texture->Get(TextureType::ghost), x, y));
+			m = std::shared_ptr<Monster>(new Ghost(texture->Get(TextureType::ghost), x, y, difficulty));
 			break;
 
 		case MonsterType::skeleton_archer:
-			m = std::shared_ptr<Monster>(new Skeleton(texture->Get(TextureType::skeletonArcher), x, y));
+			m = std::shared_ptr<Monster>(new Skeleton(texture->Get(TextureType::skeletonArcher), x, y, difficulty));
 			break;
 		case MonsterType::skeleton_mage:
-			m = std::shared_ptr<Monster>(new SkeletonMage(texture->Get(TextureType::skeletonMage), x, y));
+			m = std::shared_ptr<Monster>(new SkeletonMage(texture->Get(TextureType::skeletonMage), x, y, difficulty));
 			break;
 		default:
 			return;

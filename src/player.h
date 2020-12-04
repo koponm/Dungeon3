@@ -36,7 +36,7 @@ public:
 	}
 	double GetXp() const { return xp_; }
 	double GetNextXp() const { return next_xp_; }
-	double GetLevel() const { return level_; }
+	int GetLevel() const { return level_; }
 	double GetMoney() const { return money_; }
 	void AddXp(const double& xp);
 
@@ -53,7 +53,7 @@ private:
 	double mana_ = 100;
 	double xp_ = 0;
 	double next_xp_ = 100;
-	double level_ = 1;
+	int level_ = 1;
 	double money_ = 20;
 	int health_potions_ = 0;
 	int mana_potions_ = 0;
