@@ -105,13 +105,11 @@ std::shared_ptr<Item> Player::AddItem(std::shared_ptr<Item> item, TextureHandler
 		mana_potions_++;
 		break;
 	case ItemType::sword:
-		result = item::GetItem((int)x_, (int)y_, textures, weapon_);
-		weapon_ = type;
-		break;
 	case ItemType::staff:
-		result = item::GetItem((int)x_, (int)y_, textures, weapon_);
+	case ItemType::bow:
+		result = item::GetItem((int)x_, (int)y_, textures, weapon_, weapon_);
 		weapon_ = type;
-		break;
+	break;
 	}
 	return result;
 }

@@ -26,6 +26,7 @@ void HUD_object::UpdateHUD(std::shared_ptr<Player> player) {
 	case ItemType::sword:
 		ItemType temp = player->GetWeapon();
 		if (temp == ItemType::staff) SetFrame(4);
+		else if (temp == ItemType::bow) SetFrame(6);
 		else SetFrame(5);
 		break;
 	}

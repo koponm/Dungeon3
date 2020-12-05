@@ -24,7 +24,7 @@ TextureHandler::TextureHandler(SDL_Renderer* renderer)
 	LoadTexture("assets/fireball_5.png");
 	LoadTexture("assets/tombstone_1.png");
 
-	LoadTexture("assets/hud_6.png");
+	LoadTexture("assets/hud_7.png");
 	LoadTexture("assets/iceball_5.png");
 	LoadTexture("assets/arrow_1.png");
 	LoadTexture("assets/floor_8.png");
@@ -33,6 +33,7 @@ TextureHandler::TextureHandler(SDL_Renderer* renderer)
 	LoadTexture("assets/hdoor2_1.png");
 	LoadTexture("assets/vdoor1_1.png");
 	LoadTexture("assets/vdoor2_1.png");
+	LoadTexture("assets/bow_1.png");
 }
 
 const Texture& TextureHandler::Get(TextureType type) const {

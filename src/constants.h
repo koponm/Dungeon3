@@ -28,5 +28,6 @@ enum TextureType {
 	hdoor1 = 24,
 	hdoor2 = 25,
 	vdoor1 = 26,
-	vdoor2 = 27
+	vdoor2 = 27,
+	bow = 28
 };

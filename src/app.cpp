@@ -137,7 +137,7 @@ void App::Update() {
 					i->OpenChest();
 					int x1, y1;
 					i->GetPos(x1, y1);
-					std::shared_ptr<Item> temp = item::GetItem(x1, y1, textures_);
+					std::shared_ptr<Item> temp = item::GetItem(x1, y1, textures_, player_->GetWeapon());
 					if (temp != nullptr) {
 						to_render_.push_back(temp);
 						items_.push_back(temp);

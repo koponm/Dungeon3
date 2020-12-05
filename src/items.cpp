@@ -14,9 +14,10 @@ void Item::GetPos(int& x, int& y) {
 
 namespace item {
 
-std::shared_ptr<Item> GetItem(const int x, const int y, TextureHandler* textures, ItemType type) {
+std::shared_ptr<Item> GetItem(const int x, const int y, TextureHandler* textures, ItemType weapon, ItemType type) {
 	if (type == ItemType::random) { //random if ItemType not given
 		type = static_cast<ItemType>(rand() % (int)(ItemType::random));
+		if (type == weapon) type = ItemType::health_potion;
 	}
 	TextureType t;
 	switch (type) { //get index for texture
@@ -31,6 +32,9 @@ std::shared_ptr<Item> GetItem(const int x, const int y, TextureHandler* textures
 		break;
 	case ItemType::sword:
 		t = TextureType::sword;
+		break;
+	case ItemType::bow:
+		t = TextureType::bow;
 		break;
 	default:
 		return nullptr;

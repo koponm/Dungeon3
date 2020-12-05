@@ -13,7 +13,8 @@ enum class ItemType {
 	mana_potion,
 	staff,
 	sword,
-	random // cut-off for randomised items
+	bow,
+	random // for randomised items
 };
 
 class Item : public Renderable
@@ -34,7 +35,7 @@ private:
 
 namespace item {
 
-std::shared_ptr<Item> GetItem(const int x, const int y, TextureHandler* textures, ItemType type = ItemType::random);
+std::shared_ptr<Item> GetItem(const int x, const int y, TextureHandler* textures, ItemType weapon, ItemType type = ItemType::random);
 
 } // namespace item
 
