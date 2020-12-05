@@ -108,6 +108,7 @@ void App::Update() {
 				i->SetTimer(i->GetTimer() - 0.5);
 			}
 		}
+		player_->SetMana(std::min(player_->GetMaxMana(), player_->GetMana() + 0.5));
 	}
 	
 	if (f_) {//check if player and item or chest intersect
@@ -117,8 +118,13 @@ void App::Update() {
 			for (auto& i : items_) {
 				SDL_Rect rect2 = i->ReturnRect();
 				if (SDL_HasIntersection(&rect1, &rect2)) {
-					i -> Pickup();
-					player_->AddItem(i);
+					i->SetActive(false);
+
+					std::shared_ptr<Item> last_item =  player_->AddItem(i, textures_);
+					if (last_item != nullptr) {
+						to_render_.push_back(last_item);
+						items_.push_back(last_item);
+					}
 					PlaySound(2, 0);
 					break;
 				}
@@ -131,7 +137,11 @@ void App::Update() {
 					i->OpenChest();
 					int x1, y1;
 					i->GetPos(x1, y1);
-					AddItem(x1, y1);
+					std::shared_ptr<Item> temp = item::GetItem(x1, y1, textures_);
+					if (temp != nullptr) {
+						to_render_.push_back(temp);
+						items_.push_back(temp);
+					}
 					PlaySound(3, 0);
 					break;
 				}
@@ -235,8 +245,7 @@ void App::Update() {
 	}
 	if (m1_) {
 		m1_ = false;
-		AddProjectile(TextureType::fireball, (int)previous_x + 8, (int)previous_y + 8, 400, mouse_player_angle_, player_, ProjectileType::Fireball);
-		PlaySound(0, 0);
+		PlayerCastsProjectile((int)previous_x, (int)previous_y);
 	}
 
 	double x1, y1;
@@ -405,16 +414,7 @@ void App::Update() {
 		i -> UpdateHUD(player_);
 	}
 
-	//despawn items
-	if (!items_.empty()){
-		for (auto& i : items_) {
-			if (!i->Spawned()) {
-				to_render_.erase(remove(to_render_.begin(), to_render_.end(), i), to_render_.end());
-				items_.erase(remove(items_.begin(), items_.end(), i), items_.end());
-			}
-		}
-	}
-
+	//despawn inactive items / mobs
 	for (auto it = to_render_.begin(); it != to_render_.end();) {
 		if (!((*it)->GetActive())) {
 			it = to_render_.erase(it);
@@ -427,6 +427,16 @@ void App::Update() {
 		if (!((*it)->GetActive())) {
 			it = entities_.erase(it);
 		} else {
+			it++;
+		}
+	}
+
+	for (auto it = items_.begin(); it != items_.end();) {
+		if (!((*it)->GetActive())) {
+			std::shared_ptr<Item> ptr = (*it);
+			it = items_.erase(it);
+		}
+		else {
 			it++;
 		}
 	}
@@ -573,7 +583,7 @@ void App::RenderBar(int x, int y, int w, int h, double max_value, double value, 
 	SDL_Rect fgrect = {x, y, w - (int)(w * (1.f - percentage)), h};
 	SDL_RenderFillRect(renderer_, &fgrect);
 	std::stringstream ss;
-	ss << value << " / " << max_value;
+	ss << (int)value << " / " << (int)max_value;
 	RenderText(ss.str().c_str(), default_font_, { 255, 255, 255, 0 }, x + 5, y + 5);
 	SDL_SetRenderDrawColor(renderer_, old.r, old.g, old.b, old.a);
 }
@@ -633,6 +643,29 @@ bool App::Running() const {
 	return running_;
 }
 
+void App::PlayerCastsProjectile(int previous_x, int previous_y) {
+	switch (player_->GetWeapon()) {
+	case ItemType::staff:
+	{
+		double newMana = player_->GetMana() - 5.0;
+		if (newMana >= 0.0) {
+			player_->SetMana(newMana);
+			AddProjectile(TextureType::fireball, previous_x + 8, previous_y + 8, 400, mouse_player_angle_, player_, ProjectileType::Fireball);
+			PlaySound(0, 0);
+		}
+		// else staff could be melee maybe?
+		break;
+	}
+	// case ItemType::sword, melee stuff here
+	// cast ItemType::bow, bow stuff here
+	// For balancing reasons bow should maybe have a shooting cooldown or just lower damage
+	default: // For demonstration reasons, default should probably be melee
+		AddProjectile(TextureType::arrow, previous_x + 8, previous_y + 8, 400, mouse_player_angle_, player_, ProjectileType::Arrow);
+		PlaySound(0, 0); // This should be something else
+		break;
+	}
+}
+
 std::shared_ptr<Wall> App::AddWall(TextureType type, const int& x, const int& y) {
 	std::shared_ptr<Wall> temp(new Wall(textures_->Get(type), x, y));
 	temp-> SetVParent(int(y / 512) * dungeon_width_ + int(x / 512));
@@ -685,29 +718,7 @@ void App::AddProjectile(TextureType type, const int& x, const int& y,double spee
 	entities_.push_back(temp);
 	projectiles_.push_back(temp);
 }
-void App::AddItem(const int& x, const int& y, ItemType type) {
-	if (type == ItemType::random) { //random if ItemType not given
-		type = static_cast<ItemType>(rand() % (int)(ItemType::random));
-	}
-	TextureType t;
-	switch (type) { //get index for texture
-	case ItemType::health_potion:
-		t = TextureType::healthPotion;
-		break;
-	case ItemType::mana_potion:
-		t = TextureType::manaPotion;
-	break;
-	case ItemType::staff:
-		t = TextureType::staff;
-		break;
-	case ItemType::sword:
-		t = TextureType::sword;
-		break;
-	}
-	std::shared_ptr<Item> temp(new Item(textures_->Get(t), x, y, type));
-	to_render_.push_back(temp);
-	items_.push_back(temp);
-}
+
 void App::AddChest(TextureType type, const int& x, const int& y) {
 	std::shared_ptr<Chest> temp(new Chest(textures_->Get(type), x, y));
 	temp -> SetVParent(int(y / 512) * dungeon_width_ + int(x / 512));

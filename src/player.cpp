@@ -93,7 +93,9 @@ void Player::AddXp(const double& xp) {
 	}
 }
 
-void Player::AddItem(std::shared_ptr<Item> item) {
+// Returns nullptr when no rendering required, else the item
+std::shared_ptr<Item> Player::AddItem(std::shared_ptr<Item> item, TextureHandler* textures) {
+	std::shared_ptr<Item> result = nullptr;
 	ItemType type = item->GetItemType();
 	switch (type) {
 	case ItemType::health_potion:
@@ -103,12 +105,15 @@ void Player::AddItem(std::shared_ptr<Item> item) {
 		mana_potions_++;
 		break;
 	case ItemType::sword:
+		result = item::GetItem((int)x_, (int)y_, textures, weapon_);
 		weapon_ = type;
 		break;
 	case ItemType::staff:
+		result = item::GetItem((int)x_, (int)y_, textures, weapon_);
 		weapon_ = type;
 		break;
 	}
+	return result;
 }
 
 void Player::CalcPos(const size_t& fps_desired) {

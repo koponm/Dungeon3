@@ -56,12 +56,12 @@ public:
 	void Event();
 	void Render();
 	bool Running() const;
+	void PlayerCastsProjectile(int previous_x, int previous_y);
 	void LoadRoom(const char* path);
 	void AddProjectile(TextureType type, const int& x, const int& y,double speed,double dir, shared_ptr<Renderable> parent, ProjectileType pro);
 	std::shared_ptr<Wall> AddWall(TextureType type, const int& x, const int& y);
 	void AddFloor(TextureType type, const int& x, const int& y);
 	std::shared_ptr<Door> AddDoor(TextureType type, const int& x, const int& y);
-	void AddItem(const int& x, const int& y, ItemType type = ItemType::random);
 	void AddChest(TextureType type, const int& x, const int& y);
 	bool AddRoom(const unsigned int& index, const int& x, const int& y);
 	void Generate();

@@ -2,7 +2,11 @@
 #ifndef ITEMS_H_
 #define ITEMS_H_
 
+#include <memory>
+
 #include "renderable.h"
+#include "constants.h"
+#include "textureHandler.h"
 
 enum class ItemType {
 	health_potion,
@@ -19,16 +23,19 @@ public:
 	~Item() {}
 
 	void GetPos(int& x, int& y);
-	void Pickup();
-	bool Spawned() { return spawned_; } //despawn if false
 	ItemType GetItemType() { return type_; }
 
 private:
 	int x_ = 0;
 	int y_ = 0;
-	bool spawned_ = true;
 	ItemType type_;
 
 };
+
+namespace item {
+
+std::shared_ptr<Item> GetItem(const int x, const int y, TextureHandler* textures, ItemType type = ItemType::random);
+
+} // namespace item
 
 #endif // !
