@@ -174,7 +174,7 @@ void App::Update() {
 							
 
 							monster::AddMonster(monsters_, textures_, nx, ny, difficulty_);
-							entities_.emplace_front(monsters_[monsters_.size() - 1]);
+							entities_.emplace_back(monsters_[monsters_.size() - 1]);
 						}
 					}
 				}
