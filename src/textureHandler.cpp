@@ -34,6 +34,16 @@ TextureHandler::TextureHandler(SDL_Renderer* renderer)
 	LoadTexture("assets/vdoor1_1.png");
 	LoadTexture("assets/vdoor2_1.png");
 	LoadTexture("assets/bow_1.png");
+	LoadTexture("assets/melee_1.png");
+
+	LoadTexture("assets/easy_1.png");
+	LoadTexture("assets/medium_1.png");
+	LoadTexture("assets/hard_1.png");
+
+	LoadTexture("assets/superzombie_2.png");
+	LoadTexture("assets/banshee_2.png");
+	LoadTexture("assets/lich_2.png");
+	LoadTexture("assets/megarcher_2.png");
 }
 
 const Texture& TextureHandler::Get(TextureType type) const {

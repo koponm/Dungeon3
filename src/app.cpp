@@ -35,19 +35,7 @@ App::App(void)
 
 		player_ = std::shared_ptr<Player>(new Player((textures_->Get(TextureType::player)), 0, 0));
 
-		LoadRoom("assets/startroom_0110.txt");
-		LoadRoom("assets/endroom_1111.txt");
-		LoadRoom("assets/deadend_1111.txt");
-
-		LoadRoom("assets/largeroom_1111.txt");
-
-		LoadRoom("assets/largecorner_0011.txt");
-		LoadRoom("assets/largecorner_1001.txt");
-		LoadRoom("assets/largetunnel_0101.txt");
-		LoadRoom("assets/largetunnel_1010.txt");
-
-		srand((unsigned)time(NULL));
-		Generate();
+		MainMenu();
 
 		entities_.push_back(player_);
 
@@ -62,6 +50,20 @@ App::App(void)
 	}
 }
 
+void App::LoadRooms() {
+	room_data_.clear();
+	LoadRoom("assets/startroom_0110.txt");
+	LoadRoom("assets/endroom_1111.txt");
+	LoadRoom("assets/deadend_1111.txt");
+
+	LoadRoom("assets/largeroom_1111.txt");
+
+	LoadRoom("assets/largecorner_0011.txt");
+	LoadRoom("assets/largecorner_1001.txt");
+	LoadRoom("assets/largetunnel_0101.txt");
+	LoadRoom("assets/largetunnel_1010.txt");
+}
+
 App::~App() {
 	TTF_CloseFont(default_font_);
 	SDL_DestroyRenderer(renderer_);
@@ -74,25 +76,47 @@ App::~App() {
 void App::Update() {
 
 	if (next_level_) {
+		if (main_menu_ || boss_stage_) {
+			LoadRooms();
+			srand((unsigned)time(NULL));
+			main_menu_ = false;
+			boss_stage_ = false;
+		}
 		next_level_ = false;
-		difficulty_++;
+		difficulty_ += difficulty_mult_;
+		stage_++;
+		
+		if (stage_ % 3 == 0) {
+			boss_stage_ = true;
+		}
+
 		Reset();
-		Generate();
+		if (boss_stage_) {
+			BossBattle();
+		} else {
+			Generate();
+		}
+		
 	}
 
 	if (death_) {
 		death_ = false;
 		Reset();
 		entities_.clear();
+		stage_ = 0;
 		player_ = std::shared_ptr<Player>(new Player((textures_->Get(TextureType::player)), 0, 0));
 		entities_.push_back(player_);
-		Generate();
+		room_data_.clear();
+		MainMenu();
+		main_menu_ = true;
+		boss_stage_ = false;
+		difficulty_ = 0;
 	}
-	
 
 	now_ = (double)SDL_GetTicks();
 	delta_time_ = max((now_ - last_) / 1000.0f * fps_desired_, 1.0 / 1000.0f);
 	second_timer_ += delta_time_ / fps_desired_;
+	
 	tick_timer_ += delta_time_;
 	double previous_x, previous_y;
 	player_ -> GetPos(previous_x, previous_y);
@@ -108,9 +132,14 @@ void App::Update() {
 				i->SetTimer(i->GetTimer() - 0.5);
 			}
 		}
-		player_->SetMana(std::min(player_->GetMaxMana(), player_->GetMana() + 0.5));
+		player_->SetMana(std::min(player_->GetMaxMana(), player_->GetMana() + 3.0));
+		player_->SetHealth(std::min(player_->GetMaxHealth(), player_->GetHealth() + 0.2 / difficulty_mult_));
 	}
 	
+	if (shoot_timer_ > 0.0) {
+		shoot_timer_ -= delta_time_ / fps_desired_;
+	}
+
 	if (f_) {//check if player and item or chest intersect
 		f_ = false;
 		SDL_Rect rect1 = player_->ReturnRect();
@@ -118,13 +147,19 @@ void App::Update() {
 			for (auto& i : items_) {
 				SDL_Rect rect2 = i->ReturnRect();
 				if (SDL_HasIntersection(&rect1, &rect2)) {
+					double m1, m2;
+					i->GetStats(m1, m2);
 					i->SetActive(false);
-
-					std::shared_ptr<Item> last_item =  player_->AddItem(i, textures_);
+					std::shared_ptr<Item> last_item = player_->AddItem(i, textures_);
 					if (last_item != nullptr) {
+						last_item -> SetStats(damage_m_, speed_m_);
 						to_render_.push_back(last_item);
 						items_.push_back(last_item);
+						damage_m_ = m1;
+						speed_m_ = m2;
 					}
+
+					//i->GetStats(damage_m_, speed_m_);
 					PlaySound(2, 0);
 					break;
 				}
@@ -137,7 +172,7 @@ void App::Update() {
 					i->OpenChest();
 					int x1, y1;
 					i->GetPos(x1, y1);
-					std::shared_ptr<Item> temp = item::GetItem(x1, y1, textures_, player_->GetWeapon());
+					std::shared_ptr<Item> temp = item::GetItem(x1, y1, textures_, player_->GetWeapon(), ItemType::random, player_ ->GetLevel());
 					if (temp != nullptr) {
 						to_render_.push_back(temp);
 						items_.push_back(temp);
@@ -147,11 +182,26 @@ void App::Update() {
 				}
 			}
 		}
-
-		if (end_ladder_ != nullptr) {
-			SDL_Rect rect2 = end_ladder_ -> ReturnRect();
+		
+		for (auto& i : ladders_) {
+			SDL_Rect rect2 = i -> ReturnRect();
 			if (SDL_HasIntersection(&rect1, &rect2)) {
-				next_level_ = true;
+				if (!boss_stage_) {
+					next_level_ = true;
+					
+				} else {
+					bool cleared = true;
+					for (auto& m: monsters_) {
+						if (!(m -> Dead())) {
+							cleared = false;
+						}
+					}
+					if (cleared) {
+						next_level_ = true;
+					}
+					
+					
+				}
 			}
 		}
 
@@ -162,20 +212,19 @@ void App::Update() {
 			int begin = i -> GetFirst();
 			SDL_Rect rect2 = i -> ReturnRect();
 			if (SDL_HasIntersection(&rect1, &rect2)) {
+				PlaySound(3, 0);
 				vector<int> connected = i -> GetConnected();
 				for (auto& r : connected) {
 					if (r != -1) {
-						hidden_[r] = false;
-						for (auto& m : room_[r].monster_spawns) {
-							
-							int nx = (m % (room_width_ / 32)) * 32;
-							int ny = (int)floor(m / (room_width_ / 32)) * 32;
-
-							
-
-							monster::AddMonster(monsters_, textures_, nx, ny, difficulty_);
-							entities_.emplace_back(monsters_[monsters_.size() - 1]);
+						if (hidden_[r]) {
+							for (auto& m : room_[r].monster_spawns) {
+								int nx = (m % (room_width_ / 32)) * 32;
+								int ny = (int)floor(m / (room_width_ / 32)) * 32;
+								monster::AddMonster(monsters_, textures_, nx, ny, difficulty_);
+								entities_.emplace_back(monsters_[monsters_.size() - 1]);
+							}
 						}
+						hidden_[r] = false;
 					}
 				}
 				int end = connected[connected.size() - 1];
@@ -284,19 +333,23 @@ void App::Update() {
 		int w4, h4;
 		i->GetPos(x4, y4);
 		i->GetRect(w4, h4);
+		double monster_player_angle_ = fmod(540.0 - atan2f((float)(y4 - 16 - y1), (float)(x4 - 16 - x1)) * 180.0 / M_PI, 360.0);
 		if (i->HasLignOfSight() && !i->IsMelee() && i->GetTimer()==0 && !i->Dead()) {
-			double monster_player_angle_ = fmod(540.0 - atan2f((float)(y4 - 16 - y1), (float)(x4 - 16 - x1)) * 180.0 / M_PI, 360.0);
+			x4 = x4 + 8.0;
+			y4 = y4 + 8.0;
 			if (i->GetProjectile() == ProjectileType::Arrow) {
-				AddProjectile(TextureType::arrow, (int)x4, (int)y4, 400, monster_player_angle_, i, ProjectileType::Arrow);
+				AddProjectile(TextureType::arrow, (int)x4, (int)y4, 250, monster_player_angle_, i, ProjectileType::Arrow);
 			}
 			else if (i->GetProjectile() == ProjectileType::IceBall) {
-				AddProjectile(TextureType::iceball, (int)x4, (int)y4, 400, monster_player_angle_, i, i->GetProjectile());
+				AddProjectile(TextureType::iceball, (int)x4, (int)y4, 250, monster_player_angle_, i, i->GetProjectile());
 			}
-			i->SetTimer(1.0);
+			i->SetTimer(1.5);
 		}
 		if (i->IsMelee() && i->GetTimer() == 0 && !i->Dead()) {
 			if (x1 < ((double)x4 + w4) && x1 + w1 > x4 && y1 < ((double)y4 + h4) && y1 + h1 > y4) {
-				AddProjectile(TextureType::invisible, (int)x4, (int)y4, 0, 0, i, i->GetProjectile());
+				x4 = x4 - 8.0 + 2.0 * cos(monster_player_angle_ * M_PI / 180.0);
+				y4 = y4 - 8.0 - 2.0 * sin(monster_player_angle_ * M_PI / 180.0);
+				AddProjectile(TextureType::melee, (int)x4, (int)y4, 0, 0, i, i->GetProjectile());
 				i->SetTimer(1.0);
 			}
 		}
@@ -375,9 +428,10 @@ void App::Update() {
 							//i->SetVel(1, 0);
 							//i->SetVel(0, 0);
 							i->SetActive(false);
-							j->SetHealth(j->GetHealth() - i->GetDamage());
+							j->SetHealth(j->GetHealth() - i->GetDamage() * 1.0 / difficulty_mult_ * damage_m_);
 							if (j -> GetHealth() <= 0) {
-								player_ -> AddXp(j -> GetMaxHealth());
+								double l = 1.0 + (player_ -> GetLevel()) / 2.0;
+								player_ -> AddXp(j -> GetMaxHealth() * l);
 							}
 						}
 					}
@@ -452,6 +506,10 @@ void App::Update() {
 
 	if (player_->GetHealth() <= 0) {
 		death_ = true;
+	}
+
+	if (main_menu_) {
+		difficulty_mult_ = (previous_x <= 688) * 0.5 + (previous_x > 688 && previous_x < 752) * 1.0 + (previous_x >= 752) * 2;
 	}
 
 	player_ -> GetPos(camera_x_, camera_y_);
@@ -627,14 +685,31 @@ void App::Render() {
 	RenderText(ss_hh.str().c_str(), default_font_, { 255, 255, 255, 0 }, 380, 580);
 	RenderText(ss_mm.str().c_str(), default_font_, { 255, 255, 255, 0 }, 438, 580);
 
+	std::stringstream ss_lvl;
 	std::stringstream ss_xp;
 	std::stringstream ss_money;
 
-	ss_xp << "Level: " << player_ -> GetLevel() << " XP: " << player_ -> GetXp() << " / " << player_ -> GetNextXp();
+	ss_lvl << "Stage: " << stage_ << " | Level: " << player_ -> GetLevel();
+	ss_xp << "XP: " << player_ -> GetXp() << " / " << player_ -> GetNextXp();
 	ss_money << "Money: " << player_->GetMoney() << " gp";
 
-	RenderText(ss_xp.str().c_str(), default_font_, { 255, 255, 255, 0 }, 5, 115);
-	RenderText(ss_money.str().c_str(), default_font_, { 255, 255, 255, 0 }, 5, 140);
+	RenderText(ss_lvl.str().c_str(), default_font_, { 255, 255, 255, 0 }, 5, 115);
+	RenderText(ss_xp.str().c_str(), default_font_, { 255, 255, 255, 0 }, 5, 140);
+	RenderText(ss_money.str().c_str(), default_font_, { 255, 255, 255, 0 }, 5, 165);
+
+	std::stringstream ss_item;
+	std::stringstream ss_item2;
+
+	ItemType wep = player_->GetWeapon();
+	double dmg = (wep == ItemType::staff) * 5.0 + (wep == ItemType::bow) * 4.0 + (wep == ItemType::sword) * 6.0;
+	double spd = (wep == ItemType::staff) * 0.2 + (wep == ItemType::bow) * 0.4 + (wep == ItemType::sword) * 0.1;
+
+	ss_item << "Damage: " << (dmg * damage_m_);
+	ss_item2 << "Speed: " << ((1.0 - spd) * speed_m_);
+
+	RenderText(ss_item.str().c_str(), default_font_, { 255, 255, 255, 0 }, 600, 5);
+	RenderText(ss_item2.str().c_str(), default_font_, { 255, 255, 255, 0 }, 600, 30);
+
 
 	SDL_RenderPresent(renderer_);
 }
@@ -644,25 +719,45 @@ bool App::Running() const {
 }
 
 void App::PlayerCastsProjectile(int previous_x, int previous_y) {
+	double newMana;
 	switch (player_->GetWeapon()) {
 	case ItemType::staff:
-	{
-		double newMana = player_->GetMana() - 5.0;
-		if (newMana >= 0.0) {
-			player_->SetMana(newMana);
-			AddProjectile(TextureType::fireball, previous_x + 8, previous_y + 8, 400, mouse_player_angle_, player_, ProjectileType::Fireball);
-			PlaySound(0, 0);
+		if (shoot_timer_ <= 0.0) {
+			newMana = player_->GetMana() - 5.0;
+			if (newMana >= 0.0) {
+				player_->SetMana(newMana);
+				AddProjectile(TextureType::fireball, previous_x + 8, previous_y + 8, 400, mouse_player_angle_, player_, ProjectileType::Fireball);
+				PlaySound(0, 0);
+			}
+			shoot_timer_ = 0.2 * speed_m_;
 		}
 		// else staff could be melee maybe?
-		break;
-	}
+	break;
+
+	case ItemType::sword:
+		if (shoot_timer_ <= 0.0) {
+			double xx, yy;
+			xx = previous_x - 8.0 + 24.0 * cos(mouse_player_angle_ * M_PI / 180.0);
+			yy = previous_y - 8.0 - 24.0 * sin(mouse_player_angle_ * M_PI / 180.0);
+			AddProjectile(TextureType::melee, xx, yy, 1, mouse_player_angle_, player_, ProjectileType::Melee);
+			shoot_timer_ = 0.1 * speed_m_;
+		}
+	break;
+
+	case ItemType::bow:
+		if (shoot_timer_ <= 0.0) {
+			AddProjectile(TextureType::arrow, previous_x + 8, previous_y + 8, 400, mouse_player_angle_, player_, ProjectileType::Arrow);
+			shoot_timer_ = 0.4 * speed_m_;
+		}
+	break;
+
 	// case ItemType::sword, melee stuff here
 	// cast ItemType::bow, bow stuff here
 	// For balancing reasons bow should maybe have a shooting cooldown or just lower damage
 	default: // For demonstration reasons, default should probably be melee
 		AddProjectile(TextureType::arrow, previous_x + 8, previous_y + 8, 400, mouse_player_angle_, player_, ProjectileType::Arrow);
 		PlaySound(0, 0); // This should be something else
-		break;
+	break;
 	}
 }
 
@@ -671,7 +766,9 @@ std::shared_ptr<Wall> App::AddWall(TextureType type, const int& x, const int& y)
 	temp-> SetVParent(int(y / 512) * dungeon_width_ + int(x / 512));
 	to_render_.push_back(temp);
 	walls_.push_back(temp);
-	path_tiles_[unsigned((floor(y / 32)) * room_width_ / 32 + (floor(x / 32)))] = false;
+	if (type != invisible) {
+		path_tiles_[unsigned((floor(y / 32)) * room_width_ / 32 + (floor(x / 32)))] = false;
+	}
 	return temp;
 }
 
@@ -799,6 +896,11 @@ bool App::AddRoom(const unsigned int& index, const int& x, const int& y) {
 					// Air
 					AddFloor(TextureType::dfloor, i * 32 + x, j * 32 + y);
 				break;
+				case 66:
+					AddFloor(TextureType::dfloor, i * 32 + x, j * 32 + y);
+					monster::AddMonster(monsters_, textures_, i * 32 + x, j * 32 + y, difficulty_);
+					entities_.emplace_back(monsters_[monsters_.size() - 1]);
+				break;
 				case 68:
 					// Mark this location for door generation
 					door_spots_.push_back(unsigned((floor(y / 32) + j) * room_width_ / 32 + (floor(x / 32) + i)));
@@ -806,7 +908,7 @@ bool App::AddRoom(const unsigned int& index, const int& x, const int& y) {
 				break;
 				case 69:
 					AddFloor(TextureType::ladderdown, i * 32 + x, j * 32 + y);
-					end_ladder_ = new Ladder(textures_->Get(invisible), i * 32 + x, j * 32 + y);
+					ladders_.push_back(shared_ptr<Ladder>(new Ladder(textures_->Get(invisible), i * 32 + x, j * 32 + y)));
 				break;
 				case 77:
 					AddFloor(TextureType::dfloor, i * 32 + x, j * 32 + y);
@@ -821,6 +923,21 @@ bool App::AddRoom(const unsigned int& index, const int& x, const int& y) {
 				case 87:
 					AddWall(TextureType::wall2, i * 32 + x, j * 32 + y);
 				break;
+
+				case 88:
+					AddFloor(TextureType::dfloor, i * 32 + x, j * 32 + y);
+					AddFloor(TextureType::ez, i * 32 + x, j * 32 + y);
+				break;
+				case 89:
+					AddFloor(TextureType::dfloor, i * 32 + x, j * 32 + y);
+					AddFloor(TextureType::med, i * 32 + x, j * 32 + y);
+				break;
+				case 90:
+					AddFloor(TextureType::dfloor, i * 32 + x, j * 32 + y);
+					AddFloor(TextureType::hard, i * 32 + x, j * 32 + y);
+				break;
+
+
 				case 72:
 					AddFloor(TextureType::dfloor, i * 32 + x, j * 32 + y);
 					AddChest(TextureType::chest, i * 32 + x, j * 32 + y);
@@ -1245,11 +1362,6 @@ void App::Reset() {
 	dungeon_height_ = 0;
 	door_spots_.clear();
 
-	if (end_ladder_ != nullptr) {
-		delete end_ladder_;
-	}
-	end_ladder_ = nullptr;
-
 	floor_.clear();
 	walls_.clear();
 	doors_.clear();
@@ -1260,8 +1372,57 @@ void App::Reset() {
 	entities_.clear();
 	entities_.push_back(player_);
 	to_render_.clear();
+	ladders_.clear();
+	room_width_ = 1024;
+	room_height_ = 1024;
 }
 
-void App::NextLevel() {
+void App::MainMenu() {
+	room_data_.clear();
+	room_width_ = 1440;
+	room_height_ = 1440;
+	LoadRoom("assets/mainmenu_0000.txt");
 
+	size_ = (room_width_ / 32 * room_height_ / 32);
+	tiles_ = new bool[size_];
+	path_tiles_ = new bool[size_];
+	for (unsigned i = 0; i < size_; i++) {
+		tiles_[i] = false;
+		path_tiles_[i] = true;
+	}
+
+	hidden_ = new bool[1];
+	visible_ = new bool[1];
+	room_ = new DungeonRoom[1];
+
+	AddRoom(0, 480, 480);
+
+	for (auto& i : to_render_) {
+		i->SetVParent(-1);
+	}
+}
+
+void App::BossBattle() {
+	room_data_.clear();
+	room_width_ = 2048;
+	room_height_ = 2048;
+	LoadRoom("assets/boss_0000.txt");
+
+	size_ = (room_width_ / 32 * room_height_ / 32);
+	tiles_ = new bool[size_];
+	path_tiles_ = new bool[size_];
+	for (unsigned i = 0; i < size_; i++) {
+		tiles_[i] = false;
+		path_tiles_[i] = true;
+	}
+
+	hidden_ = new bool[1];
+	visible_ = new bool[1];
+	room_ = new DungeonRoom[1];
+
+	AddRoom(0, 512, 512);
+
+	for (auto& i : to_render_) {
+		i->SetVParent(-1);
+	}
 }

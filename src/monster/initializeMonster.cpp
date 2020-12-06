@@ -9,19 +9,37 @@ namespace monster {
 			type = static_cast<MonsterType>(rand() % (int)(MonsterType::MONSTER_COUNT));
 		}
 		std::shared_ptr<Monster> m = nullptr;
+		TextureType ttype;
+		auto roll = rand() % 2;
 		switch (type) { //get index for texture
 		case MonsterType::zombie:
-			m = std::shared_ptr<Monster>(new Zombie(texture->Get(TextureType::zombie), x, y, difficulty));
+			ttype = zombie;
+			if (difficulty > 4 && roll) {
+				ttype = superzombie;
+			}
+			m = std::shared_ptr<Monster>(new Zombie(texture->Get(ttype), x, y, difficulty + (roll + 1)));
 			break;
 		case MonsterType::ghost:
-			m = std::shared_ptr<Monster>(new Ghost(texture->Get(TextureType::ghost), x, y, difficulty));
+			ttype = ghost;
+			if (difficulty > 4 && roll) {
+				ttype = banshee;
+			}
+			m = std::shared_ptr<Monster>(new Ghost(texture->Get(ttype), x, y, difficulty + (roll + 1)));
 			break;
 
 		case MonsterType::skeleton_archer:
-			m = std::shared_ptr<Monster>(new Skeleton(texture->Get(TextureType::skeletonArcher), x, y, difficulty));
+			ttype = skeletonArcher;
+			if (difficulty > 4 && roll) {
+				ttype = superarcher;
+			}
+			m = std::shared_ptr<Monster>(new Skeleton(texture->Get(ttype), x, y, difficulty + (roll + 1)));
 			break;
 		case MonsterType::skeleton_mage:
-			m = std::shared_ptr<Monster>(new SkeletonMage(texture->Get(TextureType::skeletonMage), x, y, difficulty));
+			ttype = skeletonMage;
+			if (difficulty > 4 && roll) {
+				ttype = lich;
+			}
+			m = std::shared_ptr<Monster>(new SkeletonMage(texture->Get(ttype), x, y, difficulty + (roll + 1)));
 			break;
 		default:
 			return;

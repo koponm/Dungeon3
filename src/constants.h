@@ -29,5 +29,13 @@ enum TextureType {
 	hdoor2 = 25,
 	vdoor1 = 26,
 	vdoor2 = 27,
-	bow = 28
+	bow = 28,
+	melee = 29,
+	ez = 30,
+	med = 31,
+	hard = 32,
+	superzombie = 33,
+	banshee = 34,
+	lich = 35,
+	superarcher = 36
 };

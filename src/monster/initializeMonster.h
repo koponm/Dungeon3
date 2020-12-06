@@ -10,6 +10,8 @@
 #include "ghost.h"
 #include "skeleton.h"
 #include "skeletonMage.h"
+#include <stdlib.h>
+#include <time.h>
 
 #include <vector>
 #include <memory>

@@ -1,9 +1,14 @@
 #include "items.h"
 
-Item::Item(const Texture& texture, int x, int y, ItemType type) : Renderable(texture) {
+Item::Item(const Texture& texture, int x, int y, ItemType type, float d) : Renderable(texture) {
 	x_ = x;
 	y_ = y;
 	type_ = type;
+	damage_m_ = 0.5 * sqrt(d) + sqrt(d * (rand() % 100) / 100.0);
+	speed_m_ = 0.8 + (0.4 * (rand() % 100)) / 100.0;
+	damage_m_ = floor(damage_m_ * 100.0) / 100.0;
+	speed_m_ = floor(speed_m_ * 100.0) / 100.0;
+
 	RectPos(x_, y_);
 }
 void Item::GetPos(int& x, int& y) {
@@ -14,7 +19,7 @@ void Item::GetPos(int& x, int& y) {
 
 namespace item {
 
-std::shared_ptr<Item> GetItem(const int x, const int y, TextureHandler* textures, ItemType weapon, ItemType type) {
+std::shared_ptr<Item> GetItem(const int x, const int y, TextureHandler* textures, ItemType weapon, ItemType type, float d) {
 	if (type == ItemType::random) { //random if ItemType not given
 		type = static_cast<ItemType>(rand() % (int)(ItemType::random));
 		if (type == weapon) type = ItemType::health_potion;
@@ -39,7 +44,7 @@ std::shared_ptr<Item> GetItem(const int x, const int y, TextureHandler* textures
 	default:
 		return nullptr;
 	}
-	std::shared_ptr<Item> temp(new Item(textures->Get(t), x, y, type));
+	std::shared_ptr<Item> temp(new Item(textures->Get(t), x, y, type, d));
 	return temp;
 }
 } // namespace item

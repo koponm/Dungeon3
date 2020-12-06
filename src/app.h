@@ -72,7 +72,9 @@ public:
 	void PlaySound(const unsigned& index, const int& loops);
 	void Recursive(const unsigned int& index, std::shared_ptr<Door> pointer, const unsigned int& previous_dir);
 	void Reset();
-	void NextLevel();
+	void MainMenu();
+	void LoadRooms();
+	void BossBattle();
 	
 private:
 	SDL_Window* window_ = nullptr;
@@ -100,7 +102,7 @@ private:
 	vector<shared_ptr<Door>> doors_;
 	vector<shared_ptr<HUD_object>> hud_;
 
-	Ladder* end_ladder_ = nullptr;
+	vector<shared_ptr<Ladder>> ladders_;
 
 	vector<Mix_Chunk*> sounds_;
 
@@ -121,11 +123,18 @@ private:
 	bool m1_ = false;
 	bool m1_released_ = true;
 
+	bool main_menu_ = true;
+	bool boss_stage_ = false;
+
 	double camera_x_ = 0.0;
 	double camera_y_ = 0.0;
+	double shoot_timer_ = 0.0;
 
-	unsigned int room_width_ = 1024;
-	unsigned int room_height_ = 1024;
+	double damage_m_ = 1.0;
+	double speed_m_ = 1.0;
+
+	unsigned int room_width_ = 1440;
+	unsigned int room_height_ = 1440;
 	unsigned size_ = 0;
 	bool* tiles_ = nullptr;
 	bool* path_tiles_ = nullptr;
@@ -134,7 +143,9 @@ private:
 	DungeonRoom* room_ = nullptr;
 	unsigned int dungeon_width_ = 0;
 	unsigned int dungeon_height_ = 0;
-	unsigned int difficulty_ = 1;
+	float difficulty_ = 0;
+	float difficulty_mult_ = 1;
+	unsigned int stage_ = 0;
 	int last_dir_ = 0;
 	bool next_level_ = false;
 	bool death_ = false;
