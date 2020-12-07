@@ -153,6 +153,7 @@
   <ItemGroup>
     <ClCompile Include="app.cpp" />
     <ClCompile Include="monster\banshee.cpp" />
+    <ClCompile Include="monster\bossPhases.cpp" />
     <ClCompile Include="monster\necromancer.cpp" />
     <ClCompile Include="projectile\arrow.cpp" />
     <ClCompile Include="chest.cpp" />
@@ -181,6 +182,7 @@
   <ItemGroup>
     <ClInclude Include="app.h" />
     <ClInclude Include="monster\banshee.h" />
+    <ClInclude Include="monster\bossPhases.h" />
     <ClInclude Include="monster\necromancer.h" />
     <ClInclude Include="projectile\arrow.h" />
     <ClInclude Include="chest.h" />

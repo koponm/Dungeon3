@@ -3,6 +3,7 @@
 #define MONSTER_H_
 #include <utility>
 #include <list>
+#include "../constants.h"
 #include "../renderable.h"
 #include "../projectile/projectile.h"
 
@@ -42,6 +43,7 @@ public:
 	bool IsDead() { return health_ <= 0; }
 	bool Dead() { return is_dead; }
 	void Kill();
+	void Ressurect();
 	double GetTimer() { return shoot_timer; }
 	void SetTimer(double timer) { shoot_timer = timer; }
 	void SetHealth(double newHealth) { health_ = newHealth; }
@@ -65,6 +67,7 @@ protected:
 	bool is_dead = false;
 	double shoot_timer = 0.0;
 	MonsterType type_;
+	Texture default_texture_;
 	ProjectileType projectile = ProjectileType::Melee;
 };
 #endif // MONSTER_H_

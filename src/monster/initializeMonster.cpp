@@ -2,7 +2,7 @@
 
 namespace monster {
 
-	shared_ptr<Monster> AddMonster(std::vector<std::shared_ptr<Monster>>& monsters, TextureHandler* texture,
+	shared_ptr<Monster> AddMonster(std::vector<std::shared_ptr<Monster>>& monsters, std::shared_ptr<TextureHandler> texture,
 		double x, double y, unsigned int difficulty, MonsterType type)
 	{
 		if (type == MonsterType::MONSTER_COUNT) {
@@ -47,7 +47,7 @@ namespace monster {
 			break;
 		case MonsterType::banshee:
 			ttype = superbanshee;
-			m = std::shared_ptr<Monster>(new Necromancer(texture->Get(ttype), x, y, difficulty, type));
+			m = std::shared_ptr<Monster>(new Banshee(texture->Get(ttype), x, y, difficulty, type));
 			break;
 
 		default:

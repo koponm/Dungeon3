@@ -29,7 +29,7 @@ public:
 	void AddMana(double mana);
 	void UseHealthPotion();
 	void UseManaPotion();
-	std::shared_ptr<Item> AddItem(std::shared_ptr<Item> item, TextureHandler* textures);
+	std::shared_ptr<Item> AddItem(std::shared_ptr<Item> item, std::shared_ptr<TextureHandler> textures);
 	ItemType GetWeapon() { return weapon_; }
 	void SetHealth(double newHealth) {
 		health_ = newHealth;

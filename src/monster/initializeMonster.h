@@ -11,6 +11,7 @@
 #include "skeleton.h"
 #include "skeletonMage.h"
 #include "necromancer.h"
+#include "banshee.h"
 #include <stdlib.h>
 #include <time.h>
 
@@ -19,7 +20,7 @@
 
 namespace monster {
 	
-	shared_ptr<Monster> AddMonster(std::vector<std::shared_ptr<Monster>>& monsters, TextureHandler* texture,
+	shared_ptr<Monster> AddMonster(std::vector<std::shared_ptr<Monster>>& monsters, std::shared_ptr<TextureHandler> texture,
 		double x, double y, unsigned int difficulty, MonsterType type = MonsterType::MONSTER_COUNT);
 
 

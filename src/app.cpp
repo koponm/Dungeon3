@@ -33,13 +33,12 @@ App::App(void)
 
 		PlaySound(1, -1);
 
-		textures_ = new TextureHandler(renderer_);
+		textures_ = std::shared_ptr<TextureHandler>(new TextureHandler(renderer_));
 
 		player_ = std::shared_ptr<Player>(new Player((textures_->Get(TextureType::player)), 0, 0));
 
 		MainMenu();
 
-		entities_.push_back(player_);
 
 		//HUD
 		hud_.emplace_back(new HUD_object(textures_->Get(hud), 735, 5, ItemType::sword, 5));
@@ -70,7 +69,6 @@ App::~App() {
 	TTF_CloseFont(default_font_);
 	SDL_DestroyRenderer(renderer_);
 	SDL_DestroyWindow(window_);
-	delete textures_;
 	SDL_Quit();
 	TTF_Quit();
 }
@@ -110,7 +108,6 @@ void App::Update() {
 		damage_m_ = 1.0;
 		speed_m_ = 1.0;
 		player_ = std::shared_ptr<Player>(new Player((textures_->Get(TextureType::player)), 0, 0));
-		entities_.push_back(player_);
 		room_data_.clear();
 		MainMenu();
 		main_menu_ = true;
@@ -380,7 +377,6 @@ void App::Update() {
 				i->SetTimer(1.0);
 			}
 		}
-
 	}
 
 	if (tick_timer_ >= 1.0) {
@@ -416,6 +412,8 @@ void App::Update() {
 		for (auto& i : entities_) {
 			i->AddFrame(delta_time_);
 		}
+
+		player_->AddFrame(delta_time_);
 
 		if (!monsters_.empty()) {
 			monster::UpdateMonsters(monsters_, delta_time_, fps_desired_,
@@ -455,7 +453,7 @@ void App::Update() {
 							//i->SetVel(1, 0);
 							//i->SetVel(0, 0);
 							i->SetActive(false);
-							j->SetHealth(j->GetHealth() - i->GetDamage() * 1.0 / difficulty_mult_ * damage_m_);
+							j->SetHealth(j->GetHealth() - i->GetDamage() * damage_m_);
 							if (j -> GetHealth() <= 0) {
 								// + sqrt(player_ -> GetLevel() / 2.0)
 								double l = 1.0 + sqrt(player_->GetLevel() / 2.0) * 0.25 / difficulty_mult_;
@@ -470,7 +468,7 @@ void App::Update() {
 						//i->SetVel(0, 0);
 						i->SetActive(false);
 						player_->SetHealth(player_->GetHealth() - (
-							i->GetDamage() * (1.0 + 0.25 * difficulty_)
+							i->GetDamage() * (1.0 + 0.25 * difficulty_) * difficulty_mult_
 							));
 					}
 				}
@@ -688,6 +686,7 @@ void App::Render() {
 	for (auto& i : entities_) {
 		i -> Render(renderer_, camera_x_, camera_y_);
 	}
+	player_->Render(renderer_, camera_x_, camera_y_);
 
 	// Render HUD
 	for (auto i : hud_) {
@@ -746,8 +745,16 @@ void App::Render() {
 	if (bossptr != nullptr) {
 		std::stringstream ss_boss;
 
-		RenderBar(340, 5, 120, 30, bossptr->GetMaxHealth(), bossptr->GetHealth(), purple, grey);
-		if (bossptr->GetHealth() <= 0) {
+		RenderBar(340, 5, 120, 30, bossptr->GetBoss()->GetMaxHealth(), bossptr->GetBoss()->GetHealth(), purple, grey);
+		bossptr->BossPhase();
+		if (bossptr->GetBoss()->GetHealth() <= 0) {
+			for (auto& monster : monsters_)
+			{
+				monster->Kill();
+				monster->SetTexture(textures_->Get(TextureType::tombstone));
+				monster->AddVel(0, 0);
+				monster->CalcPos(fps_desired_);
+			}
 			bossptr = nullptr;
 		}
 	}
@@ -941,8 +948,21 @@ bool App::AddRoom(const unsigned int& index, const int& x, const int& y) {
 				break;
 				case 66:
 					AddFloor(TextureType::dfloor, i * 32 + x, j * 32 + y);
-					bossptr = monster::AddMonster(monsters_, textures_, i * 32 + x, j * 32 + y, difficulty_, (rand() % 2 == 0) ? MonsterType::necromancer : MonsterType::banshee);
-					entities_.emplace_back(monsters_[monsters_.size() - 1]);
+					bossptr = std::shared_ptr<BossHandler>(
+						new BossHandler(
+							monster::AddMonster(monsters_, textures_, i * 32 + x, j * 32 + y, difficulty_,
+								(rand() % 2 == 0) ? MonsterType::necromancer : MonsterType::banshee),
+							monsters_,
+							entities_,
+							textures_,
+							path_tiles_,
+							tiles_,
+							size_,
+							room_width_,
+							difficulty_
+						));
+
+					entities_.emplace_front(monsters_[monsters_.size() - 1]);
 				break;
 				case 68:
 					// Mark this location for door generation
@@ -1414,7 +1434,6 @@ void App::Reset() {
 	chests_.clear();
 	items_.clear();
 	entities_.clear();
-	entities_.push_back(player_);
 	to_render_.clear();
 	ladders_.clear();
 	room_width_ = 1024;

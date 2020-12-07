@@ -96,7 +96,7 @@ void Player::AddXp(const double& xp) {
 }
 
 // Returns nullptr when no rendering required, else the item
-std::shared_ptr<Item> Player::AddItem(std::shared_ptr<Item> item, TextureHandler* textures) {
+std::shared_ptr<Item> Player::AddItem(std::shared_ptr<Item> item, std::shared_ptr<TextureHandler> textures) {
 	std::shared_ptr<Item> result = nullptr;
 	ItemType type = item->GetItemType();
 	switch (type) {

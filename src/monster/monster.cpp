@@ -4,6 +4,7 @@ Monster::Monster(const Texture& texture, double x, double y, MonsterType type) :
 	x_ = x;
 	y_ = y;
 	type_ = type;
+	default_texture_ = texture;
 	RectPos((int)floor(x_ + .5), (int)floor(y_ + .5));
 }
 
@@ -62,8 +63,13 @@ void Monster::PopNextMove() {
 }
 
 void Monster::Kill() {
-{
+
+	health_ = 0.0;
 	is_dead = true;
 }
 
+void Monster::Ressurect() {
+	health_ = max_health_;
+	is_dead = false;
+	SetTexture(default_texture_);
 }

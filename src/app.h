@@ -24,6 +24,7 @@
 #include "projectile/arrow.h"
 #include "projectile/melee.h"
 #include "monster/initializeMonster.h"
+#include "monster/bossPhases.h"
 #include "monster/update.h"
 #include "items.h"
 #include "chest.h"
@@ -87,7 +88,7 @@ private:
 	int height_;
 	bool fullscreen_;
 	bool running_;
-	TextureHandler* textures_ = nullptr;
+	shared_ptr<TextureHandler> textures_ = nullptr;
 	vector<Room> room_data_;
 	shared_ptr<Player> player_ = nullptr;
 	list<shared_ptr<Renderable>> to_render_;
@@ -132,7 +133,9 @@ private:
 
 	double damage_m_ = 1.0;
 	double speed_m_ = 1.0;
-	shared_ptr<Monster> bossptr = nullptr;
+	shared_ptr<BossHandler> bossptr = nullptr;
+	unsigned int boss_phase_ = 0;
+
 
 	bool noclip_ = false;
 	bool fullvis_ = false;

@@ -38,7 +38,7 @@ private:
 
 namespace item {
 
-std::shared_ptr<Item> GetItem(const int x, const int y, TextureHandler* textures, ItemType weapon, ItemType type = ItemType::random, float d = 1);
+std::shared_ptr<Item> GetItem(const int x, const int y, std::shared_ptr<TextureHandler> textures, ItemType weapon, ItemType type = ItemType::random, float d = 1);
 
 } // namespace item
 
