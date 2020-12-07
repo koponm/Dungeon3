@@ -14,7 +14,8 @@ enum class MonsterType {
 	skeleton_archer,
 	skeleton_mage,
 	MONSTER_COUNT,
-	necromancer
+	necromancer,
+	banshee
 };
 
 class Monster : public Renderable {

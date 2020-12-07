@@ -28,6 +28,8 @@ App::App(void)
 		LoadSound("assets/pop.wav");
 		LoadSound("assets/chest.wav");
 		LoadSound("assets/potion.wav");
+		LoadSound("assets/bow.wav");
+		LoadSound("assets/swing.wav");
 
 		PlaySound(1, -1);
 
@@ -313,28 +315,38 @@ void App::Update() {
 	player_ -> GetPos(x1, y1);
 	player_ -> GetRect(w1, h1);
 
-	for (auto& i : walls_) {
-		int x2, y2;
-		int w2, h2;
-		i -> GetPos(x2, y2);
-		i -> GetRect(w2, h2);
+	if (!noclip_) {
+		for (auto& i : walls_) {
+			int x2, y2;
+			int w2, h2;
+			i -> GetPos(x2, y2);
+			i -> GetRect(w2, h2);
 
-		if (x1 < ((double) x2 + w2) && x1 + w1 > x2 && y1 < ((double) y2 + h2) && y1 + h1 > y2) {
-			double x_res = (x1 - x2);
-			x_res = x_res + (x_res < 0 ? w2 : -w2);
+			if (x1 < ((double) x2 + w2) && x1 + w1 > x2 && y1 < ((double) y2 + h2) && y1 + h1 > y2) {
+				double x_res = (x1 - x2);
+				x_res = x_res + (x_res < 0 ? w2 : -w2);
 
-			double y_res = (y1 - y2);
-			y_res = y_res + (y_res < 0 ? h2 : -h2);
+				double y_res = (y1 - y2);
+				y_res = y_res + (y_res < 0 ? h2 : -h2);
 
-			if (fabs(x_res) >= 4.0) {
-				if (fabs(y_res) > 0.0) {
-					player_ -> AddPos(0, -y_res);
-					player_ -> SetVel(1, 0.0);
-				}
-			} else if (fabs(y_res) >= 4.0) {
-				if (fabs(x_res) > 0.0) {
-					player_ -> AddPos(-x_res, 0);
-					player_ -> SetVel(0, 0.0);
+				if (fabs(x_res) >= 4.0) {
+					while (fabs(y_res) > 0.0) {
+						player_ -> AddPos(0, -y_res);
+						player_ -> SetVel(1, 0.0);
+
+						player_ -> GetPos(x1, y1);
+						y_res = (y1 - y2);
+						y_res = y_res + (y_res < 0 ? h2 : -h2);
+					}
+				} else if (fabs(y_res) >= 4.0) {
+					while (fabs(x_res) > 0.0) {
+						player_ -> AddPos(-x_res, 0);
+						player_ -> SetVel(0, 0.0);
+
+						player_->GetPos(x1, y1);
+						x_res = (x1 - x2);
+						x_res = x_res + (x_res < 0 ? w2 : -w2);
+					}
 				}
 			}
 		}
@@ -770,6 +782,7 @@ void App::PlayerCastsProjectile(int previous_x, int previous_y) {
 			yy = previous_y - 8.0 - 24.0 * sin(mouse_player_angle_ * M_PI / 180.0);
 			AddProjectile(TextureType::melee, xx, yy, 1, mouse_player_angle_, player_, ProjectileType::Melee);
 			shoot_timer_ = 0.1 * speed_m_;
+			PlaySound(6, 0);
 		}
 	break;
 
@@ -777,6 +790,7 @@ void App::PlayerCastsProjectile(int previous_x, int previous_y) {
 		if (shoot_timer_ <= 0.0) {
 			AddProjectile(TextureType::arrow, previous_x + 8, previous_y + 8, 400, mouse_player_angle_, player_, ProjectileType::Arrow);
 			shoot_timer_ = 0.4 * speed_m_;
+			PlaySound(5, 0);
 		}
 	break;
 
@@ -927,7 +941,7 @@ bool App::AddRoom(const unsigned int& index, const int& x, const int& y) {
 				break;
 				case 66:
 					AddFloor(TextureType::dfloor, i * 32 + x, j * 32 + y);
-					bossptr = monster::AddMonster(monsters_, textures_, i * 32 + x, j * 32 + y, difficulty_, MonsterType::necromancer);
+					bossptr = monster::AddMonster(monsters_, textures_, i * 32 + x, j * 32 + y, difficulty_, (rand() % 2 == 0) ? MonsterType::necromancer : MonsterType::banshee);
 					entities_.emplace_back(monsters_[monsters_.size() - 1]);
 				break;
 				case 68:
@@ -1143,7 +1157,7 @@ void App::Generate() {
 	for (unsigned j = 0; j < dungeon_height_; j++) {
 		for (unsigned i = 0; i < dungeon_width_; i++) {
 			visible_[unsigned(j * dungeon_width_ + i)] = false;
-			hidden_[unsigned(j * dungeon_width_ + i)] = true;
+			hidden_[unsigned(j * dungeon_width_ + i)] = true && (!fullvis_);
 			int r = room[(j + min_j) * max_x + (i + min_i)];
 			DungeonRoom temp;
 			temp.index = r;

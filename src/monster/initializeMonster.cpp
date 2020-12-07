@@ -45,6 +45,11 @@ namespace monster {
 			ttype = necro;
 			m = std::shared_ptr<Monster>(new Necromancer(texture->Get(ttype), x, y, difficulty, type));
 			break;
+		case MonsterType::banshee:
+			ttype = superbanshee;
+			m = std::shared_ptr<Monster>(new Necromancer(texture->Get(ttype), x, y, difficulty, type));
+			break;
+
 		default:
 		break;
 		}

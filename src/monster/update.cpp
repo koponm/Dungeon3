@@ -252,7 +252,7 @@ void UpdateMonsters(std::vector<std::shared_ptr<Monster>>& monsters, double delt
 
 					double y_res = (y1 - y2);
 					y_res = y_res + (y_res < 0 ? h2 : -h2);
-
+					
 					if (fabs(x_res) >= 4.0) {
 						if (fabs(y_res) > 0.0) {
 							monster->AddPos(0, -y_res);
