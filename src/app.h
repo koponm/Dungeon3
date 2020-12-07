@@ -132,6 +132,8 @@ private:
 
 	double damage_m_ = 1.0;
 	double speed_m_ = 1.0;
+	shared_ptr<Monster> bossptr = nullptr;
+
 
 	unsigned int room_width_ = 1440;
 	unsigned int room_height_ = 1440;

@@ -37,5 +37,7 @@ enum TextureType {
 	superzombie = 33,
 	banshee = 34,
 	lich = 35,
-	superarcher = 36
+	superarcher = 36,
+	necro = 37,
+	superbanshee = 38
 };

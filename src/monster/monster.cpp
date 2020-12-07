@@ -1,9 +1,9 @@
 #include "monster.h"
 
-Monster::Monster(const Texture& texture, double x, double y) : Renderable(texture) {
+Monster::Monster(const Texture& texture, double x, double y, MonsterType type) : Renderable(texture) {
 	x_ = x;
 	y_ = y;
-
+	type_ = type;
 	RectPos((int)floor(x_ + .5), (int)floor(y_ + .5));
 }
 

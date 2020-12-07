@@ -10,23 +10,16 @@
 #include "ghost.h"
 #include "skeleton.h"
 #include "skeletonMage.h"
+#include "necromancer.h"
 #include <stdlib.h>
 #include <time.h>
 
 #include <vector>
 #include <memory>
 
-enum class MonsterType {
-	zombie,
-	ghost,
-	skeleton_archer,
-	skeleton_mage,
-	MONSTER_COUNT
-};
-
 namespace monster {
 	
-	void AddMonster(std::vector<std::shared_ptr<Monster>>& monsters, TextureHandler* texture,
+	shared_ptr<Monster> AddMonster(std::vector<std::shared_ptr<Monster>>& monsters, TextureHandler* texture,
 		double x, double y, unsigned int difficulty, MonsterType type = MonsterType::MONSTER_COUNT);
 
 

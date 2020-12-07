@@ -2,8 +2,8 @@
 #include "skeletonMage.h"
 
 
-SkeletonMage::SkeletonMage(const Texture& texture, double x, double y, unsigned int difficulty)
-	: Monster(texture, x, y)
+SkeletonMage::SkeletonMage(const Texture& texture, double x, double y, unsigned int difficulty, MonsterType type)
+	: Monster(texture, x, y, type)
 {
 	speed_ = 700.0 * (1.0 + 0.02 * difficulty);
 	health_ = 25.0 * (1.0 + 0.25 * difficulty);

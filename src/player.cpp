@@ -88,8 +88,10 @@ void Player::AddXp(const double& xp) {
 		level_++;
 		next_xp_ += next_xp_ * 0.5;
 		next_xp_ = floor(next_xp_);
-		max_health_ = 100 + level_ * 15;
-		max_mana_ = 100 + level_ * 10;
+		health_ += 20.0;
+		mana_ += 10.0;
+		max_health_ += 20.0;
+		max_mana_ += 10.0;
 	}
 }
 

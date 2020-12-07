@@ -59,7 +59,7 @@ bool getLineOfSight(bool* path_tiles, int current, int target, unsigned int w, u
 			}
 		}
 	}
-	if (std::sqrt(x_diff * x_diff + y_diff * y_diff) > 6) {
+	if (std::sqrt(x_diff * x_diff + y_diff * y_diff) > 10) {
 		return false;
 	}
 	else {

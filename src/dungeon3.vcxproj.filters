@@ -90,6 +90,9 @@
     <ClCompile Include="projectile\projectile.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
+    <ClCompile Include="monster\necromancer.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="app.h">
@@ -165,6 +168,9 @@
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="projectile\projectile.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="monster\necromancer.h">
       <Filter>Header Files</Filter>
     </ClInclude>
   </ItemGroup>

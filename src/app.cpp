@@ -76,6 +76,7 @@ App::~App() {
 void App::Update() {
 
 	if (next_level_) {
+		bossptr = nullptr;
 		if (main_menu_ || boss_stage_) {
 			LoadRooms();
 			srand((unsigned)time(NULL));
@@ -96,14 +97,16 @@ void App::Update() {
 		} else {
 			Generate();
 		}
-		
 	}
 
 	if (death_) {
+		bossptr = nullptr;
 		death_ = false;
 		Reset();
 		entities_.clear();
 		stage_ = 0;
+		damage_m_ = 1.0;
+		speed_m_ = 1.0;
 		player_ = std::shared_ptr<Player>(new Player((textures_->Get(TextureType::player)), 0, 0));
 		entities_.push_back(player_);
 		room_data_.clear();
@@ -158,8 +161,6 @@ void App::Update() {
 						damage_m_ = m1;
 						speed_m_ = m2;
 					}
-
-					//i->GetStats(damage_m_, speed_m_);
 					PlaySound(2, 0);
 					break;
 				}
@@ -172,11 +173,21 @@ void App::Update() {
 					i->OpenChest();
 					int x1, y1;
 					i->GetPos(x1, y1);
-					std::shared_ptr<Item> temp = item::GetItem(x1, y1, textures_, player_->GetWeapon(), ItemType::random, player_ ->GetLevel());
-					if (temp != nullptr) {
-						to_render_.push_back(temp);
-						items_.push_back(temp);
+
+					int lootn = rand() % 3 + 1;
+					
+					for (auto j = 0; j < lootn; j++) {
+						int rx, ry;
+						rx = cos(double(j) / double(lootn) * M_PI * 2.0) * 32;
+						ry = sin(double(j) / double(lootn) * M_PI * 2.0) * 32;
+						std::shared_ptr<Item> temp = item::GetItem(x1 + rx, y1 + ry , textures_, player_->GetWeapon(), ItemType::random, player_->GetLevel());
+						if (temp != nullptr) {
+							to_render_.push_back(temp);
+							items_.push_back(temp);
+						}
 					}
+
+
 					PlaySound(3, 0);
 					break;
 				}
@@ -343,7 +354,11 @@ void App::Update() {
 			else if (i->GetProjectile() == ProjectileType::IceBall) {
 				AddProjectile(TextureType::iceball, (int)x4, (int)y4, 250, monster_player_angle_, i, i->GetProjectile());
 			}
-			i->SetTimer(1.5);
+			i -> SetTimer(1.5);
+			if (i->GetMonsterType() == MonsterType::necromancer) {
+				i -> SetTimer(0.5);
+			}
+			
 		}
 		if (i->IsMelee() && i->GetTimer() == 0 && !i->Dead()) {
 			if (x1 < ((double)x4 + w4) && x1 + w1 > x4 && y1 < ((double)y4 + h4) && y1 + h1 > y4) {
@@ -430,7 +445,8 @@ void App::Update() {
 							i->SetActive(false);
 							j->SetHealth(j->GetHealth() - i->GetDamage() * 1.0 / difficulty_mult_ * damage_m_);
 							if (j -> GetHealth() <= 0) {
-								double l = 1.0 + (player_ -> GetLevel()) / 2.0;
+								// + sqrt(player_ -> GetLevel() / 2.0)
+								double l = 1.0 + sqrt(player_->GetLevel() / 2.0) * 0.25 / difficulty_mult_;
 								player_ -> AddXp(j -> GetMaxHealth() * l);
 							}
 						}
@@ -668,11 +684,15 @@ void App::Render() {
 
 	SDL_Color red = color(255, 0, 0, 0);
 	SDL_Color blue = color(0, 0, 192, 0);
+	SDL_Color purple = color(192, 0, 192, 0);
+	SDL_Color green = color(0, 192, 0, 0);
 	SDL_Color grey = color(192, 192, 192, 0);
 	double hp_percentage = player_->GetHealth() > 0 ? player_->GetHealth() / player_->GetMaxHealth() : 0.0;
 	double mana_percentage = player_->GetMana() > 0 ? player_->GetMana() / player_->GetMaxMana() : 0.0;
 	RenderBar(50, 10, 120, 30, player_->GetMaxHealth(), player_->GetHealth(), red, grey); // center x 340
 	RenderBar(50, 60, 120, 30, player_->GetMaxMana(), player_->GetMana(), blue, grey);
+	RenderBar(50, 110, 120, 30, player_->GetNextXp(), player_->GetXp(), green, grey);
+
 
 	std::stringstream ss_hh;
 	std::stringstream ss_mm;
@@ -682,20 +702,21 @@ void App::Render() {
 
 	RenderText("HP", default_font_, { 255, 255, 255, 0 }, 5, 15);
 	RenderText("Mana", default_font_, { 255, 255, 255, 0 }, 5, 65);
+	RenderText("XP", default_font_, { 255, 255, 255, 0 }, 5, 115);
 	RenderText(ss_hh.str().c_str(), default_font_, { 255, 255, 255, 0 }, 380, 580);
 	RenderText(ss_mm.str().c_str(), default_font_, { 255, 255, 255, 0 }, 438, 580);
 
 	std::stringstream ss_lvl;
-	std::stringstream ss_xp;
 	std::stringstream ss_money;
+	std::stringstream ss_o;
 
-	ss_lvl << "Stage: " << stage_ << " | Level: " << player_ -> GetLevel();
-	ss_xp << "XP: " << player_ -> GetXp() << " / " << player_ -> GetNextXp();
-	ss_money << "Money: " << player_->GetMoney() << " gp";
+	ss_lvl << "Level: " << player_ -> GetLevel();
+	ss_money << "Money: " << player_ -> GetMoney() << " gp";
+	ss_o << "Stage: " << stage_;
 
-	RenderText(ss_lvl.str().c_str(), default_font_, { 255, 255, 255, 0 }, 5, 115);
-	RenderText(ss_xp.str().c_str(), default_font_, { 255, 255, 255, 0 }, 5, 140);
-	RenderText(ss_money.str().c_str(), default_font_, { 255, 255, 255, 0 }, 5, 165);
+	RenderText(ss_lvl.str().c_str(), default_font_, { 255, 255, 255, 0 }, 5, 150);
+	RenderText(ss_money.str().c_str(), default_font_, { 255, 255, 255, 0 }, 5, 175);
+	RenderText(ss_o.str().c_str(), default_font_, { 255, 255, 255, 0 }, 5, 200);
 
 	std::stringstream ss_item;
 	std::stringstream ss_item2;
@@ -710,6 +731,14 @@ void App::Render() {
 	RenderText(ss_item.str().c_str(), default_font_, { 255, 255, 255, 0 }, 600, 5);
 	RenderText(ss_item2.str().c_str(), default_font_, { 255, 255, 255, 0 }, 600, 30);
 
+	if (bossptr != nullptr) {
+		std::stringstream ss_boss;
+
+		RenderBar(340, 5, 120, 30, bossptr->GetMaxHealth(), bossptr->GetHealth(), purple, grey);
+		if (bossptr->GetHealth() <= 0) {
+			bossptr = nullptr;
+		}
+	}
 
 	SDL_RenderPresent(renderer_);
 }
@@ -898,7 +927,7 @@ bool App::AddRoom(const unsigned int& index, const int& x, const int& y) {
 				break;
 				case 66:
 					AddFloor(TextureType::dfloor, i * 32 + x, j * 32 + y);
-					monster::AddMonster(monsters_, textures_, i * 32 + x, j * 32 + y, difficulty_);
+					bossptr = monster::AddMonster(monsters_, textures_, i * 32 + x, j * 32 + y, difficulty_, MonsterType::necromancer);
 					entities_.emplace_back(monsters_[monsters_.size() - 1]);
 				break;
 				case 68:
@@ -1358,6 +1387,7 @@ void App::Reset() {
 	hidden_ = nullptr;
 	visible_ = nullptr;
 	room_ = nullptr;
+	bossptr = nullptr;
 	dungeon_width_ = 0;
 	dungeon_height_ = 0;
 	door_spots_.clear();

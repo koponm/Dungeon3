@@ -8,9 +8,18 @@
 
 using namespace std;
 
+enum class MonsterType {
+	zombie,
+	ghost,
+	skeleton_archer,
+	skeleton_mage,
+	MONSTER_COUNT,
+	necromancer
+};
+
 class Monster : public Renderable {
 public:
-	Monster(const Texture& texture, double x, double y);
+	Monster(const Texture& texture, double x, double y, MonsterType type);
 	~Monster() {}
 	void GetPos(double& x, double& y);
 	void SetPos(const double& x, const double& y);
@@ -37,6 +46,7 @@ public:
 	void SetHealth(double newHealth) { health_ = newHealth; }
 	double GetMaxHealth() { return max_health_; }
 	ProjectileType GetProjectile() { return projectile; }
+	MonsterType GetMonsterType() { return type_; }
 protected:
 	double x_ = 0.0;
 	double y_ = 0.0;
@@ -53,6 +63,7 @@ protected:
 	bool is_melee = true;
 	bool is_dead = false;
 	double shoot_timer = 0.0;
+	MonsterType type_;
 	ProjectileType projectile = ProjectileType::Melee;
 };
 #endif // MONSTER_H_

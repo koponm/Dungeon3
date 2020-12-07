@@ -9,7 +9,7 @@
 
 class Zombie : public Monster {
 public:
-	Zombie(const Texture& texture, double x, double y, unsigned int difficulty);
+	Zombie(const Texture& texture, double x, double y, unsigned int difficulty, MonsterType type);
 	~Zombie();
 
 };

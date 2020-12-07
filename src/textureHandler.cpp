@@ -44,6 +44,8 @@ TextureHandler::TextureHandler(SDL_Renderer* renderer)
 	LoadTexture("assets/banshee_2.png");
 	LoadTexture("assets/lich_2.png");
 	LoadTexture("assets/megarcher_2.png");
+	LoadTexture("assets/necromancer_2.png");
+	LoadTexture("assets/megaghost_2.png");
 }
 
 const Texture& TextureHandler::Get(TextureType type) const {
