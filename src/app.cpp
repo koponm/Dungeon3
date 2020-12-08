@@ -232,7 +232,7 @@ void App::Update() {
 								if (maxm == 1) {
 									maxm = (rand() % 2 == 0) * (difficulty_mult_ > 1);
 								} else {
-									maxm = floor(maxm * min(int(max(difficulty_mult_ * 0.8f, 0.6f)), maxm));
+									maxm = floor(maxm * min((max(difficulty_mult_ * 0.8f, 0.6f)), (float)maxm));
 								}
 							}
 							int count = 0;
