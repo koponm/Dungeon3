@@ -227,11 +227,23 @@ void App::Update() {
 				for (auto& r : connected) {
 					if (r != -1) {
 						if (hidden_[r]) {
+							int maxm = room_[r].monster_spawns.size();
+							if (maxm > 0) {
+								if (maxm == 1) {
+									maxm = (rand() % 2 == 0) * (difficulty_mult_ > 1);
+								} else {
+									maxm = floor(maxm * min(int(max(difficulty_mult_ * 0.8f, 0.6f)), maxm));
+								}
+							}
+							int count = 0;
 							for (auto& m : room_[r].monster_spawns) {
-								int nx = (m % (room_width_ / 32)) * 32;
-								int ny = (int)floor(m / (room_width_ / 32)) * 32;
-								monster::AddMonster(monsters_, textures_, nx, ny, difficulty_);
-								entities_.emplace_back(monsters_[monsters_.size() - 1]);
+								if (count < maxm) {
+									int nx = (m % (room_width_ / 32)) * 32;
+									int ny = (int)floor(m / (room_width_ / 32)) * 32;
+									monster::AddMonster(monsters_, textures_, nx, ny, difficulty_);
+									entities_.emplace_back(monsters_[monsters_.size() - 1]);
+									count++;
+								}
 							}
 						}
 						hidden_[r] = false;
