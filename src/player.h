@@ -40,7 +40,8 @@ public:
 	double GetXp() const { return xp_; }
 	double GetNextXp() const { return next_xp_; }
 	int GetLevel() const { return level_; }
-	double GetMoney() const { return money_; }
+	unsigned GetMoney() const { return money_; }
+	void AddMoney(const unsigned& money) { money_ += money; }
 	void AddXp(const double& xp);
 
 private:
@@ -57,7 +58,7 @@ private:
 	double xp_ = 0;
 	double next_xp_ = 100;
 	int level_ = 1;
-	double money_ = 20;
+	unsigned money_ = 20;
 	int health_potions_ = 0;
 	int mana_potions_ = 0;
 	ItemType weapon_ = ItemType::sword;

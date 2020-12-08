@@ -4,7 +4,7 @@ Item::Item(const Texture& texture, int x, int y, ItemType type, float d) : Rende
 	x_ = x;
 	y_ = y;
 	type_ = type;
-	damage_m_ = 0.5 * sqrt(d) + sqrt(d * (rand() % 100) / 100.0);
+	damage_m_ = 0.5 * d + sqrt(sqrt(d) * (rand() % 150 + 50.0) / 100.0);
 	speed_m_ = 0.8 + (0.4 * (rand() % 100)) / 100.0;
 	damage_m_ = floor(damage_m_ * 100.0) / 100.0;
 	speed_m_ = floor(speed_m_ * 100.0) / 100.0;

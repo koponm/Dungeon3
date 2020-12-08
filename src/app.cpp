@@ -301,6 +301,8 @@ void App::Update() {
 	if (three_) {
 		three_ = false;
 		// this could be used for something
+		double l = 1.0 + sqrt(player_->GetLevel() / 2.0) * 0.25 / difficulty_mult_;
+		player_->AddXp(25.0 * l);
 	}
 	if (m1_) {
 		m1_ = false;
@@ -406,14 +408,14 @@ void App::Update() {
 		}
 
 		for (auto& i : to_render_) {
-			i -> AddFrame(delta_time_);
+			i -> AddFrame(4.0 / fps_desired_);
 		}
 
 		for (auto& i : entities_) {
-			i->AddFrame(delta_time_);
+			i->AddFrame(4.0 / fps_desired_);
 		}
 
-		player_->AddFrame(delta_time_);
+		player_->AddFrame(4.0 / fps_desired_);
 
 		if (!monsters_.empty()) {
 			monster::UpdateMonsters(monsters_, delta_time_, fps_desired_,
@@ -458,6 +460,7 @@ void App::Update() {
 								// + sqrt(player_ -> GetLevel() / 2.0)
 								double l = 1.0 + sqrt(player_->GetLevel() / 2.0) * 0.25 / difficulty_mult_;
 								player_ -> AddXp(j -> GetMaxHealth() * l);
+								player_ -> AddMoney(5);
 							}
 						}
 					}
