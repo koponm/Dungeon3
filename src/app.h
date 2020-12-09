@@ -32,6 +32,7 @@
 #include "floor.h"
 #include "door.h"
 #include "ladder.h"
+#include "buyable.h"
 
 using namespace std;
 
@@ -104,6 +105,7 @@ private:
 	vector<shared_ptr<HUD_object>> hud_;
 
 	vector<shared_ptr<Ladder>> ladders_;
+	vector<shared_ptr<Buyable>> buyables_;
 
 	vector<Mix_Chunk*> sounds_;
 

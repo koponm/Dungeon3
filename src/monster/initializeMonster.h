@@ -12,6 +12,7 @@
 #include "skeletonMage.h"
 #include "necromancer.h"
 #include "banshee.h"
+#include "vendor.h"
 #include <stdlib.h>
 #include <time.h>
 

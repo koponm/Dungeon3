@@ -215,6 +215,34 @@ void App::Update() {
 			}
 		}
 
+		for (auto& i : buyables_) {
+			SDL_Rect rect2 = i->ReturnRect();
+			if (SDL_HasIntersection(&rect1, &rect2)) {
+				
+				if (player_->GetMoney() - 10 >= 0 && player_->GetMoney() > 0) {
+					if (i->GetType()) {
+						std::shared_ptr<Item> temp = item::GetItem(0, 0, textures_, player_->GetWeapon(), ItemType::mana_potion, 0);
+						if (temp != nullptr) {
+							items_.push_back(temp);
+						}
+						temp -> SetActive(false);
+						player_->AddItem(temp, textures_);
+					} else {
+						std::shared_ptr<Item> temp = item::GetItem(0, 0, textures_, player_->GetWeapon(), ItemType::health_potion, 0);
+						if (temp != nullptr) {
+							items_.push_back(temp);
+						}
+						temp->SetActive(false);
+						player_->AddItem(temp, textures_);
+					}
+					player_->AddMoney(-10);
+				}
+				
+			}
+		}
+
+		
+
 		double xx, yy;
 		player_ -> GetPos(xx, yy);
 
@@ -363,6 +391,9 @@ void App::Update() {
 		}
 	}
 	for (auto& i : monsters_) {
+		if (i->GetMonsterType() == MonsterType::merchant) {
+			break;
+		}
 		double x4, y4;
 		int w4, h4;
 		i->GetPos(x4, y4);
@@ -757,6 +788,10 @@ void App::Render() {
 	RenderText(ss_item.str().c_str(), default_font_, { 255, 255, 255, 0 }, 600, 5);
 	RenderText(ss_item2.str().c_str(), default_font_, { 255, 255, 255, 0 }, 600, 30);
 
+	if (main_menu_) {
+		RenderText("Press F to interact with items, doors and ladders. WASD to move, LMB to attack, 1 and 2 to use potions.", default_font_, { 255, 255, 255, 0 }, 36, 500);
+	}
+
 	if (bossptr != nullptr) {
 		std::stringstream ss_boss;
 
@@ -961,6 +996,16 @@ bool App::AddRoom(const unsigned int& index, const int& x, const int& y) {
 					// Air
 					AddFloor(TextureType::dfloor, i * 32 + x, j * 32 + y);
 				break;
+				case 49:
+					AddFloor(TextureType::potion1vendor, i * 32 + x, j * 32 + y);
+					buyables_.push_back(shared_ptr<Buyable>(new Buyable(textures_->Get(invisible), i * 32 + x, j * 32 + y)));
+					buyables_[0]->SetType(0);
+				break;
+				case 50:
+					AddFloor(TextureType::potion2vendor, i * 32 + x, j * 32 + y);
+					buyables_.push_back(shared_ptr<Buyable>(new Buyable(textures_->Get(invisible), i * 32 + x, j * 32 + y)));
+					buyables_[1]->SetType(1);
+				break;
 				case 66:
 					AddFloor(TextureType::dfloor, i * 32 + x, j * 32 + y);
 					bossptr = std::shared_ptr<BossHandler>(
@@ -995,6 +1040,9 @@ bool App::AddRoom(const unsigned int& index, const int& x, const int& y) {
 				case 80:
 					AddWall(TextureType::fire, i * 32 + x, j * 32 + y);
 				break;
+				case 84:
+					AddFloor(TextureType::title, i * 32 + x, j * 32 + y);
+				break;
 				case 86:
 					// Void, add nothing
 				break;
@@ -1028,6 +1076,13 @@ bool App::AddRoom(const unsigned int& index, const int& x, const int& y) {
 				case 112:
 					player_ -> SetPos(i * 32 + x, j * 32 + y);
 					AddFloor(TextureType::ladderup, i * 32 + x, j * 32 + y);
+				break;
+				case 118:
+					AddFloor(TextureType::dfloor, i * 32 + x, j * 32 + y);
+					monster::AddMonster(monsters_, textures_, i * 32 + x, j * 32 + y, 1, MonsterType::merchant);
+					entities_.emplace_back(monsters_[monsters_.size() - 1]);
+					monsters_[0] -> AddVel(0, 0);
+					monsters_[0] -> CalcPos(60);
 				break;
 				}
 
@@ -1451,6 +1506,7 @@ void App::Reset() {
 	entities_.clear();
 	to_render_.clear();
 	ladders_.clear();
+	buyables_.clear();
 	room_width_ = 1024;
 	room_height_ = 1024;
 }

@@ -41,7 +41,7 @@ public:
 	double GetNextXp() const { return next_xp_; }
 	int GetLevel() const { return level_; }
 	unsigned GetMoney() const { return money_; }
-	void AddMoney(const unsigned& money) { money_ += money; }
+	void AddMoney(const int& money) { money_ += money; }
 	void AddXp(const double& xp);
 
 private:

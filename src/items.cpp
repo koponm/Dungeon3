@@ -22,7 +22,7 @@ namespace item {
 std::shared_ptr<Item> GetItem(const int x, const int y, std::shared_ptr<TextureHandler> textures, ItemType weapon, ItemType type, float d) {
 	if (type == ItemType::random) { //random if ItemType not given
 		type = static_cast<ItemType>(rand() % (int)(ItemType::random));
-		if (type == weapon) type = ItemType::health_potion;
+		//if (type == weapon) type = ItemType::health_potion;
 	}
 	TextureType t;
 	switch (type) { //get index for texture

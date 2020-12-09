@@ -39,5 +39,9 @@ enum TextureType {
 	lich = 35,
 	superarcher = 36,
 	necro = 37,
-	superbanshee = 38
+	superbanshee = 38,
+	potion1vendor = 39,
+	potion2vendor = 40,
+	vendor = 41,
+	title = 42
 };

@@ -49,7 +49,10 @@ namespace monster {
 			ttype = superbanshee;
 			m = std::shared_ptr<Monster>(new Banshee(texture->Get(ttype), x, y, difficulty, type));
 			break;
-
+		case MonsterType::merchant:
+			ttype = vendor;
+			m = std::shared_ptr<Monster>(new Vendor(texture->Get(ttype), x, y, difficulty, type));
+		break;
 		default:
 		break;
 		}

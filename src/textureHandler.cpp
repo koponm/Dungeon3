@@ -46,6 +46,11 @@ TextureHandler::TextureHandler(SDL_Renderer* renderer)
 	LoadTexture("assets/megarcher_2.png");
 	LoadTexture("assets/necromancer_2.png");
 	LoadTexture("assets/megaghost_2.png");
+
+	LoadTexture("assets/potion1vendor_1.png");
+	LoadTexture("assets/potion2vendor_1.png");
+	LoadTexture("assets/vendor_2.png");
+	LoadTexture("assets/title_1.png");
 }
 
 const Texture& TextureHandler::Get(TextureType type) const {
