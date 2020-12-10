@@ -1,5 +1,5 @@
 
-#include "Banshee.h"
+#include "banshee.h"
 
 
 Banshee::Banshee(const Texture& texture, double x, double y, unsigned int difficulty, MonsterType type)

@@ -1,4 +1,4 @@
-#pragma once
+
 #include "arrow.h"
 
 Arrow::Arrow(const Texture& texture, double x, double y, double speed, double dir, std::shared_ptr<Renderable> parent)

@@ -1,4 +1,4 @@
-#pragma once
+
 #include "fireball.h"
 
 Fireball::Fireball(const Texture& texture, double x, double y, double speed, double dir, std::shared_ptr<Renderable> parent)

@@ -1,21 +1,21 @@
-# Sample README file for C++ programming project
+# Dungeon 3 
 
-This is an initial git repository for your programming project.
-It contains an initial directory structure that we wish you could
-use as follows:
+Dungeon 3 is a dungeon crawler game, where you progress through levels and try not to die in progress. To help you survive longer, you should use items provided while progressing the game. Good luck!
 
-  * `plan/` -- Your project plan should be put here. You may use different sources,
-    but we hope to get the plan **also as a pdf file**.
 
-  * `doc/` -- The documentation sources related to your project should be put here.
-    You may use different tools for documentation (e.g. latex),
-    but we hope to get the final version of the document
-    **also as pdf file**.
+## Compiling instructions
 
-  * `src/` -- Here are the C++ source files. You can have subfolders as needed.
+Run `run.sh` with sudo permissions, this will install required packages which are `SDL2`, `SDL2_image`, `SDL2_mixer` and `SDL2_ttf`.
 
-  * `README.md` -- This file. You should modify it to represent
-    your project.
+To compile the game run the following commands:
+```
+mkdir build
+cd build
+cmake ..
+make
+```
+To run the game:
+```
+./dungeon
+```
 
-You may also add other new directories as needed, for example
-for testing tools.

@@ -392,7 +392,7 @@ void App::Update() {
 	}
 	for (auto& i : monsters_) {
 		if (i->GetMonsterType() == MonsterType::merchant) {
-			break;
+			continue;
 		}
 		double x4, y4;
 		int w4, h4;
