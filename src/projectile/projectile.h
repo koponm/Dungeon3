@@ -5,6 +5,7 @@
 #include <utility>
 #include <list>
 #include <memory>
+#include <cmath>
 #include "../renderable.h"
 #include "../constants.h"
 

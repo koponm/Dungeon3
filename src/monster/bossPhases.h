@@ -10,6 +10,7 @@
 #include <vector>
 #include <list>
 #include <algorithm>
+#include <cmath>
 
 class BossHandler {
 public:

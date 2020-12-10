@@ -1,6 +1,7 @@
 #pragma once
 #include <utility>
 #include <list>
+#include <cmath>
 #include "projectile.h"
 
 class Arrow : public Projectile {

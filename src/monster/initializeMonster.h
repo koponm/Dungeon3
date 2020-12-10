@@ -13,9 +13,9 @@
 #include "necromancer.h"
 #include "banshee.h"
 #include "vendor.h"
+
 #include <stdlib.h>
 #include <time.h>
-
 #include <vector>
 #include <memory>
 
