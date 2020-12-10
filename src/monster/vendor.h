@@ -14,4 +14,4 @@ public:
 
 };
 
-#endif // ZOMBIE_H_
+#endif // VENDOR_H_

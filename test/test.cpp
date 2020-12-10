@@ -115,7 +115,7 @@ TEST(Pathfinding, getNeighbours_false) {
 
 TEST(Pathfinding, A_star_algorithm_1) {
     Texture text;
-    std::shared_ptr<Monster> monster(new Monster(text, 1 * 32, 1 * 32));
+    std::shared_ptr<Monster> monster(new Monster(text, 1 * 32, 1 * 32, MonsterType::MONSTER_COUNT));
     unsigned int size = 8 * 8;
     bool* tiles = new bool[size];
     for (unsigned i = 0; i < size; i++) {
@@ -131,7 +131,7 @@ TEST(Pathfinding, A_star_algorithm_1) {
 
 TEST(Pathfinding, A_star_algorithm_2) {
     Texture text;
-    std::shared_ptr<Monster> monster(new Monster(text, 1 * 32, 1 * 32));
+    std::shared_ptr<Monster> monster(new Monster(text, 1 * 32, 1 * 32, MonsterType::MONSTER_COUNT));
     unsigned int size = 8 * 8;
     bool* tiles = new bool[size];
     for (unsigned i = 0; i < size; i++) {
@@ -151,7 +151,7 @@ TEST(Pathfinding, A_star_algorithm_2) {
 
 TEST(Pathfinding, A_star_algorithm_3) {
     Texture text;
-    std::shared_ptr<Monster> monster(new Monster(text, 1 * 32, 1 * 32));
+    std::shared_ptr<Monster> monster(new Monster(text, 1 * 32, 1 * 32, MonsterType::MONSTER_COUNT));
     unsigned int size = 8 * 8;
     bool* tiles = new bool[size];
     for (unsigned i = 0; i < size; i++) {

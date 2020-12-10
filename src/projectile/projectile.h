@@ -39,4 +39,4 @@ protected:
 	std::shared_ptr<Renderable> parent_ = nullptr;
 };
 
-#endif
+#endif // PROJECTILE_H_

@@ -166,4 +166,5 @@ private:
 	int mouse_y_ = 0;
 	double mouse_player_angle_ = 0;
 };
-#endif
+
+#endif // APP_H_
