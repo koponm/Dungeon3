@@ -5,16 +5,16 @@ Dungeon 3 is a dungeon crawler game, where you progress through levels and try n
 
 ## Compiling instructions
 
-Linux:
-Install CMake and git.
-Run `run.sh` with sudo permissions, this will install required packages which are `SDL2`, `SDL2_image`, `SDL2_mixer` and `SDL2_ttf`, download SDL2 Cmake dependencies and compile the game.
-This will create `dungeon` binary of the game.
+Linux:  
+Install CMake and git.  
+Run `run.sh` with sudo permissions, this will install required packages which are `SDL2`, `SDL2_image`, `SDL2_mixer` and `SDL2_ttf`, download SDL2 CMake dependencies and compile the game.
+This will create `dungeon` binary of the game at `build/dungeon`.
 
 
-Windows:
+Windows:  
 Install Visual Studio 16 2019 and open the solution file (.sln).
 Select dungeon3 as a startup project and run with windows local debugger. This will start the game and create an executable at x64/Debug or x64/Release.
-You could also copy the exe file to `src/` directory to run the game from the executable since all the required .dll files are located there.
+You could also copy the exe file to `src/` directory to run the game from the executable since all the required .dll files and assets are located there.
 
 
 ## Manual instructions for Linux
