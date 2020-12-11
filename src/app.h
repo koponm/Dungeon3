@@ -7,7 +7,6 @@
 #include <list>
 #include <sstream>
 #include <string>
-#include <filesystem>
 #include <time.h>
 #include "SDL.h"
 #include "SDL_image.h"

@@ -12,12 +12,14 @@ App::App(void)
 		TTF_Init();
 		Mix_Init(MIX_INIT_OGG);
 
+		// Startup, initialize everything
+
 		window_ = SDL_CreateWindow(title_, SDL_WINDOWPOS_CENTERED, SDL_WINDOWPOS_CENTERED, width_, height_, (fullscreen_ ? (int) SDL_WINDOW_FULLSCREEN : SDL_WINDOW_SHOWN));
 		renderer_ = SDL_CreateRenderer(window_, -1, SDL_RENDERER_ACCELERATED);
 		default_font_ = TTF_OpenFont("assets/arial.ttf", 16);
 		SDL_SetRenderDrawColor(renderer_, 0, 0, 0, 255);
 		
-		// Audio
+		// Audio and loading the audio files
 		Mix_OpenAudio(44100, AUDIO_S16SYS, 2, 4096);
 		Mix_AllocateChannels(4);
 
@@ -31,7 +33,7 @@ App::App(void)
 
 		PlaySound(1, -1);
 
-		// Load textures
+		// Load textures and add the player
 		textures_ = std::shared_ptr<TextureHandler>(new TextureHandler(renderer_));
 
 		player_ = std::shared_ptr<Player>(new Player((textures_->Get(TextureType::player)), 0, 0));
@@ -49,6 +51,8 @@ App::App(void)
 	}
 }
 
+// Load all the rooms and clear the rooms if they contain anything
+
 void App::LoadRooms() {
 	room_data_.clear();
 	LoadRoom("assets/startroom_0110.txt");
@@ -63,6 +67,8 @@ void App::LoadRooms() {
 	LoadRoom("assets/largetunnel_1010.txt");
 }
 
+// Destructor
+
 App::~App() {
 	TTF_CloseFont(default_font_);
 	SDL_DestroyRenderer(renderer_);
@@ -71,7 +77,11 @@ App::~App() {
 	TTF_Quit();
 }
 
+// The update function, this happens every tick
+
 void App::Update() {
+
+	// Check if we enter a new level or if the player dies
 
 	if (next_level_) {
 		bossptr = nullptr;
@@ -113,6 +123,8 @@ void App::Update() {
 		difficulty_ = 0;
 	}
 
+	// Delta time
+
 	now_ = (double)SDL_GetTicks();
 	delta_time_ = max((now_ - last_) / 1000.0f * fps_desired_, 1.0 / 1000.0f);
 	second_timer_ += delta_time_ / fps_desired_;
@@ -137,11 +149,15 @@ void App::Update() {
 		player_->SetHealth(std::min(player_->GetMaxHealth(), player_->GetHealth() + 0.2 / difficulty_mult_));
 	}
 	
+	// Shoot timer, depends on the weapon type
+
 	if (shoot_timer_ > 0.0) {
 		shoot_timer_ -= delta_time_ / fps_desired_;
 	}
 
-	if (f_) {// Interact
+	// Interactables (doors, ladders, items, chests)
+
+	if (f_) {
 		f_ = false;
 		SDL_Rect rect1 = player_->ReturnRect();
 		if (!items_.empty()){
@@ -218,7 +234,7 @@ void App::Update() {
 			SDL_Rect rect2 = i->ReturnRect();
 			if (SDL_HasIntersection(&rect1, &rect2)) {
 				
-				if (player_->GetMoney() - 10 >= 0 && player_->GetMoney() > 0) {
+				if (int(player_->GetMoney()) - 10 >= 0 && player_->GetMoney() > 0) {
 					if (i->GetType()) {
 						std::shared_ptr<Item> temp = item::GetItem(0, 0, textures_, ItemType::mana_potion, 0);
 						if (temp != nullptr) {
@@ -321,6 +337,9 @@ void App::Update() {
 		}
 		
 	}
+
+	// Other keys
+
 	if (one_) {
 		one_ = false;
 		if (player_->GetHealthPotions() > 0) {
@@ -345,6 +364,8 @@ void App::Update() {
 	int w1, h1;
 	player_ -> GetPos(x1, y1);
 	player_ -> GetRect(w1, h1);
+
+	// Check the player collision
 
 	if (!noclip_) {
 		for (auto& i : walls_) {
@@ -382,6 +403,9 @@ void App::Update() {
 			}
 		}
 	}
+
+	// Update every monster
+
 	for (auto& i : monsters_) {
 		if (i->GetMonsterType() == MonsterType::merchant) {
 			continue;
@@ -415,6 +439,8 @@ void App::Update() {
 			}
 		}
 	}
+
+	// Even if the game runs over 60 fps, try to limit these to 60 fps (fps_desired)
 
 	if (tick_timer_ >= 1.0) {
 		double speed = player_ -> GetSpeed() / fps_desired_;
@@ -494,8 +520,8 @@ void App::Update() {
 							}
 						}
 					}
-				}
-				else { // Monsters projectile hit the player
+				} else {
+					// Monsters projectile hit the player
 					if (x2 < ((double)x1 + w1) && x2 + w2 > x1 && y2 < ((double)y1 + h1) && y2 + h2 > y1) {
 						i->SetActive(false);
 						player_->SetHealth(player_->GetHealth() - (
@@ -569,6 +595,8 @@ void App::Update() {
 		difficulty_mult_ = (previous_x <= 688) * 0.5 + (previous_x > 688 && previous_x < 752) * 1.0 + (previous_x >= 752) * 2;
 	}
 
+	// Camera
+
 	player_ -> GetPos(camera_x_, camera_y_);
 
 	double x_offset = width_ / 2.0;
@@ -585,6 +613,8 @@ void App::Update() {
 	last_ = now_;
 
 }
+
+// Key events, for smoother gameplay we check if the different keys with a toggle
 
 void App::Event() {
 	SDL_Event event;
@@ -667,6 +697,8 @@ void App::Event() {
 	}
 }
 
+// Render text and bars
+
 void App::RenderText(const char* text, TTF_Font* font, SDL_Color color, int x, int y) {
 	SDL_Surface* surface = TTF_RenderText_Blended(font, text, color);
 	SDL_Texture* texture = SDL_CreateTextureFromSurface(renderer_, surface);
@@ -699,6 +731,9 @@ void App::RenderBar(int x, int y, int w, int h, double max_value, double value, 
 	RenderText(ss.str().c_str(), default_font_, { 255, 255, 255, 0 }, x + 5, y + 5);
 	SDL_SetRenderDrawColor(renderer_, old.r, old.g, old.b, old.a);
 }
+
+// Render function, render all the static renderables, moving entities and the player
+// On top of that we render the SDL2_ttf text and SDL2_image hud elements
 
 void App::Render() {
 	SDL_RenderClear(renderer_);
@@ -792,9 +827,13 @@ void App::Render() {
 	SDL_RenderPresent(renderer_);
 }
 
+// Check if the application is running
+
 bool App::Running() const {
 	return running_;
 }
+
+// Player casts a projectile
 
 void App::PlayerCastsProjectile(int previous_x, int previous_y) {
 	double newMana;
@@ -832,6 +871,8 @@ void App::PlayerCastsProjectile(int previous_x, int previous_y) {
 	}
 }
 
+// Adding walls, floors and doors (it rhymes, heh)
+
 std::shared_ptr<Wall> App::AddWall(TextureType type, const int& x, const int& y) {
 	std::shared_ptr<Wall> temp(new Wall(textures_->Get(type), x, y));
 	temp-> SetVParent(int(y / 512) * dungeon_width_ + int(x / 512));
@@ -857,6 +898,8 @@ std::shared_ptr<Door> App::AddDoor(TextureType type, const int& x, const int& y)
 	doors_.push_back(temp);
 	return temp;
 }
+
+// Adding a projectile
 
 void App::AddProjectile(TextureType type, const int& x, const int& y,double speed, double dir, std::shared_ptr<Renderable> parent,ProjectileType pro) {
 	std::shared_ptr<Projectile> temp = nullptr;
@@ -889,12 +932,16 @@ void App::AddProjectile(TextureType type, const int& x, const int& y,double spee
 	projectiles_.push_back(temp);
 }
 
+// Add a chest
+
 void App::AddChest(TextureType type, const int& x, const int& y) {
 	std::shared_ptr<Chest> temp(new Chest(textures_->Get(type), x, y));
 	temp -> SetVParent(int(y / 512) * dungeon_width_ + int(x / 512));
 	to_render_.push_back(temp);
 	chests_.push_back(temp);
 }
+
+// Load and play the SDL2_mixer sounds
 
 void App::LoadSound(const char* path) {
 	sounds_.push_back(Mix_LoadWAV(path));
@@ -904,6 +951,8 @@ void App::PlaySound(const unsigned& index, const int& loops) {
 	Mix_PlayChannel(-1, sounds_[index], loops);
 }
 
+// Loading the rooms
+
 void App::LoadRoom(const char* path) {
 	Room temp_room;
 	ifstream file(path);
@@ -911,7 +960,7 @@ void App::LoadRoom(const char* path) {
 	vector<int> temp;
 
 	string name = path;
-	//North East South West
+	// North East South West, 0 = this direction is sealed off, 1 = this direction is open
 	bool dir[4] = { 0, 0, 0, 0 };
 	for (unsigned i = 0; i < 4; i++) {
 		temp_room.dir[i] = ((path[name.length() - 5 - i]) == '1');
@@ -922,6 +971,8 @@ void App::LoadRoom(const char* path) {
 	}
 
 	unsigned w = 0, h = 0;
+
+	// Read the ascii to int
 
 	while (getline(file, line)) {
 		stringstream ss(line);
@@ -942,11 +993,14 @@ void App::LoadRoom(const char* path) {
 	room_data_.push_back(temp_room);
 }
 
+// Read the room data, all the directions, can we add it to that specific location, etc.
+
 bool App::AddRoom(const unsigned int& index, const int& x, const int& y) {
 	unsigned w, h;
 	w = room_data_[index].width;
 	h = room_data_[index].height;
 
+	// Check if we can add this room (is it out of bounds, etc.)
 	for (unsigned j = 0; j < h; j++) {
 		for (unsigned i = 0; i < w; i++) {
 			if (unsigned((floor(y / 32) + j) * room_width_ / 32 + (floor(x / 32) + i)) > size_ - 1) {
@@ -963,100 +1017,113 @@ bool App::AddRoom(const unsigned int& index, const int& x, const int& y) {
 			if ((x + i * 32 < room_width_) && (y + i * 32 < room_height_)) {
 				unsigned t = (j * 32 + y) / 512 * dungeon_width_ + (i * 32 + x) / 512;
 				switch (room_data_[index].data[unsigned (j * h + i)]) {
-				default:
-				break;
-				case 45:
-					// Air
-					AddFloor(TextureType::dfloor, i * 32 + x, j * 32 + y);
-				break;
-				case 49:
-					AddFloor(TextureType::potion1vendor, i * 32 + x, j * 32 + y);
-					buyables_.push_back(shared_ptr<Buyable>(new Buyable(textures_->Get(invisible), i * 32 + x, j * 32 + y)));
-					buyables_[0]->SetType(0);
-				break;
-				case 50:
-					AddFloor(TextureType::potion2vendor, i * 32 + x, j * 32 + y);
-					buyables_.push_back(shared_ptr<Buyable>(new Buyable(textures_->Get(invisible), i * 32 + x, j * 32 + y)));
-					buyables_[1]->SetType(1);
-				break;
-				case 66:
-					AddFloor(TextureType::dfloor, i * 32 + x, j * 32 + y);
-					bossptr = std::shared_ptr<BossHandler>(
-						new BossHandler(
-							monster::AddMonster(monsters_, textures_, i * 32 + x, j * 32 + y, difficulty_,
-								(rand() % 2 == 0) ? MonsterType::necromancer : MonsterType::banshee),
-							monsters_,
-							entities_,
-							textures_,
-							path_tiles_,
-							tiles_,
-							size_,
-							room_width_,
-							difficulty_
-						));
+					default:
+					break;
+					case 45:
+						// Air
+						AddFloor(TextureType::dfloor, i * 32 + x, j * 32 + y);
+					break;
+					case 49:
+						// Potion 1 vendor
+						AddFloor(TextureType::potion1vendor, i * 32 + x, j * 32 + y);
+						buyables_.push_back(shared_ptr<Buyable>(new Buyable(textures_->Get(invisible), i * 32 + x, j * 32 + y)));
+						buyables_[0]->SetType(0);
+					break;
+					case 50:
+						// Potion 2 vendor
+						AddFloor(TextureType::potion2vendor, i * 32 + x, j * 32 + y);
+						buyables_.push_back(shared_ptr<Buyable>(new Buyable(textures_->Get(invisible), i * 32 + x, j * 32 + y)));
+						buyables_[1]->SetType(1);
+					break;
+					case 66:
+						// Boss tile
+						AddFloor(TextureType::dfloor, i * 32 + x, j * 32 + y);
+						bossptr = std::shared_ptr<BossHandler>(
+							new BossHandler(
+								monster::AddMonster(monsters_, textures_, i * 32 + x, j * 32 + y, difficulty_,
+									(rand() % 2 == 0) ? MonsterType::necromancer : MonsterType::banshee),
+								monsters_,
+								entities_,
+								textures_,
+								path_tiles_,
+								tiles_,
+								size_,
+								room_width_,
+								difficulty_
+							));
 
-					entities_.emplace_front(monsters_[monsters_.size() - 1]);
-				break;
-				case 68:
-					// Mark this location for door generation
-					door_spots_.push_back(unsigned((floor(y / 32) + j) * room_width_ / 32 + (floor(x / 32) + i)));
-					door_spots_.push_back(0);
-				break;
-				case 69:
-					AddFloor(TextureType::ladderdown, i * 32 + x, j * 32 + y);
-					ladders_.push_back(shared_ptr<Ladder>(new Ladder(textures_->Get(invisible), i * 32 + x, j * 32 + y)));
-				break;
-				case 77:
-					AddFloor(TextureType::dfloor, i * 32 + x, j * 32 + y);
-					room_[t].monster_spawns.push_back((int)((floor(y / 32) + j) * room_width_ / 32 + (floor(x / 32) + i)));
-				break;
-				case 80:
-					AddWall(TextureType::fire, i * 32 + x, j * 32 + y);
-				break;
-				case 84:
-					AddFloor(TextureType::title, i * 32 + x, j * 32 + y);
-				break;
-				case 86:
-					// Void, add nothing
-				break;
-				case 87:
-					AddWall(TextureType::wall2, i * 32 + x, j * 32 + y);
-				break;
+						entities_.emplace_front(monsters_[monsters_.size() - 1]);
+					break;
+					case 68:
+						// Mark this location for door generation
+						door_spots_.push_back(unsigned((floor(y / 32) + j) * room_width_ / 32 + (floor(x / 32) + i)));
+						door_spots_.push_back(0);
+					break;
+					case 69:
+						// End ladder
+						AddFloor(TextureType::ladderdown, i * 32 + x, j * 32 + y);
+						ladders_.push_back(shared_ptr<Ladder>(new Ladder(textures_->Get(invisible), i * 32 + x, j * 32 + y)));
+					break;
+					case 77:
+						// Monster spawn
+						AddFloor(TextureType::dfloor, i * 32 + x, j * 32 + y);
+						room_[t].monster_spawns.push_back((int)((floor(y / 32) + j) * room_width_ / 32 + (floor(x / 32) + i)));
+					break;
+					case 80:
+						// Fire, unused currently
+						AddFloor(TextureType::dfloor, i * 32 + x, j * 32 + y);
+						AddWall(TextureType::fire, i * 32 + x, j * 32 + y);
+					break;
+					case 84:
+						// Main menu title
+						AddFloor(TextureType::title, i * 32 + x, j * 32 + y);
+					break;
+					case 86:
+						// Void, add nothing
+					break;
+					case 87:
+						// Add a basic wall
+						AddWall(TextureType::wall2, i * 32 + x, j * 32 + y);
+					break;
 
-				case 88:
-					AddFloor(TextureType::dfloor, i * 32 + x, j * 32 + y);
-					AddFloor(TextureType::ez, i * 32 + x, j * 32 + y);
-				break;
-				case 89:
-					AddFloor(TextureType::dfloor, i * 32 + x, j * 32 + y);
-					AddFloor(TextureType::med, i * 32 + x, j * 32 + y);
-				break;
-				case 90:
-					AddFloor(TextureType::dfloor, i * 32 + x, j * 32 + y);
-					AddFloor(TextureType::hard, i * 32 + x, j * 32 + y);
-				break;
-
-
-				case 72:
-					AddFloor(TextureType::dfloor, i * 32 + x, j * 32 + y);
-					AddChest(TextureType::chest, i * 32 + x, j * 32 + y);
-				break;
-				case 100:
-					// Mark this location for door generation
-					door_spots_.push_back(unsigned((floor(y / 32) + j) * room_width_ / 32 + (floor(x / 32) + i)));
-					door_spots_.push_back(1);
-				break;
-				case 112:
-					player_ -> SetPos(i * 32 + x, j * 32 + y);
-					AddFloor(TextureType::ladderup, i * 32 + x, j * 32 + y);
-				break;
-				case 118:
-					AddFloor(TextureType::dfloor, i * 32 + x, j * 32 + y);
-					monster::AddMonster(monsters_, textures_, i * 32 + x, j * 32 + y, 1, MonsterType::merchant);
-					entities_.emplace_back(monsters_[monsters_.size() - 1]);
-					monsters_[0] -> AddVel(0, 0);
-					monsters_[0] -> CalcPos(60);
-				break;
+					case 88:
+						// Add easy difficulty tile
+						AddFloor(TextureType::dfloor, i * 32 + x, j * 32 + y);
+						AddFloor(TextureType::ez, i * 32 + x, j * 32 + y);
+					break;
+					case 89:
+						// Add medium difficulty tile
+						AddFloor(TextureType::dfloor, i * 32 + x, j * 32 + y);
+						AddFloor(TextureType::med, i * 32 + x, j * 32 + y);
+					break;
+					case 90:
+						// Add hard difficulty tile
+						AddFloor(TextureType::dfloor, i * 32 + x, j * 32 + y);
+						AddFloor(TextureType::hard, i * 32 + x, j * 32 + y);
+					break;
+					case 72:
+						// Add a chest
+						AddFloor(TextureType::dfloor, i * 32 + x, j * 32 + y);
+						AddChest(TextureType::chest, i * 32 + x, j * 32 + y);
+					break;
+					case 100:
+						// Mark this location for door generation
+						door_spots_.push_back(unsigned((floor(y / 32) + j) * room_width_ / 32 + (floor(x / 32) + i)));
+						door_spots_.push_back(1);
+					break;
+					case 112:
+						// Add player spawn
+						player_ -> SetPos(i * 32 + x, j * 32 + y);
+						AddFloor(TextureType::ladderup, i * 32 + x, j * 32 + y);
+					break;
+					case 118:
+						// Add the merchant
+						AddFloor(TextureType::dfloor, i * 32 + x, j * 32 + y);
+						monster::AddMonster(monsters_, textures_, i * 32 + x, j * 32 + y, 1, MonsterType::merchant);
+						entities_.emplace_back(monsters_[monsters_.size() - 1]);
+						monsters_[0] -> AddVel(0, 0);
+						monsters_[0] -> CalcPos(60);
+					break;
 				}
 
 				// Mark the tiles as used, can't generate on top.
@@ -1068,9 +1135,14 @@ bool App::AddRoom(const unsigned int& index, const int& x, const int& y) {
 	return true;
 }
 
+
 void App::Generate() {
 
+	// Check how many rooms we have loaded
+
 	auto rooms = room_data_.size();
+
+	// Generate the initial 32x32 empty map. This way we have enough room if the algorithm generates long tunnels in one direction
 
 	unsigned int max_x = 32, max_y = 32;
 	auto room_size = max_x * max_y;
@@ -1082,6 +1154,9 @@ void App::Generate() {
 	}
 	int x = 15, y = 15;
 	room[y * max_x + x] = 0;
+
+	// Select either right or down as the next direction (these are the only two directions for the starting room)
+
 	int dir = 1 + rand() % 2;
 	x = x + (dir == 1) - (dir == 3);
 	y = y + -(dir == 0) + (dir == 2);
@@ -1092,12 +1167,13 @@ void App::Generate() {
 
 	vector<int> tlist;
 
-	// Generate initial path to the end room
+	// Generate the initial path to the end room
+	// We do this by checking if the rooms can be connected (direction and opposite direction both are equal to one)
 
 	for (unsigned i = 0; i < max_rooms; i++) {
 		tlist.clear();
 		for (unsigned j = devrooms; j < rooms; j++) {
-			if (room_data_[pindex].dir[dir] == room_data_[j].dir[(dir + 2) % 4]) {
+			if ((room_data_[pindex].dir[dir] == room_data_[j].dir[(dir + 2) % 4]) == 1) {
 				tlist.push_back(j);
 			}
 		}
@@ -1110,6 +1186,8 @@ void App::Generate() {
 			index = devrooms;
 		}
 
+		// If this is the last room i, set the index to 1, in our load order of rooms this is the end room. 0 is the starting room.
+
 		if (i == max_rooms - 1) {
 			index = 1;
 		}
@@ -1118,7 +1196,7 @@ void App::Generate() {
 		copy(begin(room_data_[index].dir), end(room_data_[index].dir), begin(cdir));
 
 		unsigned int nx, ny, n = 0;
-		
+
 		for (unsigned int j = 0; j < 4; j++) {
 			nx = x + (j == 1) - (j == 3);
 			ny = y - (j == 0) + (j == 2);
@@ -1129,7 +1207,9 @@ void App::Generate() {
 			}
 			n += (cdir[j] == 1);
 		}
-		
+
+		// Check all the possible directions, if there are no viable directions, select the index to be number 3 (large room)
+
 		if (n > 0) {
 			dir = rand() % 4;
 			while (cdir[dir] == 0) {
@@ -1138,6 +1218,8 @@ void App::Generate() {
 		} else {
 			index = 3;
 		}
+
+		// If this spot is already taken, set it to the end room and cease the generation
 
 		bool exit = false;
 		if (room[y * max_x + x] != -1) {
@@ -1155,7 +1237,7 @@ void App::Generate() {
 		}
 	}
 
-	// Adding dead-end rooms, fill with items, monsters, etc later.
+	// Adding dead-end rooms, fill with chests and monsters
 
 	for (unsigned j = 0; j < max_x; j++) {
 		for (unsigned i = 0; i < max_y; i++) {
@@ -1183,7 +1265,7 @@ void App::Generate() {
 		}
 	}
 
-	// Shift the map
+	// Shift the map so that we don't waste any empty space
 
 	int min_i = 32, min_j = 32, max_i = 0, max_j = 0;
 
@@ -1208,6 +1290,8 @@ void App::Generate() {
 		}
 	}
 
+	// Generate the hidden/visible indexes, also room data (for monster spawning)
+
 	dungeon_width_ = (max_i - min_i) + 1;
 	dungeon_height_ = (max_j - min_j) + 1;
 
@@ -1215,7 +1299,7 @@ void App::Generate() {
 	visible_ = new bool[dungeon_height_ * dungeon_width_];
 	room_ = new DungeonRoom[dungeon_height_ * dungeon_width_];
 
-	cout << "Printing map: " << endl;
+	cout << "Map: " << endl;
 	for (unsigned j = 0; j < dungeon_height_; j++) {
 		for (unsigned i = 0; i < dungeon_width_; i++) {
 			visible_[unsigned(j * dungeon_width_ + i)] = false;
@@ -1228,14 +1312,13 @@ void App::Generate() {
 				if (r == 0) {
 					hidden_[unsigned(j * dungeon_width_ + i)] = false;
 				}
-				cout << r << " ";
-			} else {
 				cout << "# ";
+			} else {
+				cout << "  ";
 			}
 		}
 		cout << "\n";
 	}
-	cout << "Room size: " << room_width_ << " x " << room_height_ << endl;
 
 	size_ = (room_width_ / 32 * room_height_ / 32);
 	tiles_ = new bool[size_];
@@ -1247,7 +1330,6 @@ void App::Generate() {
 
 	// Add rooms and close them down if they're not connected to anything
 
-	
 	for (unsigned j = 0; j < max_x; j++) {
 		for (unsigned i = 0; i < max_y; i++) {
 			if (room[j * max_x + i] > -1) {
@@ -1256,7 +1338,7 @@ void App::Generate() {
 
 				bool cdir[4];
 				copy(begin(room_data_[room[j * max_x + i]].dir), end(room_data_[room[j * max_x + i]].dir), begin(cdir));
-				
+
 				unsigned nx, ny;
 				for (unsigned k = 0; k < 4; k++) {
 					nx = i + (k == 1) - (k == 3);
@@ -1292,29 +1374,29 @@ void App::Generate() {
 						nx = (i - min_i) * 32 * w;
 						ny = (j - min_j) * 32 * h;
 						switch (k) {
-							default:
+						default:
 							break;
-							case 0:
-								nx += (w / 2 * 32);
-								AddWall(TextureType::wall2, nx - 32, ny);
-								AddWall(TextureType::wall2, nx, ny);
+						case 0:
+							nx += (w / 2 * 32);
+							AddWall(TextureType::wall2, nx - 32, ny);
+							AddWall(TextureType::wall2, nx, ny);
 							break;
-							case 1:
-								nx += (w - 1) * 32;
-								ny += (h / 2 * 32);
-								AddWall(TextureType::wall2, nx, ny - 32);
-								AddWall(TextureType::wall2, nx, ny);
+						case 1:
+							nx += (w - 1) * 32;
+							ny += (h / 2 * 32);
+							AddWall(TextureType::wall2, nx, ny - 32);
+							AddWall(TextureType::wall2, nx, ny);
 							break;
-							case 2:
-								nx += (w / 2 * 32);
-								ny += (h - 1) * 32;
-								AddWall(TextureType::wall2, nx - 32, ny);
-								AddWall(TextureType::wall2, nx, ny);
+						case 2:
+							nx += (w / 2 * 32);
+							ny += (h - 1) * 32;
+							AddWall(TextureType::wall2, nx - 32, ny);
+							AddWall(TextureType::wall2, nx, ny);
 							break;
-							case 3:
-								ny += (h / 2 * 32);
-								AddWall(TextureType::wall2, nx, ny - 32);
-								AddWall(TextureType::wall2, nx, ny);
+						case 3:
+							ny += (h / 2 * 32);
+							AddWall(TextureType::wall2, nx, ny - 32);
+							AddWall(TextureType::wall2, nx, ny);
 							break;
 						}
 					}
@@ -1322,6 +1404,8 @@ void App::Generate() {
 			}
 		}
 	}
+
+	// Check if we can add doors (if the exits aren't already sealed off)
 
 	for (unsigned i = 0; i < door_spots_.size() / 2; i++) {
 		int j = door_spots_[i * 2];
@@ -1331,7 +1415,7 @@ void App::Generate() {
 
 			int cx = (int)floor(nx / 512) * 512 + 256;
 			int cy = (int)floor(ny / 512) * 512 + 256;
-			
+
 			AddFloor(TextureType::dfloor, nx, ny);
 
 			int t = (int)floor(ny / 512) * dungeon_width_ + (int)floor(nx / 512);
@@ -1344,7 +1428,7 @@ void App::Generate() {
 					temp.door[3] = 1;
 				}
 			} else {
- 				if (ny > cy) {
+				if (ny > cy) {
 					temp.door[2] = 1;
 				} else {
 					temp.door[0] = 1;
@@ -1352,6 +1436,9 @@ void App::Generate() {
 			}
 		}
 	}
+
+	// Add doors, check what they're connected to with the recursive function
+	// This is so that if we have multiple tunnels connected to each other, we can reveal them all with one door opening
 
 	for (unsigned i = 0; i < door_spots_.size() / 2; i++) {
 		int j = door_spots_[i * 2];
@@ -1361,7 +1448,7 @@ void App::Generate() {
 
 			int cx = (int)floor(nx / 512) * 512 + 256;
 			int cy = (int)floor(ny / 512) * 512 + 256;
-			
+
 			AddFloor(TextureType::dfloor, nx, ny);
 
 			int t = (int)floor(ny / 512) * dungeon_width_ + (int)floor(nx / 512);
@@ -1370,19 +1457,20 @@ void App::Generate() {
 				if (nx > cx) {
 					std::shared_ptr<Door> a = AddDoor(TextureType::vdoor1, nx, ny);
 					Recursive(t + 1, a, 3);
-					a -> SetFirst(t);
-					a -> SetTiles(j, j + (room_width_ / 32));
+					a->SetFirst(t);
+					a->SetTiles(j, j + (room_width_ / 32));
 
 					std::shared_ptr<Wall> wall0 = AddWall(TextureType::invisible, nx + 16, ny);
 					std::shared_ptr<Wall> wall1 = AddWall(TextureType::invisible, nx + 16, ny + 32);
 
-					a -> SetWalls(wall0, wall1);
+					a->SetWalls(wall0, wall1);
 
-				} else {
+				}
+				else {
 					std::shared_ptr<Door> a = AddDoor(TextureType::vdoor2, nx, ny);
 					Recursive(t - 1, a, 1);
-					a -> SetFirst(t);
-					a -> SetTiles(j, j + (room_width_ / 32));
+					a->SetFirst(t);
+					a->SetTiles(j, j + (room_width_ / 32));
 
 					std::shared_ptr<Wall> wall0 = AddWall(TextureType::invisible, nx - 16, ny);
 					std::shared_ptr<Wall> wall1 = AddWall(TextureType::invisible, nx - 16, ny + 32);
@@ -1391,22 +1479,24 @@ void App::Generate() {
 				}
 				path_tiles_[j] = false;
 				path_tiles_[j + (room_width_ / 32)] = false;
-			} else {
- 				if (ny > cy) {
+			}
+			else {
+				if (ny > cy) {
 					std::shared_ptr<Door> a = AddDoor(TextureType::hdoor1, nx, ny);
 					Recursive(t + dungeon_width_, a, 0);
-					a -> SetFirst(t);
-					a -> SetTiles(j, j + 1);
+					a->SetFirst(t);
+					a->SetTiles(j, j + 1);
 
 					std::shared_ptr<Wall> wall0 = AddWall(TextureType::invisible, nx, ny + 16);
 					std::shared_ptr<Wall> wall1 = AddWall(TextureType::invisible, nx + 32, ny + 16);
 
 					a->SetWalls(wall0, wall1);
-				} else {
+				}
+				else {
 					std::shared_ptr<Door> a = AddDoor(TextureType::hdoor2, nx, ny);
 					Recursive(t - dungeon_width_, a, 2);
-					a -> SetFirst(t);
-					a -> SetTiles(j, j + 1);
+					a->SetFirst(t);
+					a->SetTiles(j, j + 1);
 					std::shared_ptr<Wall> wall0 = AddWall(TextureType::invisible, nx, ny - 16);
 					std::shared_ptr<Wall> wall1 = AddWall(TextureType::invisible, nx + 32, ny - 16);
 
@@ -1418,13 +1508,16 @@ void App::Generate() {
 		}
 	}
 
+	// Check if we have the start and end room, if not, it's probably a "illegal" generation so generate it again
+
 	bool has_start = false;
 	bool has_end = false;
 
 	for (unsigned i = 0; i < dungeon_width_ * dungeon_height_; i++) {
 		if (room_[i].index == 0) {
 			has_start = true;
-		} else if (room_[i].index == 1) {
+		}
+		else if (room_[i].index == 1) {
 			has_end = true;
 		}
 	}
@@ -1437,6 +1530,7 @@ void App::Generate() {
 }
 
 void App::Recursive(const unsigned int& index, std::shared_ptr<Door> pointer, const unsigned int& previous_dir) {
+	// Check what rooms are connected to this room
 	pointer -> AddConnected(index);
 	bool cdir[4];
 	copy(begin(room_[index].dir), end(room_[index].dir), begin(cdir));
@@ -1458,6 +1552,7 @@ void App::Recursive(const unsigned int& index, std::shared_ptr<Door> pointer, co
 }
 
 void App::Reset() {
+	// Reset everything
 	tiles_ = nullptr;
 	path_tiles_ = nullptr;
 	hidden_ = nullptr;
@@ -1484,6 +1579,7 @@ void App::Reset() {
 }
 
 void App::MainMenu() {
+	// Loading the main menu, delete all loaded rooms, load the main menu room and add it
 	room_data_.clear();
 	room_width_ = 1440;
 	room_height_ = 1440;
@@ -1509,6 +1605,7 @@ void App::MainMenu() {
 }
 
 void App::BossBattle() {
+	// Loading the boss battle, delete all loaded rooms, load the boss room and add it
 	room_data_.clear();
 	room_width_ = 2048;
 	room_height_ = 2048;
