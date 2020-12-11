@@ -16,6 +16,8 @@ Install Visual Studio 16 2019 and open the solution file (.sln).
 Select dungeon3 as a startup project and run with windows local debugger. This will start the game and create an executable at x64/Debug or x64/Release.
 You could also copy the exe file to `src/` directory to run the game from the executable since all the required .dll files and assets are located there.
 
+There is also a precompiled executable for windows located at `src/dungeon.exe` which can be used to run the game if installing visual studio is not possible.
+
 
 ## Manual instructions for Linux
 Install git, cmake and compiler with package manager
