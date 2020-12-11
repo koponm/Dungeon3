@@ -9,6 +9,7 @@
 #include "../renderable.h"
 #include "../constants.h"
 
+//Available Projectile types
 enum class ProjectileType {
 	Fireball,
 	Melee,

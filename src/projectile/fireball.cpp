@@ -1,6 +1,6 @@
 
 #include "fireball.h"
-
+//Fireball shot by the player to the direction of the mouse
 Fireball::Fireball(const Texture& texture, double x, double y, double speed, double dir, std::shared_ptr<Renderable> parent)
 	: Projectile(texture, x, y,speed,dir, parent)
 {

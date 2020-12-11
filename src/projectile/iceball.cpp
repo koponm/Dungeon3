@@ -1,6 +1,6 @@
 
 #include "iceball.h"
-
+//IceBall fired by skeleton mages at the direction of the player
 IceBall::IceBall(const Texture& texture, double x, double y, double speed, double dir, std::shared_ptr<Renderable> parent)
 	: Projectile(texture, x, y, speed, dir, parent)
 {
