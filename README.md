@@ -6,7 +6,7 @@ Dungeon 3 is a dungeon crawler game, where you progress through levels and try n
 ## Compiling instructions
 
 Linux:  
-Install CMake and git.  
+Install git, CMake and a compiler.  
 Run `run.sh` with sudo permissions, this will install required packages which are `SDL2`, `SDL2_image`, `SDL2_mixer` and `SDL2_ttf`, download SDL2 CMake dependencies and compile the game.
 This will create `dungeon` binary of the game at `build/dungeon`.
 
@@ -18,10 +18,11 @@ You could also copy the exe file to `src/` directory to run the game from the ex
 
 
 ## Manual instructions for Linux
-Install git and cmake with package manager
+Install git, cmake and compiler with package manager
 ```
 apt-get install git
 apt-get install cmake
+apt-get install build-essential
 ```
 
 Install required SDL packages using the package manager

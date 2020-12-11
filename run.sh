@@ -1,8 +1,11 @@
 #!/bin/sh
 
 
-# Install SDL2
+# Update and install compiler
 apt-get update
+apt-get install build-essential
+
+# Install SDL2
 apt-get install libsdl2-dev
 apt-get install libsdl2-image-dev
 apt-get install libsdl2-ttf-dev
