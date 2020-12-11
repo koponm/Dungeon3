@@ -109,7 +109,7 @@ std::shared_ptr<Item> Player::AddItem(std::shared_ptr<Item> item, std::shared_pt
 	case ItemType::sword:
 	case ItemType::staff:
 	case ItemType::bow:
-		result = item::GetItem((int)x_, (int)y_, textures, weapon_, weapon_);
+		result = item::GetItem((int)x_, (int)y_, textures, weapon_);
 		weapon_ = type;
 	break;
 	}

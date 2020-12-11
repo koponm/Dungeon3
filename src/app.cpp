@@ -17,9 +17,7 @@ App::App(void)
 		default_font_ = TTF_OpenFont("assets/arial.ttf", 16);
 		SDL_SetRenderDrawColor(renderer_, 0, 0, 0, 255);
 		
-		// Riku: If you plan on adding more sounds, check that they're .wav files and their frequency is 44100 hz, otherwise contact me!
-		// .ogg files take up a lot of system memory, check if you can find a way to stream it instead..?
-
+		// Audio
 		Mix_OpenAudio(44100, AUDIO_S16SYS, 2, 4096);
 		Mix_AllocateChannels(4);
 
@@ -33,12 +31,12 @@ App::App(void)
 
 		PlaySound(1, -1);
 
+		// Load textures
 		textures_ = std::shared_ptr<TextureHandler>(new TextureHandler(renderer_));
 
 		player_ = std::shared_ptr<Player>(new Player((textures_->Get(TextureType::player)), 0, 0));
 
 		MainMenu();
-
 
 		//HUD
 		hud_.emplace_back(new HUD_object(textures_->Get(hud), 735, 5, ItemType::sword, 5));
@@ -127,13 +125,14 @@ void App::Update() {
 
 	if (second_timer_ >= 0.5) {
 		second_timer_ -= 0.5;
-		monster::CalculatePath(monsters_, path_tiles_, previous_x, previous_y, size_, room_width_, room_height_);
-		//
+		monster::CalculatePath(monsters_, path_tiles_, previous_x, previous_y, size_, room_width_);
+
 		for (auto& i : monsters_) {
 			if (i->GetTimer() != 0) {
 				i->SetTimer(i->GetTimer() - 0.5);
 			}
 		}
+		// Health and mana regeneration
 		player_->SetMana(std::min(player_->GetMaxMana(), player_->GetMana() + 3.0));
 		player_->SetHealth(std::min(player_->GetMaxHealth(), player_->GetHealth() + 0.2 / difficulty_mult_));
 	}
@@ -142,7 +141,7 @@ void App::Update() {
 		shoot_timer_ -= delta_time_ / fps_desired_;
 	}
 
-	if (f_) {//check if player and item or chest intersect
+	if (f_) {// Check if player and item or chest intersect
 		f_ = false;
 		SDL_Rect rect1 = player_->ReturnRect();
 		if (!items_.empty()){
@@ -179,7 +178,7 @@ void App::Update() {
 						int rx, ry;
 						rx = cos(double(j) / double(lootn) * M_PI * 2.0) * 32;
 						ry = sin(double(j) / double(lootn) * M_PI * 2.0) * 32;
-						std::shared_ptr<Item> temp = item::GetItem(x1 + rx, y1 + ry , textures_, player_->GetWeapon(), ItemType::random, player_->GetLevel());
+						std::shared_ptr<Item> temp = item::GetItem(x1 + rx, y1 + ry , textures_, ItemType::random, player_->GetLevel());
 						if (temp != nullptr) {
 							to_render_.push_back(temp);
 							items_.push_back(temp);
@@ -221,14 +220,14 @@ void App::Update() {
 				
 				if (player_->GetMoney() - 10 >= 0 && player_->GetMoney() > 0) {
 					if (i->GetType()) {
-						std::shared_ptr<Item> temp = item::GetItem(0, 0, textures_, player_->GetWeapon(), ItemType::mana_potion, 0);
+						std::shared_ptr<Item> temp = item::GetItem(0, 0, textures_, ItemType::mana_potion, 0);
 						if (temp != nullptr) {
 							items_.push_back(temp);
 						}
 						temp -> SetActive(false);
 						player_->AddItem(temp, textures_);
 					} else {
-						std::shared_ptr<Item> temp = item::GetItem(0, 0, textures_, player_->GetWeapon(), ItemType::health_potion, 0);
+						std::shared_ptr<Item> temp = item::GetItem(0, 0, textures_, ItemType::health_potion, 0);
 						if (temp != nullptr) {
 							items_.push_back(temp);
 						}
@@ -237,10 +236,8 @@ void App::Update() {
 					}
 					player_->AddMoney(-10);
 				}
-				
 			}
 		}
-
 		
 
 		double xx, yy;
@@ -338,12 +335,7 @@ void App::Update() {
 			PlaySound(4, 0);
 		}
 	}
-	if (three_) {
-		three_ = false;
-		// this could be used for something
-		double l = 1.0 + sqrt(player_->GetLevel() / 2.0) * 0.25 / difficulty_mult_;
-		player_->AddXp(25.0 * l);
-	}
+
 	if (m1_) {
 		m1_ = false;
 		PlayerCastsProjectile((int)previous_x, (int)previous_y);
@@ -482,8 +474,6 @@ void App::Update() {
 					j->GetPos(x3, y3);
 					j->GetRect(w3, h3);
 					if (x2 < ((double)x3 + w3) && x2 + w2 > x3 && y2 < ((double)y3 + h3) && y2 + h2 > y3) {
-						//i->SetVel(1, 0);
-						//i->SetVel(0, 0);
 						i -> SetActive(false);
 					}
 				}
@@ -495,12 +485,9 @@ void App::Update() {
 						j->GetPos(x3, y3);
 						j->GetRect(w3, h3);
 						if (x2 < ((double)x3 + w3) && x2 + w2 > x3 && y2 < ((double)y3 + h3) && y2 + h2 > y3) {
-							//i->SetVel(1, 0);
-							//i->SetVel(0, 0);
 							i->SetActive(false);
 							j->SetHealth(j->GetHealth() - i->GetDamage() * damage_m_);
 							if (j -> GetHealth() <= 0) {
-								// + sqrt(player_ -> GetLevel() / 2.0)
 								double l = 1.0 + sqrt(player_->GetLevel() / 2.0) * 0.25 / difficulty_mult_;
 								player_ -> AddXp(j -> GetMaxHealth() * l);
 								player_ -> AddMoney(5);
@@ -508,10 +495,8 @@ void App::Update() {
 						}
 					}
 				}
-				else { //monsters projectile hit the player
+				else { // Monsters projectile hit the player
 					if (x2 < ((double)x1 + w1) && x2 + w2 > x1 && y2 < ((double)y1 + h1) && y2 + h2 > y1) {
-						//i->SetVel(1, 0);
-						//i->SetVel(0, 0);
 						i->SetActive(false);
 						player_->SetHealth(player_->GetHealth() - (
 							i->GetDamage() * (1.0 + 0.25 * difficulty_) * difficulty_mult_
@@ -540,7 +525,7 @@ void App::Update() {
 		i -> UpdateHUD(player_);
 	}
 
-	//despawn inactive items / mobs
+	// Despawn inactive items / mobs
 	for (auto it = to_render_.begin(); it != to_render_.end();) {
 		if (!((*it)->GetActive())) {
 			it = to_render_.erase(it);
@@ -637,9 +622,6 @@ void App::Event() {
 					break;
 				case SDLK_2:
 					two_ = event.key.type == SDL_KEYDOWN ? true : false;
-					break;
-				case SDLK_3:
-					three_ = event.key.type == SDL_KEYDOWN ? true : false;
 					break;
 				case SDLK_ESCAPE:
 					SDL_Quit();
@@ -793,11 +775,10 @@ void App::Render() {
 	}
 
 	if (bossptr != nullptr) {
-		std::stringstream ss_boss;
-
 		RenderBar(340, 5, 120, 30, bossptr->GetBoss()->GetMaxHealth(), bossptr->GetBoss()->GetHealth(), purple, grey);
 		bossptr->BossPhase();
 		if (bossptr->GetBoss()->GetHealth() <= 0) {
+			// All spawned monsters are cleared if the boss is defeated
 			for (auto& monster : monsters_)
 			{
 				monster->Kill();
@@ -808,7 +789,6 @@ void App::Render() {
 			bossptr = nullptr;
 		}
 	}
-
 	SDL_RenderPresent(renderer_);
 }
 
@@ -829,7 +809,6 @@ void App::PlayerCastsProjectile(int previous_x, int previous_y) {
 			}
 			shoot_timer_ = 0.2 * speed_m_;
 		}
-		// else staff could be melee maybe?
 	break;
 
 	case ItemType::sword:
@@ -849,14 +828,6 @@ void App::PlayerCastsProjectile(int previous_x, int previous_y) {
 			shoot_timer_ = 0.4 * speed_m_;
 			PlaySound(5, 0);
 		}
-	break;
-
-	// case ItemType::sword, melee stuff here
-	// cast ItemType::bow, bow stuff here
-	// For balancing reasons bow should maybe have a shooting cooldown or just lower damage
-	default: // For demonstration reasons, default should probably be melee
-		AddProjectile(TextureType::arrow, previous_x + 8, previous_y + 8, 400, mouse_player_angle_, player_, ProjectileType::Arrow);
-		PlaySound(0, 0); // This should be something else
 	break;
 	}
 }
@@ -911,6 +882,8 @@ void App::AddProjectile(TextureType type, const int& x, const int& y,double spee
 		temp -> SetAngle(angle);
 		temp-> SetImageSpeed(4);
 		break;
+	default:
+		return;
 	}
 	entities_.push_back(temp);
 	projectiles_.push_back(temp);
@@ -1096,7 +1069,6 @@ bool App::AddRoom(const unsigned int& index, const int& x, const int& y) {
 }
 
 void App::Generate() {
-	// TODO: This requires a lot of cleanup! But it works for now
 
 	auto rooms = room_data_.size();
 

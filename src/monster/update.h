@@ -28,15 +28,15 @@ bool getLineOfSight(bool* path_tiles, int current, int target,
 	unsigned int w, unsigned int size);
 
 void A_star_algorithm(std::shared_ptr<Monster> monster, bool* path_tiles, double player_x, double player_y,
-	unsigned int size, unsigned int room_width, unsigned int room_height);
+	unsigned int size, unsigned int room_width);
 
 void CalculatePath(std::vector<std::shared_ptr<Monster>>& monsters, bool* path_tiles, double player_x, double player_y,
-	unsigned size, unsigned int room_width, unsigned int room_height);
+	unsigned size, unsigned int room_width);
 	
 void UpdateMonsters(std::vector<std::shared_ptr<Monster>>& monsters, double delta_speed, const size_t fps, bool can_move,
 	unsigned int room_width, std::vector<std::shared_ptr<Wall>> walls, const Texture& tombstone,
 	std::list<std::shared_ptr<Renderable>>& to_render);
 
-}; // namespace udpate
+}; // namespace monster
 
 #endif // UPDATE_H_

@@ -22,4 +22,4 @@ private:
     ItemType type_;
 };
 
-#endif // !HUD_H_
+#endif // HUD_H_

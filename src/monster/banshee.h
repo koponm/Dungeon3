@@ -14,4 +14,4 @@ public:
 
 };
 
-#endif // GHOST_H_
+#endif // BANSHEE_H_

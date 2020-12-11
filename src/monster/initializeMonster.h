@@ -24,7 +24,6 @@ namespace monster {
 	shared_ptr<Monster> AddMonster(std::vector<std::shared_ptr<Monster>>& monsters, std::shared_ptr<TextureHandler> texture,
 		double x, double y, unsigned int difficulty, MonsterType type = MonsterType::MONSTER_COUNT);
 
-
 } // namespace monster
 
 #endif // INITIALIZE_MONSTER_

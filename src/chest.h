@@ -21,4 +21,4 @@ private:
 	bool opened_ = false;
 };
 
-#endif
+#endif // CHEST_H_

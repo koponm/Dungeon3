@@ -122,7 +122,6 @@ private:
 	bool space_ = false;
 	bool one_ = false;
 	bool two_ = false;
-	bool three_ = false;
 	bool m1_ = false;
 	bool m1_released_ = true;
 

@@ -1,5 +1,7 @@
 #include "initializeMonster.h"
 
+// Random monster generation
+
 namespace monster {
 
 	shared_ptr<Monster> AddMonster(std::vector<std::shared_ptr<Monster>>& monsters, std::shared_ptr<TextureHandler> texture,

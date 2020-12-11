@@ -4,6 +4,7 @@
 
 #include <limits.h>
 
+// Helper structure used by the pathfinding algorithm
 struct LocationNode
 {
 	LocationNode(int _location, int _H) : location(_location), H(_H) {}
