@@ -38,7 +38,7 @@ App::App(void)
 
 		MainMenu();
 
-		//HUD
+		// HUD
 		hud_.emplace_back(new HUD_object(textures_->Get(hud), 735, 5, ItemType::sword, 5));
 		hud_.emplace_back(new HUD_object(textures_->Get(hud), 342, 540, ItemType::health_potion, 0));
 		hud_.emplace_back(new HUD_object(textures_->Get(hud), 400, 540, ItemType::mana_potion, 2));
@@ -141,7 +141,7 @@ void App::Update() {
 		shoot_timer_ -= delta_time_ / fps_desired_;
 	}
 
-	if (f_) {// Check if player and item or chest intersect
+	if (f_) {// Interact
 		f_ = false;
 		SDL_Rect rect1 = player_->ReturnRect();
 		if (!items_.empty()){
@@ -178,7 +178,7 @@ void App::Update() {
 						int rx, ry;
 						rx = cos(double(j) / double(lootn) * M_PI * 2.0) * 32;
 						ry = sin(double(j) / double(lootn) * M_PI * 2.0) * 32;
-						std::shared_ptr<Item> temp = item::GetItem(x1 + rx, y1 + ry , textures_, ItemType::random, player_->GetLevel());
+						std::shared_ptr<Item> temp = item::GetItem(x1 + rx, y1 + ry , textures_, ItemType::ITEM_COUNT, player_->GetLevel());
 						if (temp != nullptr) {
 							to_render_.push_back(temp);
 							items_.push_back(temp);
@@ -521,7 +521,7 @@ void App::Update() {
 		}
 	}
 
-	for (auto i : hud_) {
+	for (auto& i : hud_) {
 		i -> UpdateHUD(player_);
 	}
 
@@ -717,7 +717,7 @@ void App::Render() {
 	player_->Render(renderer_, camera_x_, camera_y_);
 
 	// Render HUD
-	for (auto i : hud_) {
+	for (auto& i : hud_) {
 		i->Render(renderer_, 0, 0);
 	}
 

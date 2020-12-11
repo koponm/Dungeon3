@@ -20,11 +20,11 @@ void Item::GetPos(int& x, int& y) {
 namespace item {
 
 std::shared_ptr<Item> GetItem(const int x, const int y, std::shared_ptr<TextureHandler> textures, ItemType type, float d) {
-	if (type == ItemType::random) { //random if ItemType not given
-		type = static_cast<ItemType>(rand() % (int)(ItemType::random));
+	if (type == ItemType::ITEM_COUNT) { // Randomize if ItemType not given
+		type = static_cast<ItemType>(rand() % (int)(ItemType::ITEM_COUNT));
 	}
 	TextureType t;
-	switch (type) { //get index for texture
+	switch (type) {
 	case ItemType::health_potion:
 		t = TextureType::healthPotion;
 		break;
