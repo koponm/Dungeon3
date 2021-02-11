@@ -12,12 +12,27 @@ This will create `dungeon` binary of the game at `build/dungeon`.
 
 
 Windows:  
-Install Visual Studio 16 2019 and open the solution file (.sln).
-Select dungeon3 as a startup project and run with windows local debugger. This will start the game and create an executable at x64/Debug or x64/Release.
-You could also copy the exe file to `src/` directory to run the game from the executable since all the required .dll files and assets are located there.
+To compile the game, you will need to get the following dll files:  
+SDL2.dll  
+SDL2_image.dll  
+SDL2_mixer.dll  
+SDL2_ttf.dll  
+libfreetype-6.dll  
+libogg-0.dll  
+libpng16-16.dll  
+libvorbis-0.dll  
+libvorbisfile-3.dll  
+zlib1.dll
 
-There is also a precompiled executable for windows located at `src/dungeon.exe` which can be used to run the game if installing visual studio is not possible.
+and include the following libraries  
+SDL2  
+SDL2_image  
+SDL2_mixer  
+SDL2_ttf
 
+You can compile using Visual Studio or minGW.
+If using cmake, you will need cmake dependencies, found at
+https://gitlab.com/aminosbh/sdl2-cmake-modules
 
 ## Manual instructions for Linux
 Install git, cmake and compiler with package manager
